@@ -1,0 +1,7 @@
+material;
+  name      "name";
+  diffuse   1.0 1.0 1.0;
+  specular  1.0 1.0 1.0 1.0;
+  shininess 1.0;
+  alpha     1.0;
+end;

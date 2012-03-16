@@ -1,0 +1,58 @@
+material;
+  name     "chrome";
+  diffuse   0.800000 0.800000 0.800000;
+  ambient   0.000000 0.000000 0.000000;
+  specular  1.000000 1.000000 1.000000 0.500000;
+  shininess 50.000000;
+  alpha     1.000000;
+  texture   "//wasp.png" 1.000000 map_chrome;
+end;
+
+material;
+  name     "cloud_blue";
+  diffuse   0.800000 0.800000 0.800000;
+  ambient   0.000000 0.000000 0.000000;
+  specular  1.000000 1.000000 1.000000 0.500000;
+  shininess 50.000000;
+  alpha     1.000000;
+  texture   "//example.png" 1.000000 map_uv;
+end;
+
+material;
+  name     "matte_red";
+  diffuse   0.800000 0.000000 0.016426;
+  ambient   0.000000 0.000000 0.000000;
+  specular  1.000000 1.000000 1.000000 0.000000;
+  shininess 50.000000;
+  alpha     1.000000;
+end;
+
+material;
+  name     "multi_mat";
+  diffuse   0.800000 0.800000 0.800000;
+  ambient   0.000000 0.000000 0.000000;
+  specular  1.000000 1.000000 1.000000 0.500000;
+  shininess 50.000000;
+  alpha     1.000000;
+  texture   "//example.png" 1.000000 map_uv;
+end;
+
+material;
+  name     "shiny_green";
+  diffuse   0.024285 0.800000 0.000000;
+  ambient   0.000000 0.000000 0.000000;
+  specular  1.000000 1.000000 1.000000 1.000000;
+  shininess 50.000000;
+  alpha     1.000000;
+end;
+
+material;
+  name     "wasp";
+  diffuse   0.800000 0.800000 0.800000;
+  ambient   0.000000 0.000000 0.000000;
+  specular  1.000000 1.000000 1.000000 1.000000;
+  shininess 220.000000;
+  alpha     1.000000;
+  texture   "//wasp.png" 1.000000 map_uv;
+end;
+

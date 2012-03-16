@@ -1,0 +1,5 @@
+object;
+  name "name";
+  material_name "material";
+  vertices;
+    array 65536

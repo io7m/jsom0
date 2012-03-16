@@ -1,0 +1,16 @@
+object;
+  name          "name";
+  material_name "material_name";
+
+  vertices;
+    array 1 vertex_p3n3;
+      vertex_p3n3;
+        position 0.0 0.0 0.0;
+        normal   0.0 1.0 0.0;
+      end;
+    end;
+  end;
+
+  triangles;
+    array 1 triangle;
+      triangle -1

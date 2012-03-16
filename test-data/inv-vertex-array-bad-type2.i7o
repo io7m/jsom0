@@ -1,0 +1,6 @@
+object;
+  name "name";
+  material_name "material";
+  vertices;
+    array 4 vertex_p3n3;
+      boom
