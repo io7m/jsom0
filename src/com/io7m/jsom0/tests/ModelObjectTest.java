@@ -70,8 +70,8 @@ public class ModelObjectTest
           "nothing",
           GLScalarType.TYPE_BYTE,
           1) });
-    final ArrayBuffer vb = gl.allocateArrayBuffer(1, d);
-    final IndexBuffer ib = gl.allocateIndexBuffer(vb, 3);
+    final ArrayBuffer vb = gl.arrayBufferAllocate(1, d);
+    final IndexBuffer ib = gl.indexBufferAllocate(vb, 3);
     new ModelObject("name", "material", null, ib);
   }
 
@@ -87,8 +87,8 @@ public class ModelObjectTest
           "nothing",
           GLScalarType.TYPE_BYTE,
           1) });
-    final ArrayBuffer vb = gl.allocateArrayBuffer(1, d);
-    final IndexBuffer ib = gl.allocateIndexBuffer(vb, 3);
+    final ArrayBuffer vb = gl.arrayBufferAllocate(1, d);
+    final IndexBuffer ib = gl.indexBufferAllocate(vb, 3);
     final ModelObject o = new ModelObject("name", "material", vb, ib);
 
     Assert.assertEquals("name", o.getName());
@@ -111,7 +111,7 @@ public class ModelObjectTest
           "nothing",
           GLScalarType.TYPE_BYTE,
           1) });
-    final ArrayBuffer vb = gl.allocateArrayBuffer(1, d);
+    final ArrayBuffer vb = gl.arrayBufferAllocate(1, d);
     new ModelObject("name", "material", vb, null);
   }
 
@@ -129,8 +129,8 @@ public class ModelObjectTest
           "nothing",
           GLScalarType.TYPE_BYTE,
           1) });
-    final ArrayBuffer vb = gl.allocateArrayBuffer(1, d);
-    final IndexBuffer ib = gl.allocateIndexBuffer(vb, 3);
+    final ArrayBuffer vb = gl.arrayBufferAllocate(1, d);
+    final IndexBuffer ib = gl.indexBufferAllocate(vb, 3);
     new ModelObject("name", null, vb, ib);
   }
 
@@ -148,8 +148,8 @@ public class ModelObjectTest
           "nothing",
           GLScalarType.TYPE_BYTE,
           1) });
-    final ArrayBuffer vb = gl.allocateArrayBuffer(1, d);
-    final IndexBuffer ib = gl.allocateIndexBuffer(vb, 3);
+    final ArrayBuffer vb = gl.arrayBufferAllocate(1, d);
+    final IndexBuffer ib = gl.indexBufferAllocate(vb, 3);
     new ModelObject(null, "material", vb, ib);
   }
 
@@ -165,8 +165,8 @@ public class ModelObjectTest
           "nothing",
           GLScalarType.TYPE_BYTE,
           1) });
-    final ArrayBuffer vb = gl.allocateArrayBuffer(1, d);
-    final IndexBuffer ib = gl.allocateIndexBuffer(vb, 3);
+    final ArrayBuffer vb = gl.arrayBufferAllocate(1, d);
+    final IndexBuffer ib = gl.indexBufferAllocate(vb, 3);
 
     final ModelObject o0 = new ModelObject("name", "material0", vb, ib);
     final ModelObject o1 = new ModelObject("name", "material1", vb, ib);
@@ -189,8 +189,8 @@ public class ModelObjectTest
           "nothing",
           GLScalarType.TYPE_BYTE,
           1) });
-    final ArrayBuffer vb = gl.allocateArrayBuffer(1, d);
-    final IndexBuffer ib = gl.allocateIndexBuffer(vb, 3);
+    final ArrayBuffer vb = gl.arrayBufferAllocate(1, d);
+    final IndexBuffer ib = gl.indexBufferAllocate(vb, 3);
 
     final ModelObject o0 = new ModelObject("name0", "material", vb, ib);
     final ModelObject o1 = new ModelObject("name1", "material", vb, ib);

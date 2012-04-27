@@ -221,15 +221,15 @@ public final class ModelObjectParser
         this.consumeSymbol("triangle");
         this.consume(ModelObjectTokenType.OBJECT_TOKEN_SEMICOLON);
 
-        index_id = this.gl.allocateIndexBuffer(array, (int) (elements * 3));
+        index_id = this.gl.indexBufferAllocate(array, (int) (elements * 3));
         final IndexBufferWritableMap map =
-          this.gl.mapIndexBufferWrite(index_id);
+          this.gl.indexBufferMapWrite(index_id);
 
         for (long index = 0; index < elements; ++index) {
           this.triangle(map);
         }
 
-        this.gl.unmapIndexBuffer(index_id);
+        this.gl.indexBufferUnmap(index_id);
       }
       this.consumeSymbol("end");
       this.consume(ModelObjectTokenType.OBJECT_TOKEN_SEMICOLON);
@@ -405,8 +405,8 @@ public final class ModelObjectParser
         final ArrayBufferDescriptor descriptor =
           Vertex.vertexTypeDescriptor(type);
 
-        array = this.gl.allocateArrayBuffer(elements, descriptor);
-        final ArrayBufferWritableMap map = this.gl.mapArrayBufferWrite(array);
+        array = this.gl.arrayBufferAllocate(elements, descriptor);
+        final ArrayBufferWritableMap map = this.gl.arrayBufferMapWrite(array);
 
         switch (type) {
           case VERTEX_TYPE_P3N3:
@@ -443,7 +443,7 @@ public final class ModelObjectParser
           }
         }
 
-        this.gl.unmapArrayBuffer(array);
+        this.gl.arrayBufferUnmap(array);
       }
       this.consumeSymbol("end");
       this.consume(ModelObjectTokenType.OBJECT_TOKEN_SEMICOLON);

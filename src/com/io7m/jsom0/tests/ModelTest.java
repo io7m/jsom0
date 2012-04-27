@@ -70,8 +70,8 @@ public class ModelTest
           "nothing",
           GLScalarType.TYPE_BYTE,
           1) });
-    final ArrayBuffer vb = gl.allocateArrayBuffer(1, d);
-    final IndexBuffer ib = gl.allocateIndexBuffer(vb, 3);
+    final ArrayBuffer vb = gl.arrayBufferAllocate(1, d);
+    final IndexBuffer ib = gl.indexBufferAllocate(vb, 3);
 
     final Model m = new Model();
     final ModelObject o = new ModelObject("name", "material", vb, ib);
