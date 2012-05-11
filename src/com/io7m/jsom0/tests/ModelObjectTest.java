@@ -27,7 +27,8 @@ public class ModelObjectTest
 {
   @SuppressWarnings("static-method") private final GLInterface getGL()
     throws IOException,
-      ConstraintError
+      ConstraintError,
+      GLException
   {
     final Log log =
       new Log(

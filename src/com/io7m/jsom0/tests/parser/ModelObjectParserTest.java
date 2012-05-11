@@ -28,7 +28,8 @@ public class ModelObjectParserTest
     final String file)
     throws IOException,
       Error,
-      ConstraintError
+      ConstraintError,
+      GLException
   {
     final Log log =
       new Log(
