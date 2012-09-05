@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  Copyright © 2012 http://io7m.com
+
+  Permission to use, copy, modify, and/or distribute this software for any
+  purpose with or without fee is hereby granted, provided that the above
+  copyright notice and this permission notice appear in all copies.
+
+  THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+  WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+  MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+  ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+  WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+  ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+  OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+  -->
+
+<s:document
+  xmlns:s="http://www.io7m.com/schemas/structural/1.0.0"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+  <s:document-title>io7m-jsom0 1.0.0 Documentation</s:document-title>
+  <s:document-style>documentation.css</s:document-style>
+  <s:document-contents/>
+
+  <s:part>
+    <s:part-title>Package Information</s:part-title>
+    <s:part-contents />
+    <s:section>
+      <s:section-title>Orientation</s:section-title>
+      <s:subsection>
+        <s:subsection-title>Overview</s:subsection-title>
+        <s:paragraph>
+          The <s:term type="package">jsom0</s:term> implements a
+          trivial format for 3D models and materials.  The intent is
+          to provide a format that allows the construction of OpenGL
+          vertex buffers during parsing so that large high-polygon
+          models do not have to be kept in memory before being uploaded
+          to the GPU.
+        </s:paragraph>
+      </s:subsection>
+      <s:subsection>
+        <s:subsection-title>Simplicity</s:subsection-title>
+        <s:paragraph>
+          The <s:term type="package">jsom0</s:term> formats are specified as LALR(1)
+          grammars, making hand-parsing trivial. A lexer and a recursive descent
+          parser are included.
+        </s:paragraph>
+      </s:subsection>
+    </s:section>
+
+    <s:section>
+      <s:section-title>Installation</s:section-title>
+      <s:subsection>
+        <s:subsection-title>Source compilation</s:subsection-title>
+        <s:paragraph>
+          The project can be compiled and installed with
+          <s:link-external target="http://maven.apache.org">Maven</s:link-external>:
+        </s:paragraph>
+        <s:paragraph>
+          <s:verbatim type="example"><![CDATA[$ mvn -C clean install]]></s:verbatim>
+        </s:paragraph>
+      </s:subsection>
+      <s:subsection>
+        <s:subsection-title>Maven</s:subsection-title>
+        <s:paragraph>
+          Regular releases are made to the
+          <s:link-external target="http://search.maven.org/#search|ga|1|jsom0">Central Repository</s:link-external>,
+          so it's possible to use the <s:term type="package">jsom0</s:term>
+          package in your projects with the following Maven dependency:
+        </s:paragraph>
+        <s:paragraph>
+          <s:verbatim type="example"><![CDATA[<dependency>
+  <groupId>com.io7m.jsom0.core</groupId>
+  <artifactId>io7m-jsom0-core</artifactId>
+  <version>1.0.0</version>
+</dependency>
+<dependency>
+  <groupId>com.io7m.jsom0.jogl</groupId>
+  <artifactId>io7m-jsom0-jogl</artifactId>
+  <version>1.0.0</version>
+</dependency>
+<dependency>
+  <groupId>com.io7m.jsom0.lwjgl</groupId>
+  <artifactId>io7m-jsom0-lwjgl</artifactId>
+  <version>1.0.0</version>
+</dependency>]]></s:verbatim>
+        </s:paragraph>
+        <s:paragraph>
+          Note that it is possible to omit either (but not both) of the
+          <s:term type="package">jogl</s:term> or
+          <s:term type="package">lwjgl</s:term> packages if your project
+          does not need support for both
+          <s:link-external target="http://jogamp.org">JOGL</s:link-external>
+          and
+          <s:link-external target="http://lwjgl.org">LWJGL</s:link-external>.
+        </s:paragraph>
+      </s:subsection>
+    </s:section>
+
+    <s:section>
+      <s:section-title>Supported Systems</s:section-title>
+      <s:paragraph>
+        This release of the software passed 100% of the included unit tests on
+        the following platforms:
+      </s:paragraph>
+      <s:formal-item kind="platform_table" type="platforms">
+        <s:formal-item-title>Supported systems</s:formal-item-title>
+        <s:table>
+          <s:table-summary>Supported systems</s:table-summary>
+          <s:table-head>
+            <s:table-column-name>OS</s:table-column-name>
+            <s:table-column-name>OS-Version</s:table-column-name>
+            <s:table-column-name>OS-Arch</s:table-column-name>
+            <s:table-column-name>JRE-Vendor</s:table-column-name>
+            <s:table-column-name>JRE-Version</s:table-column-name>
+            <s:table-column-name>JVM</s:table-column-name>
+            <s:table-column-name>JVM-Vendor</s:table-column-name>
+            <s:table-column-name>JVM-Version</s:table-column-name>
+            <s:table-column-name>GL-Vendor</s:table-column-name>
+            <s:table-column-name>GL-Renderer</s:table-column-name>
+            <s:table-column-name>GL-Version</s:table-column-name>
+          </s:table-head>
+          <s:table-body>
+<s:table-row>
+  <s:table-cell>Linux</s:table-cell>
+  <s:table-cell>3.4.4-2-ARCH</s:table-cell>
+  <s:table-cell>x86_64</s:table-cell>
+  <s:table-cell>Sun Microsystems Inc.</s:table-cell>
+  <s:table-cell>1.6.0_24</s:table-cell>
+  <s:table-cell>OpenJDK 64-Bit Server VM</s:table-cell>
+  <s:table-cell>Sun Microsystems Inc.</s:table-cell>
+  <s:table-cell>20.0-b12</s:table-cell>
+  <s:table-cell>Tungsten Graphics, Inc</s:table-cell>
+  <s:table-cell>Mesa DRI Intel(R) Sandybridge Mobile </s:table-cell>
+  <s:table-cell>3.0 Mesa 8.0.3</s:table-cell>
+</s:table-row>
+<s:table-row>
+  <s:table-cell>Linux</s:table-cell>
+  <s:table-cell>3.4.7-1-ARCH</s:table-cell>
+  <s:table-cell>x86_64</s:table-cell>
+  <s:table-cell>Sun Microsystems Inc.</s:table-cell>
+  <s:table-cell>1.6.0_24</s:table-cell>
+  <s:table-cell>OpenJDK 64-Bit Server VM</s:table-cell>
+  <s:table-cell>Sun Microsystems Inc.</s:table-cell>
+  <s:table-cell>20.0-b12</s:table-cell>
+  <s:table-cell>X.Org</s:table-cell>
+  <s:table-cell>Gallium 0.4 on AMD RV730</s:table-cell>
+  <s:table-cell>2.1 Mesa 8.0.4</s:table-cell>
+</s:table-row>
+<s:table-row>
+  <s:table-cell>Linux</s:table-cell>
+  <s:table-cell>3.4.6-1-ARCH</s:table-cell>
+  <s:table-cell>x86_64</s:table-cell>
+  <s:table-cell>Oracle Corporation</s:table-cell>
+  <s:table-cell>1.7.0_05-icedtea</s:table-cell>
+  <s:table-cell>OpenJDK 64-Bit Server VM</s:table-cell>
+  <s:table-cell>Oracle Corporation</s:table-cell>
+  <s:table-cell>23.0-b21</s:table-cell>
+  <s:table-cell>X.Org</s:table-cell>
+  <s:table-cell>Gallium 0.4 on AMD BARTS</s:table-cell>
+  <s:table-cell>2.1 Mesa 8.0.4</s:table-cell>
+</s:table-row>
+<s:table-row>
+  <s:table-cell>Linux</s:table-cell>
+  <s:table-cell>3.2.0-3-amd64</s:table-cell>
+  <s:table-cell>x86_64</s:table-cell>
+  <s:table-cell>Sun Microsystems Inc.</s:table-cell>
+  <s:table-cell>1.6.0_24</s:table-cell>
+  <s:table-cell>OpenJDK 64-Bit Server VM</s:table-cell>
+  <s:table-cell>Sun Microsystems Inc.</s:table-cell>
+  <s:table-cell>20.0-b12</s:table-cell>
+  <s:table-cell>NVIDIA Corporation</s:table-cell>
+  <s:table-cell>Quadro FX 570M/PCIe/SSE</s:table-cell>
+  <s:table-cell>3.3.0 NVIDIA 302.17</s:table-cell>
+</s:table-row>
+<s:table-row>
+  <s:table-cell>Mac OS X</s:table-cell>
+  <s:table-cell>10.6.8</s:table-cell>
+  <s:table-cell>x86_64</s:table-cell>
+  <s:table-cell>Apple Inc.</s:table-cell>
+  <s:table-cell>1.6.0_33</s:table-cell>
+  <s:table-cell>Java HotSpot(TM) 64-Bit Server VM</s:table-cell>
+  <s:table-cell>Apple Inc.</s:table-cell>
+  <s:table-cell>20.8-b03-424</s:table-cell>
+  <s:table-cell>ATI Technologies Inc.</s:table-cell>
+  <s:table-cell>ATI Radeon HD 5670 OpenGL Engine</s:table-cell>
+  <s:table-cell>2.1 ATI-1.6.36</s:table-cell>
+</s:table-row>
+<s:table-row>
+  <s:table-cell>Windows XP</s:table-cell>
+  <s:table-cell>5.1</s:table-cell>
+  <s:table-cell>x86</s:table-cell>
+  <s:table-cell>Oracle Corporation</s:table-cell>
+  <s:table-cell>1.7.0_05</s:table-cell>
+  <s:table-cell>Java HotSpot(TM) Client VM</s:table-cell>
+  <s:table-cell>Oracle Corporation</s:table-cell>
+  <s:table-cell>23.1-b03</s:table-cell>
+  <s:table-cell>ATI Technologies Inc.</s:table-cell>
+  <s:table-cell>ATI Radeon HD 4800 Series</s:table-cell>
+  <s:table-cell>3.3.10362 Compatibility Profile Context</s:table-cell>
+</s:table-row>
+          </s:table-body>
+        </s:table>
+      </s:formal-item>
+    </s:section>
+
+    <s:section>
+      <s:section-title>Platform Specific Issues</s:section-title>
+      <s:paragraph>
+        There are currently no known platform-specific issues.
+      </s:paragraph>
+    </s:section>
+
+    <s:section>
+      <s:section-title>License</s:section-title>
+      <s:paragraph>
+        All files distributed with the <s:term type="package">jsom0</s:term>
+        package are placed under the following license:
+        <s:verbatim type="license"><![CDATA[Copyright © 2012 http://io7m.com
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.]]>
+        </s:verbatim>
+      </s:paragraph>
+    </s:section>
+  </s:part>
+
+  <s:part>
+    <s:part-title>API Reference</s:part-title>
+    <s:part-contents/>
+    <s:section>
+      <s:section-title>Javadoc</s:section-title>
+      <s:paragraph>
+        API documentation for the package is provided via the
+        included <s:link-external target="javadoc">Javadoc</s:link-external>.
+      </s:paragraph>
+    </s:section>
+  </s:part>
+
+</s:document>
