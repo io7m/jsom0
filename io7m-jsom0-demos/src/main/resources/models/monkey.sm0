@@ -1,0 +1,12 @@
+-- Generated 2012-02-13T20:55:37 +0000
+
+material;
+  name     "monkey";
+  diffuse   1.0 1.0 1.0;
+  ambient   0.000000 0.000000 0.000000;
+  specular  1.000000 1.000000 1.000000 1.000000;
+  shininess 100.000000;
+  alpha     1.00000;
+  texture   "/images/monkey.png" 0.25 map_chrome;
+end;
+

@@ -1,0 +1,12 @@
+-- Generated 2012-02-14T16:40:02 +0000
+
+material;
+  name     "wall";
+  diffuse   0.800000 0.800000 0.800000;
+  ambient   0.000000 0.000000 0.000000;
+  specular  1.000000 1.000000 1.000000 0.500000;
+  shininess 50.000000;
+  alpha     1.000000;
+  texture   "//wall.png" 1.000000 map_uv;
+end;
+

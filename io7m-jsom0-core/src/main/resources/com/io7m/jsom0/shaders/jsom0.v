@@ -2,6 +2,7 @@
 
 uniform mat4 matrix_projection;
 uniform mat4 matrix_modelview;
+uniform mat3 matrix_normal;
 
 attribute vec3 position;
 attribute vec3 normal;
@@ -14,10 +15,10 @@ varying vec2 vertex_uv;
 void
 main (void)
 {
+  vertex_uv       = uv;
+  vertex_normal   = matrix_normal * normal;
+
   vec4 p          = matrix_projection * matrix_modelview * vec4(position, 1.0);
-  vec4 n          = matrix_modelview * vec4(normal, 0.0);
   gl_Position     = p;
   vertex_position = p.xyz;
-  vertex_normal   = n.xyz;
-  vertex_uv       = uv;
 }

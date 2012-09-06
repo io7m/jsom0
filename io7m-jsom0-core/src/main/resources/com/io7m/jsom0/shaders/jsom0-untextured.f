@@ -6,7 +6,7 @@ varying vec3 vertex_normal;
 uniform vec3 light_direction;
 uniform vec3 ambient;
 uniform vec3 diffuse;
-uniform vec3 specular;
+uniform vec4 specular;
 
 uniform float shininess;
 uniform float alpha;
@@ -28,7 +28,7 @@ main (void)
   vec3 reflect_direction = reflect(vertex_position_n, vertex_normal);
   float amount_reflect   = dot(reflect_direction, light_direction);
   float specular_factor  = pow(max(amount_reflect, 0.0), shininess);
-  vec3 out_specular      = specular * specular_factor;
+  vec3 out_specular      = specular.xyz * specular_factor;
 
   gl_FragColor = vec4(out_ambient + out_diffuse + out_specular, alpha);
 }
