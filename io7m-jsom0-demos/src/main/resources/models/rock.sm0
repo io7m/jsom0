@@ -5,6 +5,6 @@ material;
   specular  1.000000 1.000000 1.000000 0.500000;
   shininess 50.000000;
   alpha     1.000000;
-  texture   "/home/m0/fossil/com.io7m/io7m-jsom0/io7m-jsom0-demos/src/main/resources/images/rock.png" 1.000000 map_uv;
+  texture   "/images/rock.png" 0.25 map_chrome;
 end;
 
