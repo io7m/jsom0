@@ -47,7 +47,7 @@ public final class ModelTextureMappingNames
     final HashMap<String, ModelTextureMapping> m =
       new HashMap<String, ModelTextureMapping>();
     m.put("map_uv", ModelTextureMapping.MODEL_TEXTURE_MAPPING_UV);
-    m.put("map_chrome", ModelTextureMapping.MODEL_TEXTURE_MAPPING_UV);
+    m.put("map_chrome", ModelTextureMapping.MODEL_TEXTURE_MAPPING_CHROME);
     return m;
   }
 
