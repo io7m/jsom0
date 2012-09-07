@@ -1,11 +1,11 @@
 #!BPY
 
 # Copyright © 2012 http://io7m.com
-# 
+#
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
 # copyright notice and this permission notice appear in all copies.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
 # WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
 # MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
@@ -18,8 +18,8 @@ bl_info = {
   "name":        "io7m-so0 Export",
   "description": "Export to io7m-so0 format",
   "author":      "io7m.com",
-  "version":     (1, 0),
-  "blender":     (2, 6, 0),
+  "version":     (1, 1),
+  "blender":     (2, 6, 3),
   "api":         31236,
   "location":    "File > Export",
   "warning":     "",
@@ -111,7 +111,7 @@ def so0_vertex_add(vertices, index, vertex):
 
 def so0_process_mesh(caller, context, fd, mesh):
   num_vertices  = len (mesh.vertices)
-  num_faces     = len (mesh.faces)
+  num_faces     = len (mesh.polygons)
   vertices      = []
   triangles     = []
   textured      = len (mesh.uv_textures) > 0
@@ -140,118 +140,75 @@ def so0_process_mesh(caller, context, fd, mesh):
   # beyond the first UV map.
   #
   if textured:
-    uv_name = sorted(list(mesh.uv_textures.keys()))[0]
-    uv_map  = mesh.uv_textures[uv_name].data
+    so0_debug("writing textured mesh")
 
-    assert (len (uv_map) >= num_faces)
+    uv_layer = mesh.uv_layers['UVMap'].data
 
-    for face_index in range(num_faces):
-      face    = mesh.faces[face_index]
-      face_uv = uv_map[face_index]
-      indices = face.vertices
-      size    = len (indices)
-
-      assert (size == 3) or (size == 4)
+    for poly in mesh.polygons:
+      size = len (poly.vertices)
+      assert ((size == 3) or (size == 4))
 
       if size == 3:
-        vi0 = indices[0]
-        vi1 = indices[1]
-        vi2 = indices[2]
+        lo0 = poly.loop_start + 0
+        lo1 = poly.loop_start + 1
+        lo2 = poly.loop_start + 2
 
-        assert (vi0 < num_vertices)
-        assert (vi1 < num_vertices)
-        assert (vi2 < num_vertices)
-
-        so0_debug("face[%d] = [%d %d %d]" % (face_index, vi0, vi1, vi2))
+        vi0 = mesh.loops[lo0].vertex_index
+        vi1 = mesh.loops[lo1].vertex_index
+        vi2 = mesh.loops[lo2].vertex_index
 
         v0 = so0_zero_vertex()
-        v0["position"][0] = mesh.vertices[vi0].co[0]
-        v0["position"][1] = mesh.vertices[vi0].co[1]
-        v0["position"][2] = mesh.vertices[vi0].co[2]
-        v0["normal"][0]   = mesh.vertices[vi0].normal[0]
-        v0["normal"][1]   = mesh.vertices[vi0].normal[1]
-        v0["normal"][2]   = mesh.vertices[vi0].normal[2]
-        v0["uv"][0]       = face_uv.uv1[0]
-        v0["uv"][1]       = face_uv.uv1[1]
+        v0["position"] = mesh.vertices[vi0].co
+        v0["normal"]   = mesh.vertices[vi0].normal
+        v0["uv"]       = uv_layer[lo0].uv
 
         v1 = so0_zero_vertex()
-        v1["position"][0] = mesh.vertices[vi1].co[0]
-        v1["position"][1] = mesh.vertices[vi1].co[1]
-        v1["position"][2] = mesh.vertices[vi1].co[2]
-        v1["normal"][0]   = mesh.vertices[vi1].normal[0]
-        v1["normal"][1]   = mesh.vertices[vi1].normal[1]
-        v1["normal"][2]   = mesh.vertices[vi1].normal[2]
-        v1["uv"][0]       = face_uv.uv2[0]
-        v1["uv"][1]       = face_uv.uv2[1]
+        v1["position"] = mesh.vertices[vi1].co
+        v1["normal"]   = mesh.vertices[vi1].normal
+        v1["uv"]       = uv_layer[lo1].uv
 
         v2 = so0_zero_vertex()
-        v2["position"][0] = mesh.vertices[vi2].co[0]
-        v2["position"][1] = mesh.vertices[vi2].co[1]
-        v2["position"][2] = mesh.vertices[vi2].co[2]
-        v2["normal"][0]   = mesh.vertices[vi2].normal[0]
-        v2["normal"][1]   = mesh.vertices[vi2].normal[1]
-        v2["normal"][2]   = mesh.vertices[vi2].normal[2]
-        v2["uv"][0]       = face_uv.uv3[0]
-        v2["uv"][1]       = face_uv.uv3[1]
+        v2["position"] = mesh.vertices[vi2].co
+        v2["normal"]   = mesh.vertices[vi2].normal
+        v2["uv"]       = uv_layer[lo2].uv
 
         new_vi0 = so0_vertex_add(vertices, vi0, v0)
         new_vi1 = so0_vertex_add(vertices, vi1, v1)
         new_vi2 = so0_vertex_add(vertices, vi2, v2)
 
-        t = [new_vi0, new_vi1, new_vi2]
-        triangles.append(t)
+        t0 = [new_vi0, new_vi1, new_vi2]
+
+        triangles.append(t0)
       else:
-        vi0 = indices[0]
-        vi1 = indices[1]
-        vi2 = indices[2]
-        vi3 = indices[3]
+        lo0 = poly.loop_start + 0
+        lo1 = poly.loop_start + 1
+        lo2 = poly.loop_start + 2
+        lo3 = poly.loop_start + 3
 
-        assert (vi0 < num_vertices)
-        assert (vi1 < num_vertices)
-        assert (vi2 < num_vertices)
-        assert (vi3 < num_vertices)
-
-        so0_debug("face[%d] = [%d %d %d %d]" % (face_index, vi0, vi1, vi2, vi3))
+        vi0 = mesh.loops[lo0].vertex_index
+        vi1 = mesh.loops[lo1].vertex_index
+        vi2 = mesh.loops[lo2].vertex_index
+        vi3 = mesh.loops[lo3].vertex_index
 
         v0 = so0_zero_vertex()
-        v0["position"][0] = mesh.vertices[vi0].co[0]
-        v0["position"][1] = mesh.vertices[vi0].co[1]
-        v0["position"][2] = mesh.vertices[vi0].co[2]
-        v0["normal"][0]   = mesh.vertices[vi0].normal[0]
-        v0["normal"][1]   = mesh.vertices[vi0].normal[1]
-        v0["normal"][2]   = mesh.vertices[vi0].normal[2]
-        v0["uv"][0]       = face_uv.uv1[0]
-        v0["uv"][1]       = face_uv.uv1[1]
+        v0["position"] = mesh.vertices[vi0].co
+        v0["normal"]   = mesh.vertices[vi0].normal
+        v0["uv"]       = uv_layer[lo0].uv
 
         v1 = so0_zero_vertex()
-        v1["position"][0] = mesh.vertices[vi1].co[0]
-        v1["position"][1] = mesh.vertices[vi1].co[1]
-        v1["position"][2] = mesh.vertices[vi1].co[2]
-        v1["normal"][0]   = mesh.vertices[vi1].normal[0]
-        v1["normal"][1]   = mesh.vertices[vi1].normal[1]
-        v1["normal"][2]   = mesh.vertices[vi1].normal[2]
-        v1["uv"][0]       = face_uv.uv2[0]
-        v1["uv"][1]       = face_uv.uv2[1]
+        v1["position"] = mesh.vertices[vi1].co
+        v1["normal"]   = mesh.vertices[vi1].normal
+        v1["uv"]       = uv_layer[lo1].uv
 
         v2 = so0_zero_vertex()
-        v2["position"][0] = mesh.vertices[vi2].co[0]
-        v2["position"][1] = mesh.vertices[vi2].co[1]
-        v2["position"][2] = mesh.vertices[vi2].co[2]
-        v2["normal"][0]   = mesh.vertices[vi2].normal[0]
-        v2["normal"][1]   = mesh.vertices[vi2].normal[1]
-        v2["normal"][2]   = mesh.vertices[vi2].normal[2]
-        v2["uv"][0]       = face_uv.uv3[0]
-        v2["uv"][1]       = face_uv.uv3[1]
+        v2["position"] = mesh.vertices[vi2].co
+        v2["normal"]   = mesh.vertices[vi2].normal
+        v2["uv"]       = uv_layer[lo2].uv
 
         v3 = so0_zero_vertex()
-        v3["position"][0] = mesh.vertices[vi3].co[0]
-        v3["position"][1] = mesh.vertices[vi3].co[1]
-        v3["position"][2] = mesh.vertices[vi3].co[2]
-        v3["normal"][0]   = mesh.vertices[vi3].normal[0]
-        v3["normal"][1]   = mesh.vertices[vi3].normal[1]
-        v3["normal"][2]   = mesh.vertices[vi3].normal[2]
-        v3["uv"][0]       = face_uv.uv4[0]
-        v3["uv"][1]       = face_uv.uv4[1]
+        v3["position"] = mesh.vertices[vi3].co
+        v3["normal"]   = mesh.vertices[vi3].normal
+        v3["uv"]       = uv_layer[lo3].uv
 
         new_vi0 = so0_vertex_add(vertices, vi0, v0)
         new_vi1 = so0_vertex_add(vertices, vi1, v1)
@@ -260,12 +217,87 @@ def so0_process_mesh(caller, context, fd, mesh):
 
         t0 = [new_vi0, new_vi1, new_vi2]
         t1 = [new_vi0, new_vi2, new_vi3]
+
         triangles.append(t0)
         triangles.append(t1)
       #endif
-    #endfor 
+    #endfor
+  else:
+    so0_debug("writing untextured mesh")
+
+    for poly in mesh.polygons:
+      size = len (poly.vertices)
+      assert ((size == 3) or (size == 4))
+
+      if size == 3:
+        lo0 = poly.loop_start + 0
+        lo1 = poly.loop_start + 1
+        lo2 = poly.loop_start + 2
+
+        vi0 = mesh.loops[lo0].vertex_index
+        vi1 = mesh.loops[lo1].vertex_index
+        vi2 = mesh.loops[lo2].vertex_index
+
+        v0 = so0_zero_vertex()
+        v0["position"] = mesh.vertices[vi0].co
+        v0["normal"]   = mesh.vertices[vi0].normal
+
+        v1 = so0_zero_vertex()
+        v1["position"] = mesh.vertices[vi1].co
+        v1["normal"]   = mesh.vertices[vi1].normal
+
+        v2 = so0_zero_vertex()
+        v2["position"] = mesh.vertices[vi2].co
+        v2["normal"]   = mesh.vertices[vi2].normal
+
+        new_vi0 = so0_vertex_add(vertices, vi0, v0)
+        new_vi1 = so0_vertex_add(vertices, vi1, v1)
+        new_vi2 = so0_vertex_add(vertices, vi2, v2)
+
+        t0 = [new_vi0, new_vi1, new_vi2]
+
+        triangles.append(t0)
+      else:
+        lo0 = poly.loop_start + 0
+        lo1 = poly.loop_start + 1
+        lo2 = poly.loop_start + 2
+        lo3 = poly.loop_start + 3
+
+        vi0 = mesh.loops[lo0].vertex_index
+        vi1 = mesh.loops[lo1].vertex_index
+        vi2 = mesh.loops[lo2].vertex_index
+        vi3 = mesh.loops[lo3].vertex_index
+
+        v0 = so0_zero_vertex()
+        v0["position"] = mesh.vertices[vi0].co
+        v0["normal"]   = mesh.vertices[vi0].normal
+
+        v1 = so0_zero_vertex()
+        v1["position"] = mesh.vertices[vi1].co
+        v1["normal"]   = mesh.vertices[vi1].normal
+
+        v2 = so0_zero_vertex()
+        v2["position"] = mesh.vertices[vi2].co
+        v2["normal"]   = mesh.vertices[vi2].normal
+
+        v3 = so0_zero_vertex()
+        v3["position"] = mesh.vertices[vi3].co
+        v3["normal"]   = mesh.vertices[vi3].normal
+
+        new_vi0 = so0_vertex_add(vertices, vi0, v0)
+        new_vi1 = so0_vertex_add(vertices, vi1, v1)
+        new_vi2 = so0_vertex_add(vertices, vi2, v2)
+        new_vi3 = so0_vertex_add(vertices, vi3, v3)
+
+        t0 = [new_vi0, new_vi1, new_vi2]
+        t1 = [new_vi0, new_vi2, new_vi3]
+
+        triangles.append(t0)
+        triangles.append(t1)
+      #endif
+    #endfor
   #endif
- 
+
   #
   # Write out the object data.
   #
@@ -322,7 +354,7 @@ def so0_process_mesh(caller, context, fd, mesh):
   out("    array " + str (len(triangles)) + " triangle;\n")
   for t in triangles:
     out("      triangle %d %d %d;\n" % (t[0], t[1], t[2]))
-  #endfor 
+  #endfor
   out("    end;\n")
   out("  end;\n")
   out("end;\n")
@@ -331,7 +363,7 @@ def so0_process_mesh(caller, context, fd, mesh):
 
 def so0_export(caller, context, file_path, objects):
   so0_info("exporting %s" % (file_path))
- 
+
   fd = open(file_path, 'w')
   fd.write("-- Generated " + time.strftime("%Y-%m-%dT%H:%M:%S %z") + "\n")
   fd.write("\n")
