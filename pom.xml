@@ -59,6 +59,7 @@
     <module>io7m-jsom0-lwjgl</module>
     <module>io7m-jsom0-jogl</module>
     <module>io7m-jsom0-demos</module>
+    <module>io7m-jsom0-demos-lwjgl</module>
   </modules>
 
   <reporting>
@@ -192,15 +193,15 @@
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <version>2.3</version>
-        <configuration>
-          <descriptors>
-            <descriptor>assembly-doc.xml</descriptor>
-          </descriptors>
-        </configuration>
         <executions>
           <execution>
-            <id>make-assembly</id>
+            <id>make-doc-assembly</id>
             <phase>package</phase>
+            <configuration>
+              <descriptors>
+                <descriptor>assembly-doc.xml</descriptor>
+              </descriptors>
+            </configuration>
             <goals>
               <goal>single</goal>
             </goals>
