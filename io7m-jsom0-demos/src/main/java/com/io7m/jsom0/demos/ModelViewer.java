@@ -188,9 +188,7 @@ public final class ModelViewer
   private final float                        texture_alpha;
   private final @Nonnull Texture2DRGBAStatic texture;
   private final @Nonnull String              texture_directory;
-
   private final @Nonnull VectorReadable4F    background_color;
-
   private final @Nonnull MatrixM4x4F         matrix_view;
   private final @Nonnull MatrixM4x4F         matrix_projection;
   private final @Nonnull MatrixM4x4F         matrix_model;
