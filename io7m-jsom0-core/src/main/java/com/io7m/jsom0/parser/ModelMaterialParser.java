@@ -8,6 +8,7 @@ import javax.annotation.Nonnull;
 
 import com.io7m.jaux.Constraints;
 import com.io7m.jaux.Constraints.ConstraintError;
+import com.io7m.jaux.UnreachableCodeException;
 import com.io7m.jaux.functional.Indeterminate;
 import com.io7m.jaux.functional.Indeterminate.Failure;
 import com.io7m.jaux.functional.Indeterminate.Success;
@@ -182,8 +183,7 @@ public final class ModelMaterialParser
       }
     }
 
-    /* UNREACHABLE */
-    throw new AssertionError("unreachable code: report this bug!");
+    throw new UnreachableCodeException();
   }
 
   public @Nonnull ModelMaterial modelMaterial()

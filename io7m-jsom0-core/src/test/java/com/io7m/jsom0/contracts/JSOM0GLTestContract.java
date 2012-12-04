@@ -1,15 +1,13 @@
 package com.io7m.jsom0.contracts;
 
 import com.io7m.jaux.Constraints.ConstraintError;
+import com.io7m.jaux.functional.Option;
 import com.io7m.jcanephora.GLException;
 import com.io7m.jcanephora.GLInterface;
-import com.io7m.jlog.Log;
 
-public interface Jsom0GLTestContract
+public interface JSOM0GLTestContract extends JSOM0LogTestContract
 {
-  public Log getLog();
-
-  public GLInterface makeNewGL()
+  public Option<GLInterface> makeNewGL()
     throws GLException,
       ConstraintError;
 }

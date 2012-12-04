@@ -1,5 +1,9 @@
 package com.io7m.jsom0.parser;
 
+import javax.annotation.Nonnull;
+
+import com.io7m.jaux.UnreachableCodeException;
+
 public final class ModelObjectToken
 {
   public static String prettyTypeName(
@@ -20,13 +24,12 @@ public final class ModelObjectToken
         return "semicolon";
     }
 
-    throw new AssertionError("unreachable code: report this bug!");
+    throw new UnreachableCodeException();
   }
 
-  public final Position             position;
-  public final ModelObjectTokenType type;
-
-  public final String               value;
+  public final @Nonnull Position             position;
+  public final @Nonnull ModelObjectTokenType type;
+  public final @Nonnull String               value;
 
   public ModelObjectToken(
     final ModelObjectTokenType type,
@@ -60,42 +63,25 @@ public final class ModelObjectToken
       return false;
     }
     final ModelObjectToken other = (ModelObjectToken) obj;
-    if (this.position == null) {
-      if (other.position != null) {
-        return false;
-      }
-    } else if (!this.position.equals(other.position)) {
+    if (!this.position.equals(other.position)) {
       return false;
     }
     if (this.type != other.type) {
       return false;
     }
-    if (this.value == null) {
-      if (other.value != null) {
-        return false;
-      }
-    } else if (!this.value.equals(other.value)) {
+    if (!this.value.equals(other.value)) {
       return false;
     }
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#hashCode()
-   */
   @Override public int hashCode()
   {
     final int prime = 31;
     int result = 1;
-    result =
-      (prime * result)
-        + ((this.position == null) ? 0 : this.position.hashCode());
-    result =
-      (prime * result) + ((this.type == null) ? 0 : this.type.hashCode());
-    result =
-      (prime * result) + ((this.value == null) ? 0 : this.value.hashCode());
+    result = (prime * result) + this.position.hashCode();
+    result = (prime * result) + this.type.hashCode();
+    result = (prime * result) + this.value.hashCode();
     return result;
   }
 
@@ -112,7 +98,7 @@ public final class ModelObjectToken
         return ModelObjectToken.prettyTypeName(this.type);
     }
 
-    throw new AssertionError("unreachable code: report this bug");
+    throw new UnreachableCodeException();
   }
 
   @Override public String toString()

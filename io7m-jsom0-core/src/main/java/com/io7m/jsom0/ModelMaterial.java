@@ -19,9 +19,11 @@ public final class ModelMaterial
   public final @Nonnull Option<ModelTexture> texture;
   public float                               alpha;
 
-  private static final String                EOL =
-                                                   System
-                                                     .getProperty("line.separator");
+  private static final @Nonnull String       EOL;
+
+  static {
+    EOL = System.getProperty("line.separator");
+  }
 
   private static final String vector3f(
     final VectorM3F v)

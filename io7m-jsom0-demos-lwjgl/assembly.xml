@@ -1,0 +1,87 @@
+<assembly
+  xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd">
+
+  <id>dist</id>
+  <baseDirectory>${project.name}-${project.version}</baseDirectory>
+
+  <formats>
+    <format>zip</format>
+  </formats>
+
+  <files>
+    <file>
+      <outputDirectory>/</outputDirectory>
+      <fileMode>0755</fileMode>
+      <source>src/main/sh/jsom0-demos-model-viewer.sh</source>
+      <destName>jsom0-demos-lwjgl-model-viewer.sh</destName>
+    </file>
+  </files>
+
+  <dependencySets>
+
+    <!-- Save all dependency jar files to /lib -->
+    <dependencySet>
+      <outputDirectory>/lib</outputDirectory>
+      <useProjectArtifact>true</useProjectArtifact>
+      <unpack>false</unpack>
+      <scope>runtime</scope>
+      <excludes>
+        <exclude>org.lwjgl.lwjgl:lwjgl-platform*</exclude>
+      </excludes>
+    </dependencySet>
+
+    <!-- Unpack Linux LWJGL natives to lib/native/linux -->
+    <dependencySet>
+      <outputDirectory>/lib/native/linux</outputDirectory>
+      <useProjectArtifact>true</useProjectArtifact>
+      <unpack>true</unpack>
+      <unpackOptions>
+        <excludes>
+          <exclude>META-INF/*</exclude>
+          <exclude>META-INF*</exclude>
+        </excludes>
+      </unpackOptions>
+      <scope>runtime</scope>
+      <includes>
+        <include>org.lwjgl.lwjgl:lwjgl-platform:*:natives-linux</include>
+      </includes>
+    </dependencySet>
+
+    <!-- Unpack OS X LWJGL natives to lib/native/osx -->
+    <dependencySet>
+      <outputDirectory>/lib/native/osx</outputDirectory>
+      <useProjectArtifact>true</useProjectArtifact>
+      <unpack>true</unpack>
+      <unpackOptions>
+        <excludes>
+          <exclude>META-INF/*</exclude>
+          <exclude>META-INF*</exclude>
+        </excludes>
+      </unpackOptions>
+      <scope>runtime</scope>
+      <includes>
+        <include>org.lwjgl.lwjgl:lwjgl-platform:*:natives-osx</include>
+      </includes>
+    </dependencySet>
+
+    <!-- Unpack Windows LWJGL natives to lib/native/windows -->
+    <dependencySet>
+      <outputDirectory>/lib/native/windows</outputDirectory>
+      <useProjectArtifact>true</useProjectArtifact>
+      <unpack>true</unpack>
+      <unpackOptions>
+        <excludes>
+          <exclude>META-INF/*</exclude>
+          <exclude>META-INF*</exclude>
+        </excludes>
+      </unpackOptions>
+      <scope>runtime</scope>
+      <includes>
+        <include>org.lwjgl.lwjgl:lwjgl-platform:*:natives-windows</include>
+      </includes>
+    </dependencySet>
+
+  </dependencySets>
+</assembly>

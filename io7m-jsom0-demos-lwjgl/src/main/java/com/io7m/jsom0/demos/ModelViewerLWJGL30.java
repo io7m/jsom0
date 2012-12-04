@@ -14,7 +14,7 @@ import com.io7m.jaux.Constraints.ConstraintError;
 import com.io7m.jcanephora.GLCompileException;
 import com.io7m.jcanephora.GLException;
 import com.io7m.jcanephora.GLInterface;
-import com.io7m.jcanephora.GLInterfaceLWJGL30;
+import com.io7m.jcanephora.GLInterface_LWJGL30;
 import com.io7m.jlog.Log;
 import com.io7m.jsom0.parser.Error;
 import com.io7m.jvvfs.FilesystemError;
@@ -77,7 +77,7 @@ public final class ModelViewerLWJGL30
         "true");
 
       final Log log = new Log(p, "com.io7m.jsom0.demos", "mv");
-      final GLInterface g = new GLInterfaceLWJGL30(log);
+      final GLInterface g = new GLInterface_LWJGL30(log);
 
       final ModelViewer viewer =
         new ModelViewer(

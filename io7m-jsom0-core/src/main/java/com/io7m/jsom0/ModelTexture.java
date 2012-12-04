@@ -11,9 +11,11 @@ public final class ModelTexture
   public float                              alpha;
   public final @Nonnull ModelTextureMapping mapping;
 
-  private static final String               EOL =
-                                                  System
-                                                    .getProperty("line.separator");
+  private static final @Nonnull String      EOL;
+
+  static {
+    EOL = System.getProperty("line.separator");
+  }
 
   public ModelTexture(
     final @Nonnull String name,

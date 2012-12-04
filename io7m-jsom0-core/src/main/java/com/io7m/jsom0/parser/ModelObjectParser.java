@@ -8,37 +8,41 @@ import javax.annotation.Nonnull;
 
 import com.io7m.jaux.Constraints;
 import com.io7m.jaux.Constraints.ConstraintError;
+import com.io7m.jaux.UnreachableCodeException;
 import com.io7m.jaux.functional.Option;
-import com.io7m.jcanephora.ArrayBuffer;
-import com.io7m.jcanephora.ArrayBufferCursorWritable2f;
-import com.io7m.jcanephora.ArrayBufferCursorWritable3f;
-import com.io7m.jcanephora.ArrayBufferDescriptor;
-import com.io7m.jcanephora.ArrayBufferWritableMap;
-import com.io7m.jcanephora.GLException;
-import com.io7m.jcanephora.GLInterface;
-import com.io7m.jcanephora.IndexBuffer;
-import com.io7m.jcanephora.IndexBufferWritableMap;
 import com.io7m.jlog.Log;
 import com.io7m.jsom0.ModelObject;
-import com.io7m.jsom0.Vertex;
+import com.io7m.jsom0.VertexTypeInformation;
 import com.io7m.jsom0.VertexType;
 import com.io7m.jtensors.VectorM2F;
 import com.io7m.jtensors.VectorM3F;
+import com.io7m.jtensors.VectorReadable2F;
+import com.io7m.jtensors.VectorReadable3F;
 
-public final class ModelObjectParser
+/**
+ * A generic parser type that parses model objects of type <code>O</code> and
+ * may raise exceptions of type <code>E</code> (in addition to the normal
+ * parser or I/O errors, whilst parsing.
+ * 
+ * @param <O>
+ *          The type of model object.
+ * @param <E>
+ *          The type of exceptions raised.
+ */
+
+public abstract class ModelObjectParser<O extends ModelObject, E extends Throwable>
 {
   private final @Nonnull Log              log;
   private final @Nonnull ModelObjectLexer lexer;
   private final @Nonnull String           file_name;
   private @CheckForNull ModelObjectToken  token;
-  private final @Nonnull GLInterface      gl;
   private int                             highest_vertex = 0;
-  private int                             triangle_index = 0;
+  private final @Nonnull VectorM3F        bound_lower;
+  private final @Nonnull VectorM3F        bound_upper;
 
-  public ModelObjectParser(
+  ModelObjectParser(
     final @Nonnull String file_name,
     final @Nonnull InputStream in,
-    final @Nonnull GLInterface gl,
     final @Nonnull Log log)
     throws ConstraintError,
       IOException,
@@ -51,13 +55,22 @@ public final class ModelObjectParser
     this.lexer =
       new ModelObjectLexer(Constraints.constrainNotNull(in, "input stream"));
     this.file_name = Constraints.constrainNotNull(file_name, "file name");
-    this.gl = Constraints.constrainNotNull(gl, "OpenGL interface");
     this.token = this.lexer.token();
+
+    this.bound_lower = new VectorM3F();
+    this.bound_lower.x = Float.MAX_VALUE;
+    this.bound_lower.y = Float.MAX_VALUE;
+    this.bound_lower.z = Float.MAX_VALUE;
+
+    this.bound_upper = new VectorM3F();
+    this.bound_upper.x = Float.MIN_VALUE;
+    this.bound_upper.y = Float.MIN_VALUE;
+    this.bound_upper.z = Float.MIN_VALUE;
 
     this.log.info("parsing " + this.file_name);
   }
 
-  private void checkIndex(
+  private final void checkIndex(
     final int value,
     final int minimum,
     final int maximum)
@@ -72,7 +85,7 @@ public final class ModelObjectParser
     }
   }
 
-  private void consume(
+  private final void consume(
     final @Nonnull ModelObjectTokenType type)
     throws IOException,
       Error
@@ -86,7 +99,7 @@ public final class ModelObjectParser
     this.token = this.lexer.token();
   }
 
-  private void consumeSymbol(
+  private final void consumeSymbol(
     final @Nonnull String symbol)
     throws IOException,
       Error
@@ -110,7 +123,70 @@ public final class ModelObjectParser
     this.log.debug(this.file_name + " " + message);
   }
 
-  private @Nonnull String materialName()
+  abstract void eventIndexBufferAllocate(
+    final long count)
+    throws E,
+      ConstraintError;
+
+  abstract void eventIndexBufferAppendTriangle(
+    final long v0,
+    final long v1,
+    final long v2)
+    throws E,
+      ConstraintError;
+
+  abstract void eventIndexBufferCompleted()
+    throws E,
+      ConstraintError;
+
+  abstract void eventMaterialName(
+    final @Nonnull String name)
+    throws E,
+      ConstraintError;
+
+  abstract @Nonnull O eventModelObjectCompleted()
+    throws E,
+      ConstraintError;
+
+  abstract void eventObjectName(
+    final @Nonnull String name)
+    throws E,
+      ConstraintError;
+
+  abstract void eventVertexBufferAllocate(
+    final @Nonnull VertexType type,
+    final long count)
+    throws E,
+      ConstraintError;
+
+  abstract void eventVertexBufferAppendP3N3(
+    final @Nonnull VectorReadable3F position,
+    final @Nonnull VectorReadable3F normal)
+    throws E,
+      ConstraintError;
+
+  abstract void eventVertexBufferAppendP3N3T2(
+    final @Nonnull VectorReadable3F position,
+    final @Nonnull VectorReadable3F normal,
+    final @Nonnull VectorReadable2F uv)
+    throws E,
+      ConstraintError;
+
+  abstract void eventVertexBufferCompleted()
+    throws E,
+      ConstraintError;
+
+  final @Nonnull VectorReadable3F getBoundLower()
+  {
+    return this.bound_lower;
+  }
+
+  final @Nonnull VectorReadable3F getBoundUpper()
+  {
+    return this.bound_upper;
+  }
+
+  private final @Nonnull String materialName()
     throws IOException,
       Error
   {
@@ -123,33 +199,36 @@ public final class ModelObjectParser
     return value;
   }
 
-  public @Nonnull ModelObject modelObject()
+  public final @Nonnull O modelObject()
     throws IOException,
       Error,
       ConstraintError,
-      GLException
+      E
   {
     assert this.log != null;
     assert this.file_name != null;
 
     this.highest_vertex = 0;
-    this.triangle_index = 0;
 
     this.consumeSymbol("object");
     this.consume(ModelObjectTokenType.OBJECT_TOKEN_SEMICOLON);
 
     final String name = this.objectName();
+    this.eventObjectName(name);
+
     final String material_name = this.materialName();
-    final ArrayBuffer vertices_buffer = this.vertices();
-    final IndexBuffer index_buffer = this.triangles(vertices_buffer);
+    this.eventMaterialName(material_name);
+
+    this.vertices();
+    this.triangles();
 
     this.consumeSymbol("end");
     this.consume(ModelObjectTokenType.OBJECT_TOKEN_SEMICOLON);
 
-    return new ModelObject(name, material_name, vertices_buffer, index_buffer);
+    return this.eventModelObjectCompleted();
   }
 
-  private @Nonnull String objectName()
+  private final @Nonnull String objectName()
     throws IOException,
       Error
   {
@@ -162,14 +241,14 @@ public final class ModelObjectParser
     return value;
   }
 
-  private void triangle(
-    final @Nonnull IndexBufferWritableMap map)
+  private final void triangle()
     throws IOException,
-      Error
+      Error,
+      E,
+      ConstraintError
   {
-    assert map != null;
-
     this.consumeSymbol("triangle");
+
     final int i0 = Integer.parseInt(this.token.value);
     this.checkIndex(i0, 0, this.highest_vertex);
     this.consume(ModelObjectTokenType.OBJECT_TOKEN_LITERAL_DECIMAL);
@@ -182,24 +261,15 @@ public final class ModelObjectParser
     this.consume(ModelObjectTokenType.OBJECT_TOKEN_SEMICOLON);
 
     this.debug("triangle [" + i0 + " " + i1 + " " + i2 + "]");
-
-    map.put(this.triangle_index, i0);
-    ++this.triangle_index;
-    map.put(this.triangle_index, i1);
-    ++this.triangle_index;
-    map.put(this.triangle_index, i2);
-    ++this.triangle_index;
+    this.eventIndexBufferAppendTriangle(i0, i1, i2);
   }
 
-  private IndexBuffer triangles(
-    final @Nonnull ArrayBuffer array)
+  private final void triangles()
     throws IOException,
       Error,
-      GLException,
+      E,
       ConstraintError
   {
-    IndexBuffer index_id = null;
-
     this.debug("parsing triangles");
 
     this.consumeSymbol("triangles");
@@ -221,48 +291,55 @@ public final class ModelObjectParser
         this.consumeSymbol("triangle");
         this.consume(ModelObjectTokenType.OBJECT_TOKEN_SEMICOLON);
 
-        index_id = this.gl.indexBufferAllocate(array, (int) (elements * 3));
-        final IndexBufferWritableMap map =
-          this.gl.indexBufferMapWrite(index_id);
+        this.eventIndexBufferAllocate(elements * 3);
 
         for (long index = 0; index < elements; ++index) {
-          this.triangle(map);
+          this.triangle();
         }
 
-        this.gl.indexBufferUnmap(index_id);
+        this.eventIndexBufferCompleted();
       }
       this.consumeSymbol("end");
       this.consume(ModelObjectTokenType.OBJECT_TOKEN_SEMICOLON);
     }
     this.consumeSymbol("end");
     this.consume(ModelObjectTokenType.OBJECT_TOKEN_SEMICOLON);
-    return index_id;
-
   }
 
-  public Option<ModelObject> tryModelObject()
+  public final Option<O> tryModelObject()
     throws IOException,
       Error,
-      GLException,
-      ConstraintError
+      ConstraintError,
+      E
   {
     assert this.token != null;
 
     switch (this.token.type) {
       case OBJECT_TOKEN_EOF:
-        return new Option.None<ModelObject>();
+        return new Option.None<O>();
       case OBJECT_TOKEN_LITERAL_DECIMAL:
       case OBJECT_TOKEN_LITERAL_FLOAT:
       case OBJECT_TOKEN_LITERAL_STRING:
       case OBJECT_TOKEN_SEMICOLON:
       case OBJECT_TOKEN_SYMBOL:
-        return new Option.Some<ModelObject>(this.modelObject());
+        return new Option.Some<O>(this.modelObject());
     }
 
-    throw new AssertionError("unreachable code: report this bug");
+    throw new UnreachableCodeException();
   }
 
-  private @Nonnull VectorM2F vector2f()
+  private final void updateBounds(
+    final @Nonnull VectorReadable3F position)
+  {
+    this.bound_lower.x = Math.min(this.bound_lower.x, position.getXF());
+    this.bound_lower.y = Math.min(this.bound_lower.y, position.getYF());
+    this.bound_lower.z = Math.min(this.bound_lower.z, position.getZF());
+    this.bound_upper.x = Math.max(this.bound_upper.x, position.getXF());
+    this.bound_upper.y = Math.max(this.bound_upper.y, position.getYF());
+    this.bound_upper.z = Math.max(this.bound_upper.z, position.getZF());
+  }
+
+  private final @Nonnull VectorM2F vector2f()
     throws IOException,
       Error
   {
@@ -276,7 +353,7 @@ public final class ModelObjectParser
     return v;
   }
 
-  private @Nonnull VectorM3F vector3f()
+  private final @Nonnull VectorM3F vector3f()
     throws IOException,
       Error
   {
@@ -292,7 +369,7 @@ public final class ModelObjectParser
     return v;
   }
 
-  private @Nonnull VectorM3F vertexNormal()
+  private final @Nonnull VectorM3F vertexNormal()
     throws IOException,
       Error
   {
@@ -302,14 +379,15 @@ public final class ModelObjectParser
     return v;
   }
 
-  private void vertexP3N3(
-    final @Nonnull ArrayBufferCursorWritable3f cursor_position,
-    final @Nonnull ArrayBufferCursorWritable3f cursor_normal)
+  private final void vertexP3N3()
     throws IOException,
       Error,
-      ConstraintError
+      ConstraintError,
+      E
   {
-    this.consumeSymbol(Vertex.vertexTypeName(VertexType.VERTEX_TYPE_P3N3));
+    ++this.highest_vertex;
+
+    this.consumeSymbol(VertexTypeInformation.vertexTypeName(VertexType.VERTEX_TYPE_P3N3));
     this.consume(ModelObjectTokenType.OBJECT_TOKEN_SEMICOLON);
 
     final VectorM3F position = this.vertexPosition();
@@ -321,19 +399,19 @@ public final class ModelObjectParser
     this.debug("position " + position);
     this.debug("normal   " + normal);
 
-    cursor_position.put3f(position.x, position.y, position.z);
-    cursor_normal.put3f(normal.x, normal.y, normal.z);
+    this.updateBounds(position);
+    this.eventVertexBufferAppendP3N3(position, normal);
   }
 
-  private void vertexP3N3T2(
-    final @Nonnull ArrayBufferCursorWritable3f cursor_position,
-    final @Nonnull ArrayBufferCursorWritable3f cursor_normal,
-    final @Nonnull ArrayBufferCursorWritable2f cursor_uv)
+  private final void vertexP3N3T2()
     throws IOException,
       Error,
-      ConstraintError
+      ConstraintError,
+      E
   {
-    this.consumeSymbol(Vertex.vertexTypeName(VertexType.VERTEX_TYPE_P3N3T2));
+    ++this.highest_vertex;
+
+    this.consumeSymbol(VertexTypeInformation.vertexTypeName(VertexType.VERTEX_TYPE_P3N3T2));
     this.consume(ModelObjectTokenType.OBJECT_TOKEN_SEMICOLON);
 
     final VectorM3F position = this.vertexPosition();
@@ -347,9 +425,8 @@ public final class ModelObjectParser
     this.debug("normal   " + normal);
     this.debug("uv       " + texcoord);
 
-    cursor_position.put3f(position.x, position.y, position.z);
-    cursor_normal.put3f(normal.x, normal.y, normal.z);
-    cursor_uv.put2f(texcoord.x, texcoord.y);
+    this.updateBounds(position);
+    this.eventVertexBufferAppendP3N3T2(position, normal, texcoord);
   }
 
   private @Nonnull VectorM3F vertexPosition()
@@ -372,14 +449,12 @@ public final class ModelObjectParser
     return v;
   }
 
-  private ArrayBuffer vertices()
+  private final void vertices()
     throws IOException,
       Error,
-      GLException,
-      ConstraintError
+      ConstraintError,
+      E
   {
-    ArrayBuffer array = null;
-
     this.debug("parsing vertices");
 
     this.consumeSymbol("vertices");
@@ -399,64 +474,48 @@ public final class ModelObjectParser
 
         this.debug("expecting " + elements + " vertices");
 
-        if (Vertex.validTypeName(this.token.value) == false) {
-          throw Error.unexpectedOneOf(this.token, Vertex.vertexTypeNames());
+        if (VertexTypeInformation.validTypeName(this.token.value) == false) {
+          throw Error.unexpectedOneOf(this.token, VertexTypeInformation.vertexTypeNames());
         }
 
         final String name = this.token.value;
         this.consumeSymbol(name);
         this.consume(ModelObjectTokenType.OBJECT_TOKEN_SEMICOLON);
 
-        final VertexType type = Vertex.lookupTypeByName(name);
-        final ArrayBufferDescriptor descriptor =
-          Vertex.vertexTypeDescriptor(type);
-
-        array = this.gl.arrayBufferAllocate(elements, descriptor);
-        final ArrayBufferWritableMap map = this.gl.arrayBufferMapWrite(array);
-
+        final VertexType type = VertexTypeInformation.lookupTypeByName(name);
         switch (type) {
           case VERTEX_TYPE_P3N3:
           {
-            final ArrayBufferCursorWritable3f cp =
-              map.getCursor3f("position");
-            final ArrayBufferCursorWritable3f cn = map.getCursor3f("normal");
+            this.eventVertexBufferAllocate(
+              VertexType.VERTEX_TYPE_P3N3,
+              elements);
 
             for (long index = 0; index < elements; ++index) {
-              this.highest_vertex++;
-              this.vertexP3N3(cp, cn);
+              this.vertexP3N3();
             }
 
-            assert cp.hasNext() == false;
-            assert cn.hasNext() == false;
             break;
           }
           case VERTEX_TYPE_P3N3T2:
           {
-            final ArrayBufferCursorWritable3f cp =
-              map.getCursor3f("position");
-            final ArrayBufferCursorWritable3f cn = map.getCursor3f("normal");
-            final ArrayBufferCursorWritable2f cu = map.getCursor2f("uv");
+            this.eventVertexBufferAllocate(
+              VertexType.VERTEX_TYPE_P3N3T2,
+              elements);
 
             for (long index = 0; index < elements; ++index) {
-              this.highest_vertex++;
-              this.vertexP3N3T2(cp, cn, cu);
+              this.vertexP3N3T2();
             }
 
-            assert cp.hasNext() == false;
-            assert cn.hasNext() == false;
-            assert cu.hasNext() == false;
             break;
           }
         }
 
-        this.gl.arrayBufferUnmap(array);
+        this.eventVertexBufferCompleted();
       }
       this.consumeSymbol("end");
       this.consume(ModelObjectTokenType.OBJECT_TOKEN_SEMICOLON);
     }
     this.consumeSymbol("end");
     this.consume(ModelObjectTokenType.OBJECT_TOKEN_SEMICOLON);
-
-    return array;
   }
 }

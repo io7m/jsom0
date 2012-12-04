@@ -3,31 +3,37 @@ package com.io7m.jsom0;
 import javax.media.opengl.GLCapabilities;
 import javax.media.opengl.GLContext;
 import javax.media.opengl.GLDrawableFactory;
-import javax.media.opengl.GLPbuffer;
+import javax.media.opengl.GLOffscreenAutoDrawable;
 import javax.media.opengl.GLProfile;
 
 import com.io7m.jaux.Constraints.ConstraintError;
+import com.io7m.jaux.UnreachableCodeException;
+import com.io7m.jaux.functional.Option;
 import com.io7m.jcanephora.GLException;
 import com.io7m.jcanephora.GLInterface;
-import com.io7m.jcanephora.GLInterfaceJOGL30;
+import com.io7m.jcanephora.GLInterfaceEmbedded;
+import com.io7m.jcanephora.GLInterfaceEmbedded_JOGL_ES2;
+import com.io7m.jcanephora.GLInterface_JOGL30;
+import com.io7m.jlog.Log;
 
 public final class JOGL30TestDisplay
 {
-  private static GLContext context;
-  private static GLPbuffer buffer;
+  private static GLContext               context;
+  private static GLOffscreenAutoDrawable buffer;
 
-  private static GLPbuffer createOffscreenDisplay(
+  private static GLOffscreenAutoDrawable createOffscreenDisplay(
     final int width,
     final int height)
   {
     final GLProfile pro = GLProfile.get(GLProfile.GL2GL3);
     final GLCapabilities cap = new GLCapabilities(pro);
+    cap.setFBO(true);
 
     final GLDrawableFactory f = GLDrawableFactory.getFactory(pro);
-    final GLPbuffer pb =
-      f.createGLPbuffer(null, cap, null, width, height, null);
+    final GLOffscreenAutoDrawable k =
+      f.createOffscreenAutoDrawable(null, cap, null, width, height, null);
 
-    return pb;
+    return k;
   }
 
   private static GLContext getContext()
@@ -42,20 +48,39 @@ public final class JOGL30TestDisplay
       JOGL30TestDisplay.createOffscreenDisplay(640, 480);
     JOGL30TestDisplay.context = JOGL30TestDisplay.buffer.createContext(null);
 
+    final int r = JOGL30TestDisplay.context.makeCurrent();
+    if (r == GLContext.CONTEXT_NOT_CURRENT) {
+      throw new AssertionError("Could not make context current");
+    }
+
     return JOGL30TestDisplay.context;
   }
 
-  public static GLInterface makeFreshGL()
+  public static GLInterfaceEmbedded makeFreshGLEmbedded()
     throws GLException,
       ConstraintError
   {
-    return new GLInterfaceJOGL30(
-      JOGL30TestDisplay.getContext(),
-      JOGL30TestLog.getLog());
+    final GLContext ctx = JOGL30TestDisplay.getContext();
+    final Log log = JOGL30TestLog.getLog();
+    return new GLInterfaceEmbedded_JOGL_ES2(ctx, log);
+  }
+
+  public static Option<GLInterface> makeFreshGLFull()
+    throws GLException,
+      ConstraintError
+  {
+    final GLContext ctx = JOGL30TestDisplay.getContext();
+    final Log log = JOGL30TestLog.getLog();
+
+    if (ctx.isGL2GL3()) {
+      return new Option.Some<GLInterface>(new GLInterface_JOGL30(ctx, log));
+    }
+
+    return new Option.None<GLInterface>();
   }
 
   private JOGL30TestDisplay()
   {
-
+    throw new UnreachableCodeException();
   }
 }

@@ -8,7 +8,7 @@ import com.io7m.jsom0.ModelMaterial;
 import com.io7m.jsom0.ModelTexture;
 import com.io7m.jsom0.ModelTextureMapping;
 
-public abstract class ModelMaterialTestContract implements Jsom0GLTestContract
+public abstract class ModelMaterialTestContract implements JSOM0GLEmbeddedTestContract
 {
   /**
    * toString() is not dependent on reference equality.

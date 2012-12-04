@@ -192,13 +192,9 @@ public final class Error extends Exception
   }
 
   private final @CheckForNull ModelObjectToken     expected_token;
-
   private final @CheckForNull ModelObjectToken     received_token;
-
   private final @CheckForNull ModelObjectTokenType expected_type;
-
   private final @CheckForNull ModelObjectTokenType received_type;
-
   private final @Nonnull Code                      code;
 
   private Error(

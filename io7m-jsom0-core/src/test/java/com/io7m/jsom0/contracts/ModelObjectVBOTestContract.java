@@ -8,12 +8,14 @@ import com.io7m.jcanephora.ArrayBuffer;
 import com.io7m.jcanephora.ArrayBufferAttribute;
 import com.io7m.jcanephora.ArrayBufferDescriptor;
 import com.io7m.jcanephora.GLException;
-import com.io7m.jcanephora.GLInterface;
+import com.io7m.jcanephora.GLInterfaceEmbedded;
 import com.io7m.jcanephora.GLScalarType;
 import com.io7m.jcanephora.IndexBuffer;
-import com.io7m.jsom0.ModelObject;
+import com.io7m.jsom0.ModelObjectVBO;
+import com.io7m.jtensors.VectorI3F;
 
-public abstract class ModelObjectTestContract implements Jsom0GLTestContract
+public abstract class ModelObjectVBOTestContract implements
+  JSOM0GLEmbeddedTestContract
 {
   @SuppressWarnings("unused") @Test(expected = ConstraintError.class) public
     void
@@ -21,7 +23,7 @@ public abstract class ModelObjectTestContract implements Jsom0GLTestContract
       throws ConstraintError,
         GLException
   {
-    final GLInterface gl = this.makeNewGL();
+    final GLInterfaceEmbedded gl = this.makeNewGL();
     final ArrayBufferDescriptor d =
       new ArrayBufferDescriptor(
         new ArrayBufferAttribute[] { new ArrayBufferAttribute(
@@ -30,14 +32,20 @@ public abstract class ModelObjectTestContract implements Jsom0GLTestContract
           1) });
     final ArrayBuffer vb = gl.arrayBufferAllocate(1, d);
     final IndexBuffer ib = gl.indexBufferAllocate(vb, 3);
-    new ModelObject("name", "material", null, ib);
+    new ModelObjectVBO(
+      "name",
+      "material",
+      VectorI3F.ZERO,
+      VectorI3F.ZERO,
+      null,
+      ib);
   }
 
   @Test public void testIdentities()
     throws ConstraintError,
       GLException
   {
-    final GLInterface gl = this.makeNewGL();
+    final GLInterfaceEmbedded gl = this.makeNewGL();
     final ArrayBufferDescriptor d =
       new ArrayBufferDescriptor(
         new ArrayBufferAttribute[] { new ArrayBufferAttribute(
@@ -46,7 +54,14 @@ public abstract class ModelObjectTestContract implements Jsom0GLTestContract
           1) });
     final ArrayBuffer vb = gl.arrayBufferAllocate(1, d);
     final IndexBuffer ib = gl.indexBufferAllocate(vb, 3);
-    final ModelObject o = new ModelObject("name", "material", vb, ib);
+    final ModelObjectVBO o =
+      new ModelObjectVBO(
+        "name",
+        "material",
+        VectorI3F.ZERO,
+        VectorI3F.ZERO,
+        vb,
+        ib);
 
     Assert.assertEquals("name", o.getName());
     Assert.assertEquals("material", o.getMaterialName());
@@ -60,7 +75,7 @@ public abstract class ModelObjectTestContract implements Jsom0GLTestContract
       throws ConstraintError,
         GLException
   {
-    final GLInterface gl = this.makeNewGL();
+    final GLInterfaceEmbedded gl = this.makeNewGL();
     final ArrayBufferDescriptor d =
       new ArrayBufferDescriptor(
         new ArrayBufferAttribute[] { new ArrayBufferAttribute(
@@ -68,7 +83,13 @@ public abstract class ModelObjectTestContract implements Jsom0GLTestContract
           GLScalarType.TYPE_BYTE,
           1) });
     final ArrayBuffer vb = gl.arrayBufferAllocate(1, d);
-    new ModelObject("name", "material", vb, null);
+    new ModelObjectVBO(
+      "name",
+      "material",
+      VectorI3F.ZERO,
+      VectorI3F.ZERO,
+      vb,
+      null);
   }
 
   @SuppressWarnings("unused") @Test(expected = ConstraintError.class) public
@@ -77,7 +98,7 @@ public abstract class ModelObjectTestContract implements Jsom0GLTestContract
       throws ConstraintError,
         GLException
   {
-    final GLInterface gl = this.makeNewGL();
+    final GLInterfaceEmbedded gl = this.makeNewGL();
     final ArrayBufferDescriptor d =
       new ArrayBufferDescriptor(
         new ArrayBufferAttribute[] { new ArrayBufferAttribute(
@@ -86,7 +107,7 @@ public abstract class ModelObjectTestContract implements Jsom0GLTestContract
           1) });
     final ArrayBuffer vb = gl.arrayBufferAllocate(1, d);
     final IndexBuffer ib = gl.indexBufferAllocate(vb, 3);
-    new ModelObject("name", null, vb, ib);
+    new ModelObjectVBO("name", null, VectorI3F.ZERO, VectorI3F.ZERO, vb, ib);
   }
 
   @SuppressWarnings("unused") @Test(expected = ConstraintError.class) public
@@ -95,7 +116,7 @@ public abstract class ModelObjectTestContract implements Jsom0GLTestContract
       throws ConstraintError,
         GLException
   {
-    final GLInterface gl = this.makeNewGL();
+    final GLInterfaceEmbedded gl = this.makeNewGL();
     final ArrayBufferDescriptor d =
       new ArrayBufferDescriptor(
         new ArrayBufferAttribute[] { new ArrayBufferAttribute(
@@ -104,14 +125,20 @@ public abstract class ModelObjectTestContract implements Jsom0GLTestContract
           1) });
     final ArrayBuffer vb = gl.arrayBufferAllocate(1, d);
     final IndexBuffer ib = gl.indexBufferAllocate(vb, 3);
-    new ModelObject(null, "material", vb, ib);
+    new ModelObjectVBO(
+      null,
+      "material",
+      VectorI3F.ZERO,
+      VectorI3F.ZERO,
+      vb,
+      ib);
   }
 
   @Test public void testToStringMaterialDifferent()
     throws ConstraintError,
       GLException
   {
-    final GLInterface gl = this.makeNewGL();
+    final GLInterfaceEmbedded gl = this.makeNewGL();
     final ArrayBufferDescriptor d =
       new ArrayBufferDescriptor(
         new ArrayBufferAttribute[] { new ArrayBufferAttribute(
@@ -121,8 +148,22 @@ public abstract class ModelObjectTestContract implements Jsom0GLTestContract
     final ArrayBuffer vb = gl.arrayBufferAllocate(1, d);
     final IndexBuffer ib = gl.indexBufferAllocate(vb, 3);
 
-    final ModelObject o0 = new ModelObject("name", "material0", vb, ib);
-    final ModelObject o1 = new ModelObject("name", "material1", vb, ib);
+    final ModelObjectVBO o0 =
+      new ModelObjectVBO(
+        "name",
+        "material0",
+        VectorI3F.ZERO,
+        VectorI3F.ZERO,
+        vb,
+        ib);
+    final ModelObjectVBO o1 =
+      new ModelObjectVBO(
+        "name",
+        "material1",
+        VectorI3F.ZERO,
+        VectorI3F.ZERO,
+        vb,
+        ib);
 
     final String s0 = o0.toString();
     final String s1 = o1.toString();
@@ -134,7 +175,7 @@ public abstract class ModelObjectTestContract implements Jsom0GLTestContract
     throws ConstraintError,
       GLException
   {
-    final GLInterface gl = this.makeNewGL();
+    final GLInterfaceEmbedded gl = this.makeNewGL();
     final ArrayBufferDescriptor d =
       new ArrayBufferDescriptor(
         new ArrayBufferAttribute[] { new ArrayBufferAttribute(
@@ -144,8 +185,22 @@ public abstract class ModelObjectTestContract implements Jsom0GLTestContract
     final ArrayBuffer vb = gl.arrayBufferAllocate(1, d);
     final IndexBuffer ib = gl.indexBufferAllocate(vb, 3);
 
-    final ModelObject o0 = new ModelObject("name0", "material", vb, ib);
-    final ModelObject o1 = new ModelObject("name1", "material", vb, ib);
+    final ModelObjectVBO o0 =
+      new ModelObjectVBO(
+        "name0",
+        "material",
+        VectorI3F.ZERO,
+        VectorI3F.ZERO,
+        vb,
+        ib);
+    final ModelObjectVBO o1 =
+      new ModelObjectVBO(
+        "name1",
+        "material",
+        VectorI3F.ZERO,
+        VectorI3F.ZERO,
+        vb,
+        ib);
 
     final String s0 = o0.toString();
     final String s1 = o1.toString();

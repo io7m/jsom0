@@ -6,7 +6,7 @@ import com.io7m.jaux.Constraints;
 import com.io7m.jaux.Constraints.ConstraintError;
 import com.io7m.jcanephora.GLCompileException;
 import com.io7m.jcanephora.GLException;
-import com.io7m.jcanephora.GLInterface;
+import com.io7m.jcanephora.GLInterfaceEmbedded;
 import com.io7m.jcanephora.Program;
 import com.io7m.jcanephora.ProgramAttribute;
 import com.io7m.jcanephora.ProgramUniform;
@@ -31,7 +31,7 @@ public final class ModelProgramFlat extends ModelProgram
   }
 
   @Override public void activate(
-    final @Nonnull GLInterface gl)
+    final @Nonnull GLInterfaceEmbedded gl)
     throws ConstraintError,
       GLException
   {
@@ -54,7 +54,7 @@ public final class ModelProgramFlat extends ModelProgram
 
   @Override public void compile(
     final @Nonnull FilesystemAPI fs,
-    final @Nonnull GLInterface gl)
+    final @Nonnull GLInterfaceEmbedded gl)
     throws ConstraintError,
       GLCompileException
   {
@@ -62,7 +62,7 @@ public final class ModelProgramFlat extends ModelProgram
   }
 
   @Override public void deactivate(
-    final @Nonnull GLInterface gl)
+    final @Nonnull GLInterfaceEmbedded gl)
     throws ConstraintError,
       GLException
   {
@@ -86,7 +86,7 @@ public final class ModelProgramFlat extends ModelProgram
   }
 
   @Override void putAlpha(
-    final @Nonnull GLInterface gl,
+    final @Nonnull GLInterfaceEmbedded gl,
     final float alpha)
     throws ConstraintError,
       GLException
@@ -97,7 +97,7 @@ public final class ModelProgramFlat extends ModelProgram
   }
 
   @Override public void putAmbient(
-    final @Nonnull GLInterface gl,
+    final @Nonnull GLInterfaceEmbedded gl,
     final @Nonnull VectorReadable3F ambient)
     throws GLException,
       ConstraintError
@@ -108,7 +108,7 @@ public final class ModelProgramFlat extends ModelProgram
   }
 
   public void putColor(
-    final @Nonnull GLInterface gl,
+    final @Nonnull GLInterfaceEmbedded gl,
     final @Nonnull VectorReadable4F color)
     throws ConstraintError,
       GLException
@@ -119,7 +119,7 @@ public final class ModelProgramFlat extends ModelProgram
   }
 
   @Override public void putDiffuse(
-    final @Nonnull GLInterface gl,
+    final @Nonnull GLInterfaceEmbedded gl,
     final @Nonnull VectorReadable3F diffuse)
     throws GLException,
       ConstraintError
@@ -130,7 +130,7 @@ public final class ModelProgramFlat extends ModelProgram
   }
 
   @Override public void putLightPosition(
-    final @Nonnull GLInterface gl,
+    final @Nonnull GLInterfaceEmbedded gl,
     final @Nonnull VectorReadable3F position)
     throws GLException,
       ConstraintError
@@ -141,7 +141,7 @@ public final class ModelProgramFlat extends ModelProgram
   }
 
   @Override public void putModelviewMatrix(
-    final @Nonnull GLInterface gl,
+    final @Nonnull GLInterfaceEmbedded gl,
     final @Nonnull MatrixReadable4x4F m)
     throws GLException,
       ConstraintError
@@ -152,7 +152,7 @@ public final class ModelProgramFlat extends ModelProgram
   }
 
   @Override public void putNormalMatrix(
-    final @Nonnull GLInterface gl,
+    final @Nonnull GLInterfaceEmbedded gl,
     final @Nonnull MatrixReadable3x3F m)
     throws GLException,
       ConstraintError
@@ -163,7 +163,7 @@ public final class ModelProgramFlat extends ModelProgram
   }
 
   @Override public void putProjectionMatrix(
-    final @Nonnull GLInterface gl,
+    final @Nonnull GLInterfaceEmbedded gl,
     final @Nonnull MatrixReadable4x4F m)
     throws GLException,
       ConstraintError
@@ -174,7 +174,7 @@ public final class ModelProgramFlat extends ModelProgram
   }
 
   @Override public void putShininess(
-    final @Nonnull GLInterface gl,
+    final @Nonnull GLInterfaceEmbedded gl,
     final float shininess)
     throws GLException,
       ConstraintError
@@ -185,7 +185,7 @@ public final class ModelProgramFlat extends ModelProgram
   }
 
   @Override public void putSpecular(
-    final @Nonnull GLInterface gl,
+    final @Nonnull GLInterfaceEmbedded gl,
     final @Nonnull VectorReadable4F specular)
     throws GLException,
       ConstraintError
@@ -197,7 +197,7 @@ public final class ModelProgramFlat extends ModelProgram
 
   @Override public void removeFragmentShader(
     final @Nonnull PathVirtual path,
-    final @Nonnull GLInterface gl)
+    final @Nonnull GLInterfaceEmbedded gl)
     throws ConstraintError,
       GLException
   {
@@ -206,7 +206,7 @@ public final class ModelProgramFlat extends ModelProgram
 
   @Override public void removeVertexShader(
     final @Nonnull PathVirtual path,
-    final @Nonnull GLInterface gl)
+    final @Nonnull GLInterfaceEmbedded gl)
     throws ConstraintError,
       GLException
   {
@@ -215,7 +215,7 @@ public final class ModelProgramFlat extends ModelProgram
 
   @Override public boolean requiresCompilation(
     final @Nonnull FilesystemAPI fs,
-    final @Nonnull GLInterface gl)
+    final @Nonnull GLInterfaceEmbedded gl)
     throws FilesystemError,
       ConstraintError
   {

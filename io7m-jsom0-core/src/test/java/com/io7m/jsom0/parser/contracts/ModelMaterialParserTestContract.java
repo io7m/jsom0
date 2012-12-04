@@ -2,7 +2,6 @@ package com.io7m.jsom0.parser.contracts;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Properties;
 
 import junit.framework.Assert;
 
@@ -12,7 +11,6 @@ import com.io7m.jaux.Constraints.ConstraintError;
 import com.io7m.jaux.functional.Option;
 import com.io7m.jaux.functional.Option.Some;
 import com.io7m.jaux.functional.Option.Type;
-import com.io7m.jlog.Log;
 import com.io7m.jsom0.ModelMaterial;
 import com.io7m.jsom0.ModelTexture;
 import com.io7m.jsom0.ModelTextureMapping;
@@ -31,18 +29,10 @@ public abstract class ModelMaterialParserTestContract implements
         Error,
         ConstraintError
   {
-    final InputStream rstream =
-      ModelMaterialParserTestContract.class
-        .getResourceAsStream("/com/io7m/jsom0/test.properties");
-    final Properties props = new Properties();
-    props.load(rstream);
-    rstream.close();
-    final Log log = new Log(props, "com.io7m.jsom0", "test");
-
     final InputStream fstream =
       ModelMaterialParserTestContract.class.getResourceAsStream(file);
     final ModelMaterialParser parser =
-      new ModelMaterialParser(file, fstream, log);
+      new ModelMaterialParser(file, fstream, this.getLog());
     return parser;
   }
 

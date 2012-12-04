@@ -5,7 +5,7 @@ import javax.annotation.Nonnull;
 import com.io7m.jaux.Constraints.ConstraintError;
 import com.io7m.jcanephora.CompilableProgram;
 import com.io7m.jcanephora.GLException;
-import com.io7m.jcanephora.GLInterface;
+import com.io7m.jcanephora.GLInterfaceEmbedded;
 import com.io7m.jcanephora.ProgramAttribute;
 import com.io7m.jcanephora.UsableProgram;
 
@@ -22,7 +22,7 @@ public abstract class ModelProgram implements
     throws ConstraintError;
 
   abstract void putAlpha(
-    final @Nonnull GLInterface gl,
+    final @Nonnull GLInterfaceEmbedded gl,
     final float alpha)
     throws ConstraintError,
       GLException;

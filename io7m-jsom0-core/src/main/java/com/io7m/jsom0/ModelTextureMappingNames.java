@@ -5,13 +5,16 @@ import java.util.Set;
 
 import javax.annotation.Nonnull;
 
+import com.io7m.jaux.UnreachableCodeException;
 import com.io7m.jaux.functional.Indeterminate;
 
 public final class ModelTextureMappingNames
 {
-  private static final @Nonnull HashMap<String, ModelTextureMapping> names =
-                                                                             ModelTextureMappingNames
-                                                                               .makeNames();
+  private static final @Nonnull HashMap<String, ModelTextureMapping> names;
+
+  static {
+    names = ModelTextureMappingNames.makeNames();
+  }
 
   private static final @Nonnull String failMessage(
     final @Nonnull String name)
@@ -61,8 +64,7 @@ public final class ModelTextureMappingNames
         return "map_uv";
     }
 
-    /* UNREACHABLE */
-    throw new AssertionError("unreachable code: report this bug!");
+    throw new UnreachableCodeException();
   }
 
   public static @Nonnull Indeterminate<ModelTextureMapping, String> value(
@@ -74,5 +76,10 @@ public final class ModelTextureMappingNames
     }
     return new Indeterminate.Failure<ModelTextureMapping, String>(
       ModelTextureMappingNames.failMessage(name));
+  }
+
+  private ModelTextureMappingNames()
+  {
+    throw new UnreachableCodeException();
   }
 }

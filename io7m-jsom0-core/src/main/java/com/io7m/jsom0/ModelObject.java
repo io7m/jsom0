@@ -4,95 +4,90 @@ import javax.annotation.Nonnull;
 
 import com.io7m.jaux.Constraints;
 import com.io7m.jaux.Constraints.ConstraintError;
-import com.io7m.jcanephora.ArrayBuffer;
-import com.io7m.jcanephora.IndexBuffer;
+import com.io7m.jtensors.VectorReadable3F;
 
-public final class ModelObject
+public abstract class ModelObject implements Comparable<ModelObject>
 {
-  private final @Nonnull String      material_name;
-  private final @Nonnull String      name;
-  private final @Nonnull ArrayBuffer array_id;
-  private final @Nonnull IndexBuffer index_id;
+  private final @Nonnull String           material_name;
+  private final @Nonnull String           name;
+  private final @Nonnull VectorReadable3F bound_lower;
+  private final @Nonnull VectorReadable3F bound_upper;
 
-  private static final String        EOL = System
-                                           .getProperty("line.separator");
-
-  public ModelObject(
+  protected ModelObject(
     final @Nonnull String name,
     final @Nonnull String material_name,
-    final @Nonnull ArrayBuffer vertices_buffer,
-    final @Nonnull IndexBuffer index_buffer)
+    final @Nonnull VectorReadable3F bound_lower,
+    final @Nonnull VectorReadable3F bound_upper)
     throws ConstraintError
   {
     this.name = Constraints.constrainNotNull(name, "Object name");
     this.material_name =
       Constraints.constrainNotNull(material_name, "Material name");
-    this.array_id =
-      Constraints.constrainNotNull(vertices_buffer, "Vertex buffer ID");
-    this.index_id =
-      Constraints.constrainNotNull(index_buffer, "Index buffer ID");
+    this.bound_lower =
+      Constraints.constrainNotNull(bound_lower, "Lower bound");
+    this.bound_upper =
+      Constraints.constrainNotNull(bound_upper, "Upper bound");
   }
 
-  public @Nonnull ArrayBuffer getArrayBuffer()
+  @Override public final int compareTo(
+    final ModelObject other)
   {
-    return this.array_id;
+    return this.name.compareTo(other.name);
   }
 
-  public @Nonnull IndexBuffer getIndexBuffer()
+  public final @Nonnull VectorReadable3F getLowerBound()
   {
-    return this.index_id;
+    return this.bound_lower;
   }
 
-  public @Nonnull String getMaterialName()
+  public final @Nonnull String getMaterialName()
   {
     return this.material_name;
   }
 
-  public @Nonnull String getName()
+  public final @Nonnull String getName()
   {
     return this.name;
   }
 
+  public final @Nonnull VectorReadable3F getUpperBound()
+  {
+    return this.bound_upper;
+  }
+
+  @Override public int hashCode()
+  {
+    final int prime = 31;
+    int result = 1;
+    result = (prime * result) + this.name.hashCode();
+    return result;
+  }
+
+  @Override public boolean equals(
+    final Object obj)
+  {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (this.getClass() != obj.getClass()) {
+      return false;
+    }
+    final ModelObject other = (ModelObject) obj;
+    if (!this.name.equals(other.name)) {
+      return false;
+    }
+    return true;
+  }
+
   @Override public @Nonnull String toString()
   {
-    assert ModelObject.EOL != null;
-
     final StringBuilder b = new StringBuilder();
-    b.append("object;");
-    b.append(ModelObject.EOL);
-
-    b.append("  name          \"");
-    b.append(this.getName());
-    b.append("\";");
-    b.append(ModelObject.EOL);
-
-    b.append("  material_name \"");
-    b.append(this.getMaterialName());
-    b.append("\";");
-    b.append(ModelObject.EOL);
-
-    b.append("  vertices;");
-    b.append(ModelObject.EOL);
-    b.append("  -- "
-      + this.getArrayBuffer().getElements()
-      + " elements omitted");
-    b.append(";");
-    b.append(ModelObject.EOL);
-    b.append("  end;");
-    b.append(ModelObject.EOL);
-
-    b.append("  triangles;");
-    b.append(ModelObject.EOL);
-    b.append("  -- "
-      + this.getIndexBuffer().getElements()
-      + " elements omitted");
-    b.append(";");
-    b.append(ModelObject.EOL);
-    b.append("  end;");
-    b.append(ModelObject.EOL);
-
-    b.append("end;");
-    b.append(ModelObject.EOL);
+    b.append("[ModelObject ");
+    b.append(this.name);
+    b.append("]");
     return b.toString();
   }
 }
