@@ -81,6 +81,9 @@ public final class JOGL30TestDisplay
   public static boolean isFullGLSupported()
   {
     final GLContext ctx = JOGL30TestDisplay.getContext();
-    return ctx.isGL2() || ctx.isGL2GL3() || ctx.isGL3() || ctx.isGL4();
+    final boolean supported =
+      ctx.isGL2() || ctx.isGL2GL3() || ctx.isGL3() || ctx.isGL4();
+    System.err.println("GL is supported: " + supported);
+    return supported;
   }
 }

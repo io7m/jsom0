@@ -26,7 +26,9 @@ public final class LWJGL30TestDisplay
     /**
      * XXX: What's the right way to test context compatibility in LWJGL?
      */
-    return true;
+    final boolean supported = true;
+    System.err.println("GL is supported: " + supported);
+    return supported;
   }
 
   public static GLInterface makeFreshGLFull()
