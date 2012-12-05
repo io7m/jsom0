@@ -78,16 +78,20 @@ public final class ModelObjectParserVBOMapped extends ModelObjectParserVBO
     switch (type) {
       case VERTEX_TYPE_P3N3:
       {
-        this.cursor_position = this.array_buffer_data.getCursor3f("position");
-        this.cursor_normal = this.array_buffer_data.getCursor3f("normal");
+        this.cursor_position =
+          this.array_buffer_data.getCursor3f("vertex_position");
+        this.cursor_normal =
+          this.array_buffer_data.getCursor3f("vertex_normal");
         this.cursor_uv = null;
         break;
       }
       case VERTEX_TYPE_P3N3T2:
       {
-        this.cursor_position = this.array_buffer_data.getCursor3f("position");
-        this.cursor_normal = this.array_buffer_data.getCursor3f("normal");
-        this.cursor_uv = this.array_buffer_data.getCursor2f("uv");
+        this.cursor_position =
+          this.array_buffer_data.getCursor3f("vertex_position");
+        this.cursor_normal =
+          this.array_buffer_data.getCursor3f("vertex_normal");
+        this.cursor_uv = this.array_buffer_data.getCursor2f("vertex_uv");
         break;
       }
     }

@@ -4,9 +4,9 @@ uniform mat4 matrix_projection;
 uniform mat4 matrix_modelview;
 uniform mat3 matrix_normal;
 
-attribute vec3 position;
-attribute vec3 normal;
-attribute vec2 uv;
+attribute vec3 vertex_position;
+attribute vec3 vertex_normal;
+attribute vec2 vertex_uv;
 
 varying vec3 vertex_position;
 varying vec3 vertex_normal;

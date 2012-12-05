@@ -43,17 +43,16 @@ public final class VertexTypeInformation
     final @Nonnull String name)
     throws ConstraintError
   {
-    return VertexTypeInformation.vertex_types
-      .get(Constraints.constrainNotNull(name, "name"));
+    return VertexTypeInformation.vertex_types.get(Constraints
+      .constrainNotNull(name, "name"));
   }
 
   public static boolean validTypeName(
     final @Nonnull String name)
     throws ConstraintError
   {
-    return VertexTypeInformation.vertex_type_names.contains(Constraints.constrainNotNull(
-      name,
-      "type name"));
+    return VertexTypeInformation.vertex_type_names.contains(Constraints
+      .constrainNotNull(name, "type name"));
   }
 
   public static @Nonnull String vertexTypeName(
@@ -72,7 +71,8 @@ public final class VertexTypeInformation
 
   public static Set<String> vertexTypeNames()
   {
-    return Collections.unmodifiableSet(VertexTypeInformation.vertex_type_names);
+    return Collections
+      .unmodifiableSet(VertexTypeInformation.vertex_type_names);
   }
 
   public static final @Nonnull ArrayBufferDescriptor VERTEX_P3N3_TYPE;
@@ -81,8 +81,13 @@ public final class VertexTypeInformation
   static {
     try {
       final ArrayBufferAttribute[] a = new ArrayBufferAttribute[2];
-      a[0] = new ArrayBufferAttribute("position", GLScalarType.TYPE_FLOAT, 3);
-      a[1] = new ArrayBufferAttribute("normal", GLScalarType.TYPE_FLOAT, 3);
+      a[0] =
+        new ArrayBufferAttribute(
+          "vertex_position",
+          GLScalarType.TYPE_FLOAT,
+          3);
+      a[1] =
+        new ArrayBufferAttribute("vertex_normal", GLScalarType.TYPE_FLOAT, 3);
       VERTEX_P3N3_TYPE = new ArrayBufferDescriptor(a);
     } catch (final ConstraintError e) {
       throw new UnreachableCodeException();
@@ -90,9 +95,15 @@ public final class VertexTypeInformation
 
     try {
       final ArrayBufferAttribute[] a = new ArrayBufferAttribute[3];
-      a[0] = new ArrayBufferAttribute("position", GLScalarType.TYPE_FLOAT, 3);
-      a[1] = new ArrayBufferAttribute("normal", GLScalarType.TYPE_FLOAT, 3);
-      a[2] = new ArrayBufferAttribute("uv", GLScalarType.TYPE_FLOAT, 2);
+      a[0] =
+        new ArrayBufferAttribute(
+          "vertex_position",
+          GLScalarType.TYPE_FLOAT,
+          3);
+      a[1] =
+        new ArrayBufferAttribute("vertex_normal", GLScalarType.TYPE_FLOAT, 3);
+      a[2] =
+        new ArrayBufferAttribute("vertex_uv", GLScalarType.TYPE_FLOAT, 2);
       VERTEX_P3N3T2_TYPE = new ArrayBufferDescriptor(a);
     } catch (final ConstraintError e) {
       throw new UnreachableCodeException();
