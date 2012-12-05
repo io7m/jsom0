@@ -8,7 +8,6 @@ import javax.media.opengl.GLProfile;
 
 import com.io7m.jaux.Constraints.ConstraintError;
 import com.io7m.jaux.UnreachableCodeException;
-import com.io7m.jaux.functional.Option;
 import com.io7m.jcanephora.GLException;
 import com.io7m.jcanephora.GLInterface;
 import com.io7m.jcanephora.GLInterfaceEmbedded;
@@ -65,22 +64,23 @@ public final class JOGL30TestDisplay
     return new GLInterfaceEmbedded_JOGL_ES2(ctx, log);
   }
 
-  public static Option<GLInterface> makeFreshGLFull()
+  public static GLInterface makeFreshGLFull()
     throws GLException,
       ConstraintError
   {
     final GLContext ctx = JOGL30TestDisplay.getContext();
     final Log log = JOGL30TestLog.getLog();
-
-    if (ctx.isGL2GL3()) {
-      return new Option.Some<GLInterface>(new GLInterface_JOGL30(ctx, log));
-    }
-
-    return new Option.None<GLInterface>();
+    return new GLInterface_JOGL30(ctx, log);
   }
 
   private JOGL30TestDisplay()
   {
     throw new UnreachableCodeException();
+  }
+
+  public static boolean isFullGLSupported()
+  {
+    final GLContext ctx = JOGL30TestDisplay.getContext();
+    return ctx.isGL2() || ctx.isGL2GL3() || ctx.isGL3() || ctx.isGL4();
   }
 }
