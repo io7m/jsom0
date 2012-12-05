@@ -10,7 +10,13 @@ import com.io7m.jtensors.MatrixReadable4x4F;
 
 interface MatrixProgram
 {
-  public void putModelviewMatrix(
+  public void putModelMatrix(
+    final @Nonnull GLInterfaceEmbedded gl,
+    final @Nonnull MatrixReadable4x4F m)
+    throws GLException,
+      ConstraintError;
+
+  public void putViewMatrix(
     final @Nonnull GLInterfaceEmbedded gl,
     final @Nonnull MatrixReadable4x4F m)
     throws GLException,

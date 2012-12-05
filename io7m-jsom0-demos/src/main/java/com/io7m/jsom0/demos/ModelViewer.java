@@ -9,6 +9,7 @@ import javax.annotation.Nonnull;
 
 import com.io7m.jaux.Constraints;
 import com.io7m.jaux.Constraints.ConstraintError;
+import com.io7m.jaux.UnreachableCodeException;
 import com.io7m.jaux.functional.Function;
 import com.io7m.jaux.functional.Option;
 import com.io7m.jaux.functional.Option.Some;
@@ -135,20 +136,20 @@ public final class ModelViewer
       case OPTION_NONE:
       {
         final ModelProgramFlat p = new ModelProgramFlat(log);
-        p.addVertexShader(new PathVirtual("/com/io7m/jsom0/shaders/jsom0.v"));
+        p.addVertexShader(new PathVirtual("/shaders/jsom0.v"));
         p.addFragmentShader(ModelViewer.selectShader(log, m));
         return p;
       }
       case OPTION_SOME:
       {
         final ModelProgramTextured p = new ModelProgramTextured(log);
-        p.addVertexShader(new PathVirtual("/com/io7m/jsom0/shaders/jsom0.v"));
+        p.addVertexShader(new PathVirtual("/shaders/jsom0.v"));
         p.addFragmentShader(ModelViewer.selectShader(log, m));
         return p;
       }
     }
 
-    throw new AssertionError("unreachable code: report this bug!");
+    throw new UnreachableCodeException();
   }
 
   private static PathVirtual selectShader(
@@ -160,7 +161,7 @@ public final class ModelViewer
       case OPTION_NONE:
       {
         log.debug("using untextured shader");
-        return new PathVirtual("/com/io7m/jsom0/shaders/jsom0-untextured.f");
+        return new PathVirtual("/shaders/jsom0-untextured.f");
       }
       case OPTION_SOME:
       {
@@ -169,27 +170,26 @@ public final class ModelViewer
         switch (some_texture.value.mapping) {
           case MODEL_TEXTURE_MAPPING_CHROME:
             log.debug("using chrome shader");
-            return new PathVirtual(
-              "/com/io7m/jsom0/shaders/jsom0-textured-chrome.f");
+            return new PathVirtual("/shaders/jsom0-textured-chrome.f");
           case MODEL_TEXTURE_MAPPING_UV:
             log.debug("using uv shader");
-            return new PathVirtual(
-              "/com/io7m/jsom0/shaders/jsom0-textured-uv.f");
+            return new PathVirtual("/shaders/jsom0-textured-uv.f");
         }
       }
     }
 
-    /* UNREACHABLE */
-    throw new AssertionError("unreachable code: report this bug!");
+    throw new UnreachableCodeException();
   }
 
   private final @Nonnull Filesystem            fs;
   private final @Nonnull Log                   log;
   private final @Nonnull TextureUnit[]         texture_units;
-  private final @Nonnull ModelMaterial         material;
+
+  private final @Nonnull ModelMaterial         model_material;
   private final @Nonnull Model<ModelObjectVBO> model;
-  private final @Nonnull ModelProgram          program;
-  private final @Nonnull ModelObjectVBO        object;
+  private final @Nonnull ModelProgram          model_program;
+  private final @Nonnull ModelObjectVBO        model_object;
+
   private final float                          texture_alpha;
   private final @Nonnull Texture2DStatic       texture;
   private final @Nonnull TextureLoaderImageIO  texture_loader;
@@ -229,21 +229,23 @@ public final class ModelViewer
     this.log = new Log(log, "model-viewer");
     this.fs = new Filesystem(this.log);
     this.fs.mountUnsafeClasspathItem(Model.class, new PathVirtual("/"));
+    this.fs.mountUnsafeClasspathItem(ModelViewer.class, new PathVirtual("/"));
 
     this.texture_directory = texture_directory;
     this.texture_units = g.textureGetUnits();
     this.texture_loader = new TextureLoaderImageIO();
 
-    this.material = ModelViewer.loadMaterial(file_material, this.log);
+    this.model_material = ModelViewer.loadMaterial(file_material, this.log);
     this.model = ModelViewer.loadModel(file_model, g, this.log);
-    this.object = ModelViewer.loadObject(object_name, this.model, this.log);
+    this.model_object =
+      ModelViewer.loadObject(object_name, this.model, this.log);
+    this.model_program =
+      ModelViewer.loadShader(this.model_material, this.log);
+    this.model_program.compile(this.fs, g);
 
-    this.program = ModelViewer.loadShader(this.material, this.log);
-    this.program.compile(this.fs, g);
-
-    if (this.material.texture.type == Type.OPTION_SOME) {
+    if (this.model_material.texture.type == Type.OPTION_SOME) {
       final Option.Some<ModelTexture> some_texture =
-        (Some<ModelTexture>) this.material.texture;
+        (Some<ModelTexture>) this.model_material.texture;
       final ModelTexture m_texture = some_texture.value;
 
       final StringBuilder texture_path = new StringBuilder();
@@ -274,7 +276,8 @@ public final class ModelViewer
     this.camera_inverse = new VectorM3F(0.0f, 0.0f, 0.0f);
     this.model_position = new VectorM3F(0.0f, 0.0f, -8.0f);
     this.model_orientation = new VectorM2F((float) Math.PI / 2, 0.0f);
-    this.light_position = new VectorM3F(16.0f, 16.0f, 0.0f);
+
+    this.light_position = new VectorM3F(8f, 8f, 8f);
 
     this.matrix_model = new MatrixM4x4F();
     this.matrix_modelview = new MatrixM4x4F();
@@ -290,6 +293,117 @@ public final class ModelViewer
       Math.PI / 8.0);
   }
 
+  private void drawViewedModel(
+    final @Nonnull GLInterfaceEmbedded g)
+    throws ConstraintError,
+      GLException
+  {
+    this.model_program.activate(g);
+    {
+      /**
+       * Produce model matrix: the translation and orientation of the model.
+       */
+
+      MatrixM4x4F.setIdentity(this.matrix_model);
+      MatrixM4x4F.translateByVector3FInPlace(
+        this.matrix_model,
+        this.model_position);
+      MatrixM4x4F.rotateInPlace(
+        this.model_orientation.y,
+        this.matrix_model,
+        ModelViewer.AXIS_Y);
+      MatrixM4x4F.rotateInPlace(
+        this.model_orientation.x,
+        this.matrix_model,
+        ModelViewer.AXIS_X);
+
+      /**
+       * Produce modelview matrix (view * model).
+       */
+
+      MatrixM4x4F.multiply(
+        this.matrix_view,
+        this.matrix_model,
+        this.matrix_modelview);
+
+      /**
+       * Produce normal matrix.
+       */
+
+      this.matrix_normal.set(0, 0, this.matrix_modelview.get(0, 0));
+      this.matrix_normal.set(0, 1, this.matrix_modelview.get(0, 1));
+      this.matrix_normal.set(0, 2, this.matrix_modelview.get(0, 2));
+      this.matrix_normal.set(1, 0, this.matrix_modelview.get(1, 0));
+      this.matrix_normal.set(1, 1, this.matrix_modelview.get(1, 1));
+      this.matrix_normal.set(1, 2, this.matrix_modelview.get(1, 2));
+      this.matrix_normal.set(2, 0, this.matrix_modelview.get(2, 0));
+      this.matrix_normal.set(2, 1, this.matrix_modelview.get(2, 1));
+      this.matrix_normal.set(2, 2, this.matrix_modelview.get(2, 2));
+      MatrixM3x3F.invertInPlace(this.matrix_normal);
+      MatrixM3x3F.transposeInPlace(this.matrix_normal);
+
+      /**
+       * Bind attributes.
+       */
+
+      final ArrayBuffer buffer = this.model_object.getArrayBuffer();
+      final ArrayBufferAttribute bpa =
+        buffer.getDescriptor().getAttribute("vertex_position");
+      final ArrayBufferAttribute bna =
+        buffer.getDescriptor().getAttribute("vertex_normal");
+
+      g.arrayBufferBind(buffer);
+      g.arrayBufferBindVertexAttribute(
+        buffer,
+        bpa,
+        this.model_program.getPositionAttribute());
+      g.arrayBufferBindVertexAttribute(
+        buffer,
+        bna,
+        this.model_program.getNormalAttribute());
+
+      /**
+       * Set program parameters.
+       */
+
+      this.model_program.putModelMatrix(g, this.matrix_model);
+      this.model_program.putViewMatrix(g, this.matrix_view);
+      this.model_program.putProjectionMatrix(g, this.matrix_projection);
+      this.model_program.putNormalMatrix(g, this.matrix_normal);
+      this.model_program.putLightPosition(g, this.light_position);
+
+      this.model_program.putAmbient(g, this.model_material.ambient);
+      this.model_program.putDiffuse(g, this.model_material.diffuse);
+      this.model_program.putSpecular(g, this.model_material.specular);
+      this.model_program.putShininess(g, this.model_material.shininess);
+
+      switch (this.model_material.texture.type) {
+        case OPTION_SOME:
+        {
+          g.texture2DStaticBind(this.texture_units[0], this.texture);
+
+          final ModelProgramTextured p =
+            (ModelProgramTextured) this.model_program;
+          p.putTexture(g, this.texture_units[0]);
+          p.putTextureAlpha(g, this.texture_alpha);
+
+          final ArrayBufferAttribute bua =
+            buffer.getDescriptor().getAttribute("vertex_uv");
+          g.arrayBufferBindVertexAttribute(buffer, bua, p.getUVAttribute());
+          break;
+        }
+        case OPTION_NONE:
+        default:
+          break;
+      }
+
+      g.drawElements(
+        Primitives.PRIMITIVE_TRIANGLES,
+        this.model_object.getIndexBuffer());
+    }
+    this.model_program.deactivate(g);
+  }
+
   public void moveCameraY(
     final float y)
   {
@@ -302,6 +416,27 @@ public final class ModelViewer
   {
     this.camera_position.z += z;
     this.log.debug("camera position: " + this.camera_position);
+  }
+
+  public void moveLightX(
+    final float x)
+  {
+    this.light_position.x += x;
+    this.log.debug("light position: " + this.light_position);
+  }
+
+  public void moveLightY(
+    final float y)
+  {
+    this.light_position.y += y;
+    this.log.debug("light position: " + this.light_position);
+  }
+
+  public void moveLightZ(
+    final float z)
+  {
+    this.light_position.z += z;
+    this.log.debug("light position: " + this.light_position);
   }
 
   public void render(
@@ -320,22 +455,9 @@ public final class ModelViewer
       BlendFunction.BLEND_SOURCE_ALPHA,
       BlendFunction.BLEND_ONE_MINUS_SOURCE_ALPHA);
 
-    g.lineSmoothingEnable();
-
     g.colorBufferClearV4f(this.background_color);
 
-    /*
-     * Select rendering style.
-     */
-
-    // if (this.model_wireframe) {
-    // g.polygonSetMode(FaceSelection.FACE_FRONT, PolygonMode.POLYGON_LINES);
-    // g.lineSetWidth(2.0f);
-    // } else {
-    // g.polygonSetMode(FaceSelection.FACE_FRONT, PolygonMode.POLYGON_FILL);
-    // }
-
-    /*
+    /**
      * Produce view matrix: the inverse of the camera translation.
      */
 
@@ -348,108 +470,7 @@ public final class ModelViewer
       this.matrix_view,
       this.camera_inverse);
 
-    this.program.activate(g);
-    {
-      /*
-       * Produce model matrix: the translation and orientation of the model.
-       */
-
-      MatrixM4x4F.setIdentity(this.matrix_model);
-      MatrixM4x4F.translateByVector3FInPlace(
-        this.matrix_model,
-        this.model_position);
-      MatrixM4x4F.rotateInPlace(
-        this.model_orientation.y,
-        this.matrix_model,
-        ModelViewer.AXIS_Y);
-      MatrixM4x4F.rotateInPlace(
-        this.model_orientation.x,
-        this.matrix_model,
-        ModelViewer.AXIS_X);
-
-      /*
-       * Produce modelview matrix (view * model).
-       */
-
-      MatrixM4x4F.multiply(
-        this.matrix_view,
-        this.matrix_model,
-        this.matrix_modelview);
-
-      /*
-       * Produce normal matrix.
-       */
-
-      this.matrix_normal.set(0, 0, this.matrix_modelview.get(0, 0));
-      this.matrix_normal.set(0, 1, this.matrix_modelview.get(0, 1));
-      this.matrix_normal.set(0, 2, this.matrix_modelview.get(0, 2));
-      this.matrix_normal.set(1, 0, this.matrix_modelview.get(1, 0));
-      this.matrix_normal.set(1, 1, this.matrix_modelview.get(1, 1));
-      this.matrix_normal.set(1, 2, this.matrix_modelview.get(1, 2));
-      this.matrix_normal.set(2, 0, this.matrix_modelview.get(2, 0));
-      this.matrix_normal.set(2, 1, this.matrix_modelview.get(2, 1));
-      this.matrix_normal.set(2, 2, this.matrix_modelview.get(2, 2));
-      MatrixM3x3F.invertInPlace(this.matrix_normal);
-      MatrixM3x3F.transposeInPlace(this.matrix_normal);
-
-      /*
-       * Bind attributes.
-       */
-
-      final ArrayBuffer buffer = this.object.getArrayBuffer();
-      final ArrayBufferAttribute bpa =
-        buffer.getDescriptor().getAttribute("position");
-      final ArrayBufferAttribute bna =
-        buffer.getDescriptor().getAttribute("normal");
-
-      g.arrayBufferBind(buffer);
-      g.arrayBufferBindVertexAttribute(
-        buffer,
-        bpa,
-        this.program.getPositionAttribute());
-      g.arrayBufferBindVertexAttribute(
-        buffer,
-        bna,
-        this.program.getNormalAttribute());
-
-      /*
-       * Set program parameters.
-       */
-
-      this.program.putModelviewMatrix(g, this.matrix_modelview);
-      this.program.putProjectionMatrix(g, this.matrix_projection);
-      this.program.putNormalMatrix(g, this.matrix_normal);
-      this.program.putAmbient(g, this.material.ambient);
-      this.program.putDiffuse(g, this.material.diffuse);
-      this.program.putSpecular(g, this.material.specular);
-      this.program.putShininess(g, this.material.shininess);
-      this.program.putAlpha(g, 1.0f);
-      this.program.putLightPosition(g, this.light_position);
-
-      switch (this.material.texture.type) {
-        case OPTION_SOME:
-        {
-          g.texture2DStaticBind(this.texture_units[0], this.texture);
-
-          final ModelProgramTextured p = (ModelProgramTextured) this.program;
-          p.putTexture(g, this.texture_units[0]);
-          p.putTextureAlpha(g, this.texture_alpha);
-
-          final ArrayBufferAttribute bua =
-            buffer.getDescriptor().getAttribute("uv");
-          g.arrayBufferBindVertexAttribute(buffer, bua, p.getUVAttribute());
-          break;
-        }
-        case OPTION_NONE:
-        default:
-          break;
-      }
-
-      g.drawElements(
-        Primitives.PRIMITIVE_TRIANGLES,
-        this.object.getIndexBuffer());
-    }
-    this.program.deactivate(g);
+    this.drawViewedModel(g);
   }
 
   public void rotateX(

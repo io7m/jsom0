@@ -73,7 +73,7 @@ public final class ModelProgramTextured extends ModelProgram
   @Override public @Nonnull ProgramAttribute getNormalAttribute()
     throws ConstraintError
   {
-    final ProgramAttribute pn = this.program.getAttribute("normal");
+    final ProgramAttribute pn = this.program.getAttribute("vertex_normal");
     Constraints.constrainNotNull(pn, "Attribute");
     return pn;
   }
@@ -81,7 +81,7 @@ public final class ModelProgramTextured extends ModelProgram
   @Override public @Nonnull ProgramAttribute getPositionAttribute()
     throws ConstraintError
   {
-    final ProgramAttribute pa = this.program.getAttribute("position");
+    final ProgramAttribute pa = this.program.getAttribute("vertex_position");
     Constraints.constrainNotNull(pa, "Attribute");
     return pa;
   }
@@ -89,7 +89,7 @@ public final class ModelProgramTextured extends ModelProgram
   public @Nonnull ProgramAttribute getUVAttribute()
     throws ConstraintError
   {
-    final ProgramAttribute pa = this.program.getAttribute("uv");
+    final ProgramAttribute pa = this.program.getAttribute("vertex_uv");
     Constraints.constrainNotNull(pa, "Attribute");
     return pa;
   }
@@ -111,7 +111,7 @@ public final class ModelProgramTextured extends ModelProgram
     throws GLException,
       ConstraintError
   {
-    final ProgramUniform u = this.program.getUniform("ambient");
+    final ProgramUniform u = this.program.getUniform("material_ambient");
     Constraints.constrainNotNull(u, "Uniform");
     gl.programPutUniformVector3f(u, ambient);
   }
@@ -122,9 +122,20 @@ public final class ModelProgramTextured extends ModelProgram
     throws GLException,
       ConstraintError
   {
-    final ProgramUniform u = this.program.getUniform("diffuse");
+    final ProgramUniform u = this.program.getUniform("material_diffuse");
     Constraints.constrainNotNull(u, "Uniform");
     gl.programPutUniformVector3f(u, diffuse);
+  }
+
+  @Override public void putLightColor(
+    final @Nonnull GLInterfaceEmbedded gl,
+    final @Nonnull VectorReadable3F rgb)
+    throws GLException,
+      ConstraintError
+  {
+    final ProgramUniform u = this.program.getUniform("light_color");
+    Constraints.constrainNotNull(u, "Uniform");
+    gl.programPutUniformVector3f(u, rgb);
   }
 
   @Override public void putLightPosition(
@@ -138,13 +149,24 @@ public final class ModelProgramTextured extends ModelProgram
     gl.programPutUniformVector3f(u, position);
   }
 
-  @Override public void putModelviewMatrix(
+  @Override public void putLightPower(
+    final @Nonnull GLInterfaceEmbedded gl,
+    final float power)
+    throws GLException,
+      ConstraintError
+  {
+    final ProgramUniform u = this.program.getUniform("light_power");
+    Constraints.constrainNotNull(u, "Uniform");
+    gl.programPutUniformFloat(u, power);
+  }
+
+  @Override public void putModelMatrix(
     final @Nonnull GLInterfaceEmbedded gl,
     final @Nonnull MatrixReadable4x4F m)
     throws GLException,
       ConstraintError
   {
-    final ProgramUniform u = this.program.getUniform("matrix_modelview");
+    final ProgramUniform u = this.program.getUniform("matrix_model");
     Constraints.constrainNotNull(u, "Uniform");
     gl.programPutUniformMatrix4x4f(u, m);
   }
@@ -177,7 +199,7 @@ public final class ModelProgramTextured extends ModelProgram
     throws GLException,
       ConstraintError
   {
-    final ProgramUniform u = this.program.getUniform("shininess");
+    final ProgramUniform u = this.program.getUniform("material_shininess");
     Constraints.constrainNotNull(u, "Uniform");
     gl.programPutUniformFloat(u, shininess);
   }
@@ -188,7 +210,7 @@ public final class ModelProgramTextured extends ModelProgram
     throws GLException,
       ConstraintError
   {
-    final ProgramUniform u = this.program.getUniform("specular");
+    final ProgramUniform u = this.program.getUniform("material_specular");
     Constraints.constrainNotNull(u, "Uniform");
     gl.programPutUniformVector4f(u, specular);
   }
@@ -213,6 +235,17 @@ public final class ModelProgramTextured extends ModelProgram
     final ProgramUniform u = this.program.getUniform("texture_alpha");
     Constraints.constrainNotNull(u, "Uniform");
     gl.programPutUniformFloat(u, alpha);
+  }
+
+  @Override public void putViewMatrix(
+    final @Nonnull GLInterfaceEmbedded gl,
+    final @Nonnull MatrixReadable4x4F m)
+    throws GLException,
+      ConstraintError
+  {
+    final ProgramUniform u = this.program.getUniform("matrix_view");
+    Constraints.constrainNotNull(u, "Uniform");
+    gl.programPutUniformMatrix4x4f(u, m);
   }
 
   @Override public void removeFragmentShader(

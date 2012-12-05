@@ -22,9 +22,21 @@ public interface PhongProgram
     throws GLException,
       ConstraintError;
 
+  public void putLightColor(
+    final @Nonnull GLInterfaceEmbedded gl,
+    final @Nonnull VectorReadable3F rgb)
+    throws GLException,
+      ConstraintError;
+
   public void putLightPosition(
     final @Nonnull GLInterfaceEmbedded gl,
     final @Nonnull VectorReadable3F position)
+    throws GLException,
+      ConstraintError;
+
+  public void putLightPower(
+    final @Nonnull GLInterfaceEmbedded gl,
+    final float power)
     throws GLException,
       ConstraintError;
 

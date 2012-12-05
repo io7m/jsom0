@@ -116,27 +116,10 @@ public final class ModelViewerLWJGL30
     final @Nonnull ModelViewer viewer)
   {
     while (Keyboard.next()) {
-      if (Keyboard.getEventKey() == Keyboard.KEY_W) {
-        if (Keyboard.getEventKeyState()) {
-          viewer.moveCameraZ(-1.0f);
-        }
-      }
-      if (Keyboard.getEventKey() == Keyboard.KEY_S) {
-        if (Keyboard.getEventKeyState()) {
-          viewer.moveCameraZ(+1.0f);
-        }
-      }
 
-      if (Keyboard.getEventKey() == Keyboard.KEY_G) {
-        if (Keyboard.getEventKeyState()) {
-          viewer.moveCameraY(-1.0f);
-        }
-      }
-      if (Keyboard.getEventKey() == Keyboard.KEY_B) {
-        if (Keyboard.getEventKeyState()) {
-          viewer.moveCameraY(+1.0f);
-        }
-      }
+      /**
+       * Camera control.
+       */
 
       if (Keyboard.getEventKey() == Keyboard.KEY_D) {
         if (Keyboard.getEventKeyState()) {
@@ -157,6 +140,52 @@ public final class ModelViewerLWJGL30
       if (Keyboard.getEventKey() == Keyboard.KEY_V) {
         if (Keyboard.getEventKeyState()) {
           viewer.rotateX(-0.1f);
+        }
+      }
+
+      if (Keyboard.getEventKey() == Keyboard.KEY_W) {
+        if (Keyboard.getEventKeyState()) {
+          viewer.moveCameraZ(-1.0f);
+        }
+      }
+      if (Keyboard.getEventKey() == Keyboard.KEY_S) {
+        if (Keyboard.getEventKeyState()) {
+          viewer.moveCameraZ(+1.0f);
+        }
+      }
+
+      /**
+       * Light control.
+       */
+
+      if (Keyboard.getEventKey() == Keyboard.KEY_U) {
+        if (Keyboard.getEventKeyState()) {
+          viewer.moveLightZ(-1.0f);
+        }
+      }
+      if (Keyboard.getEventKey() == Keyboard.KEY_J) {
+        if (Keyboard.getEventKeyState()) {
+          viewer.moveLightZ(+1.0f);
+        }
+      }
+      if (Keyboard.getEventKey() == Keyboard.KEY_K) {
+        if (Keyboard.getEventKeyState()) {
+          viewer.moveLightX(+1.0f);
+        }
+      }
+      if (Keyboard.getEventKey() == Keyboard.KEY_H) {
+        if (Keyboard.getEventKeyState()) {
+          viewer.moveLightX(-1.0f);
+        }
+      }
+      if (Keyboard.getEventKey() == Keyboard.KEY_G) {
+        if (Keyboard.getEventKeyState()) {
+          viewer.moveLightY(+1.0f);
+        }
+      }
+      if (Keyboard.getEventKey() == Keyboard.KEY_B) {
+        if (Keyboard.getEventKeyState()) {
+          viewer.moveLightY(-1.0f);
         }
       }
 
