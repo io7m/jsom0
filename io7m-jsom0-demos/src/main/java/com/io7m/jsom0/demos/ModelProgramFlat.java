@@ -102,7 +102,7 @@ public final class ModelProgramFlat extends ModelProgram
     throws GLException,
       ConstraintError
   {
-    final ProgramUniform u = this.program.getUniform("ambient");
+    final ProgramUniform u = this.program.getUniform("material_ambient");
     Constraints.constrainNotNull(u, "Uniform");
     gl.programPutUniformVector3f(u, ambient);
   }
@@ -124,7 +124,7 @@ public final class ModelProgramFlat extends ModelProgram
     throws GLException,
       ConstraintError
   {
-    final ProgramUniform u = this.program.getUniform("diffuse");
+    final ProgramUniform u = this.program.getUniform("material_diffuse");
     Constraints.constrainNotNull(u, "Uniform");
     gl.programPutUniformVector3f(u, diffuse);
   }
@@ -201,7 +201,7 @@ public final class ModelProgramFlat extends ModelProgram
     throws GLException,
       ConstraintError
   {
-    final ProgramUniform u = this.program.getUniform("shininess");
+    final ProgramUniform u = this.program.getUniform("material_shininess");
     Constraints.constrainNotNull(u, "Uniform");
     gl.programPutUniformFloat(u, shininess);
   }
@@ -212,7 +212,7 @@ public final class ModelProgramFlat extends ModelProgram
     throws GLException,
       ConstraintError
   {
-    final ProgramUniform u = this.program.getUniform("specular");
+    final ProgramUniform u = this.program.getUniform("material_specular");
     Constraints.constrainNotNull(u, "Uniform");
     gl.programPutUniformVector4f(u, specular);
   }
