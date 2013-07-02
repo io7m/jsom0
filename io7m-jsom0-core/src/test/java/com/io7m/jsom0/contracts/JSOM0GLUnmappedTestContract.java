@@ -14,33 +14,20 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.jsom0;
+package com.io7m.jsom0.contracts;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
+import com.io7m.jaux.Constraints.ConstraintError;
+import com.io7m.jcanephora.GLArrayBuffers;
+import com.io7m.jcanephora.GLException;
+import com.io7m.jcanephora.GLIndexBuffers;
+import com.io7m.jcanephora.GLUnsupportedException;
 
-import javax.annotation.Nonnull;
-
-import com.io7m.jaux.UnreachableCodeException;
-import com.io7m.jlog.Log;
-
-public final class TestUtilities
+public interface JSOM0GLUnmappedTestContract extends JSOM0LogTestContract
 {
-  private TestUtilities()
-  {
-    throw new UnreachableCodeException();
-  }
+  public <G extends GLArrayBuffers & GLIndexBuffers> G makeNewGL()
+    throws GLException,
+      ConstraintError,
+      GLUnsupportedException;
 
-  public static @Nonnull Log getLog()
-    throws IOException
-  {
-    final InputStream rstream =
-      TestUtilities.class
-        .getResourceAsStream("/com/io7m/jsom0/test.properties");
-    final Properties props = new Properties();
-    props.load(rstream);
-    rstream.close();
-    return new Log(props, "com.io7m.jsom0", "test");
-  }
+  public boolean isSupported();
 }

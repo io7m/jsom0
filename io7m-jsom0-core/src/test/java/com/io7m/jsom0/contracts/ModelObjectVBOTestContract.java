@@ -1,36 +1,64 @@
+/*
+ * Copyright © 2013 <code@io7m.com> http://io7m.com
+ * 
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+ * SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+ * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
+
 package com.io7m.jsom0.contracts;
 
 import org.junit.Assert;
+import org.junit.Assume;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.io7m.jaux.Constraints.ConstraintError;
 import com.io7m.jcanephora.ArrayBuffer;
 import com.io7m.jcanephora.ArrayBufferAttribute;
 import com.io7m.jcanephora.ArrayBufferDescriptor;
+import com.io7m.jcanephora.GLArrayBuffers;
 import com.io7m.jcanephora.GLException;
-import com.io7m.jcanephora.GLInterfaceEmbedded;
+import com.io7m.jcanephora.GLIndexBuffers;
 import com.io7m.jcanephora.GLScalarType;
+import com.io7m.jcanephora.GLUnsupportedException;
 import com.io7m.jcanephora.IndexBuffer;
+import com.io7m.jcanephora.UsageHint;
 import com.io7m.jsom0.ModelObjectVBO;
 import com.io7m.jtensors.VectorI3F;
 
-public abstract class ModelObjectVBOTestContract implements
-  JSOM0GLEmbeddedTestContract
+public abstract class ModelObjectVBOTestContract<G extends GLArrayBuffers & GLIndexBuffers> implements
+  JSOM0GLUnmappedTestContract
 {
+  @Before public final void checkSupport()
+  {
+    Assume.assumeTrue(this.isSupported());
+  }
+
   @SuppressWarnings("unused") @Test(expected = ConstraintError.class) public
     void
     testArrayNull()
       throws ConstraintError,
-        GLException
+        GLException,
+        GLUnsupportedException
   {
-    final GLInterfaceEmbedded gl = this.makeNewGL();
+    final G gl = this.makeNewGL();
     final ArrayBufferDescriptor d =
       new ArrayBufferDescriptor(
         new ArrayBufferAttribute[] { new ArrayBufferAttribute(
           "nothing",
           GLScalarType.TYPE_BYTE,
           1) });
-    final ArrayBuffer vb = gl.arrayBufferAllocate(1, d);
+    final ArrayBuffer vb =
+      gl.arrayBufferAllocate(1, d, UsageHint.USAGE_STATIC_READ);
     final IndexBuffer ib = gl.indexBufferAllocate(vb, 3);
     new ModelObjectVBO(
       "name",
@@ -43,16 +71,18 @@ public abstract class ModelObjectVBOTestContract implements
 
   @Test public void testIdentities()
     throws ConstraintError,
-      GLException
+      GLException,
+      GLUnsupportedException
   {
-    final GLInterfaceEmbedded gl = this.makeNewGL();
+    final G gl = this.makeNewGL();
     final ArrayBufferDescriptor d =
       new ArrayBufferDescriptor(
         new ArrayBufferAttribute[] { new ArrayBufferAttribute(
           "nothing",
           GLScalarType.TYPE_BYTE,
           1) });
-    final ArrayBuffer vb = gl.arrayBufferAllocate(1, d);
+    final ArrayBuffer vb =
+      gl.arrayBufferAllocate(1, d, UsageHint.USAGE_STATIC_READ);
     final IndexBuffer ib = gl.indexBufferAllocate(vb, 3);
     final ModelObjectVBO o =
       new ModelObjectVBO(
@@ -73,16 +103,18 @@ public abstract class ModelObjectVBOTestContract implements
     void
     testIndexNull()
       throws ConstraintError,
-        GLException
+        GLException,
+        GLUnsupportedException
   {
-    final GLInterfaceEmbedded gl = this.makeNewGL();
+    final G gl = this.makeNewGL();
     final ArrayBufferDescriptor d =
       new ArrayBufferDescriptor(
         new ArrayBufferAttribute[] { new ArrayBufferAttribute(
           "nothing",
           GLScalarType.TYPE_BYTE,
           1) });
-    final ArrayBuffer vb = gl.arrayBufferAllocate(1, d);
+    final ArrayBuffer vb =
+      gl.arrayBufferAllocate(1, d, UsageHint.USAGE_STATIC_READ);
     new ModelObjectVBO(
       "name",
       "material",
@@ -96,16 +128,18 @@ public abstract class ModelObjectVBOTestContract implements
     void
     testMaterialNull()
       throws ConstraintError,
-        GLException
+        GLException,
+        GLUnsupportedException
   {
-    final GLInterfaceEmbedded gl = this.makeNewGL();
+    final G gl = this.makeNewGL();
     final ArrayBufferDescriptor d =
       new ArrayBufferDescriptor(
         new ArrayBufferAttribute[] { new ArrayBufferAttribute(
           "nothing",
           GLScalarType.TYPE_BYTE,
           1) });
-    final ArrayBuffer vb = gl.arrayBufferAllocate(1, d);
+    final ArrayBuffer vb =
+      gl.arrayBufferAllocate(1, d, UsageHint.USAGE_STATIC_READ);
     final IndexBuffer ib = gl.indexBufferAllocate(vb, 3);
     new ModelObjectVBO("name", null, VectorI3F.ZERO, VectorI3F.ZERO, vb, ib);
   }
@@ -114,16 +148,18 @@ public abstract class ModelObjectVBOTestContract implements
     void
     testNameNull()
       throws ConstraintError,
-        GLException
+        GLException,
+        GLUnsupportedException
   {
-    final GLInterfaceEmbedded gl = this.makeNewGL();
+    final G gl = this.makeNewGL();
     final ArrayBufferDescriptor d =
       new ArrayBufferDescriptor(
         new ArrayBufferAttribute[] { new ArrayBufferAttribute(
           "nothing",
           GLScalarType.TYPE_BYTE,
           1) });
-    final ArrayBuffer vb = gl.arrayBufferAllocate(1, d);
+    final ArrayBuffer vb =
+      gl.arrayBufferAllocate(1, d, UsageHint.USAGE_STATIC_READ);
     final IndexBuffer ib = gl.indexBufferAllocate(vb, 3);
     new ModelObjectVBO(
       null,
@@ -136,16 +172,18 @@ public abstract class ModelObjectVBOTestContract implements
 
   @Test public void testToStringMaterialDifferent()
     throws ConstraintError,
-      GLException
+      GLException,
+      GLUnsupportedException
   {
-    final GLInterfaceEmbedded gl = this.makeNewGL();
+    final G gl = this.makeNewGL();
     final ArrayBufferDescriptor d =
       new ArrayBufferDescriptor(
         new ArrayBufferAttribute[] { new ArrayBufferAttribute(
           "nothing",
           GLScalarType.TYPE_BYTE,
           1) });
-    final ArrayBuffer vb = gl.arrayBufferAllocate(1, d);
+    final ArrayBuffer vb =
+      gl.arrayBufferAllocate(1, d, UsageHint.USAGE_STATIC_READ);
     final IndexBuffer ib = gl.indexBufferAllocate(vb, 3);
 
     final ModelObjectVBO o0 =
@@ -173,16 +211,18 @@ public abstract class ModelObjectVBOTestContract implements
 
   @Test public void testToStringNameDifferent()
     throws ConstraintError,
-      GLException
+      GLException,
+      GLUnsupportedException
   {
-    final GLInterfaceEmbedded gl = this.makeNewGL();
+    final G gl = this.makeNewGL();
     final ArrayBufferDescriptor d =
       new ArrayBufferDescriptor(
         new ArrayBufferAttribute[] { new ArrayBufferAttribute(
           "nothing",
           GLScalarType.TYPE_BYTE,
           1) });
-    final ArrayBuffer vb = gl.arrayBufferAllocate(1, d);
+    final ArrayBuffer vb =
+      gl.arrayBufferAllocate(1, d, UsageHint.USAGE_STATIC_READ);
     final IndexBuffer ib = gl.indexBufferAllocate(vb, 3);
 
     final ModelObjectVBO o0 =

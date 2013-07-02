@@ -1,3 +1,19 @@
+/*
+ * Copyright © 2013 <code@io7m.com> http://io7m.com
+ * 
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+ * SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+ * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
+
 package com.io7m.jsom0.parser;
 
 import java.io.IOException;
@@ -9,25 +25,33 @@ import javax.annotation.Nonnull;
 import com.io7m.jaux.Constraints;
 import com.io7m.jaux.Constraints.ConstraintError;
 import com.io7m.jcanephora.ArrayBufferWritableMap;
+import com.io7m.jcanephora.GLArrayBuffers;
+import com.io7m.jcanephora.GLArrayBuffersMapped;
 import com.io7m.jcanephora.GLException;
-import com.io7m.jcanephora.GLInterface;
+import com.io7m.jcanephora.GLIndexBuffers;
+import com.io7m.jcanephora.GLIndexBuffersMapped;
 import com.io7m.jcanephora.IndexBufferWritableMap;
+import com.io7m.jcanephora.UsageHint;
 import com.io7m.jlog.Log;
 import com.io7m.jsom0.VertexType;
 import com.io7m.jsom0.VertexTypeInformation;
 
 /**
+ * <p>
  * A parser that produces a vertex buffer object (and associated index buffer
  * object) whilst parsing the given file.
- * 
+ * </p>
+ * <p>
  * This implementation uses memory-mapped buffer objects on systems that
  * support them (for reduced memory allocation and potentially increased
  * performance).
+ * </p>
  */
 
-public final class ModelObjectParserVBOMapped extends ModelObjectParserVBO
+public final class ModelObjectParserVBOMapped<G extends GLArrayBuffers & GLArrayBuffersMapped & GLIndexBuffersMapped & GLIndexBuffers> extends
+  ModelObjectParserVBO
 {
-  private final @Nonnull GLInterface           gl;
+  private final @Nonnull G                     gl;
   private @CheckForNull ArrayBufferWritableMap array_buffer_data;
   private @CheckForNull IndexBufferWritableMap index_data;
 
@@ -35,7 +59,7 @@ public final class ModelObjectParserVBOMapped extends ModelObjectParserVBO
     final @Nonnull String file_name,
     final @Nonnull InputStream in,
     final @Nonnull Log log,
-    final @Nonnull GLInterface gl)
+    final @Nonnull G gl)
     throws ConstraintError,
       IOException,
       Error
@@ -72,7 +96,10 @@ public final class ModelObjectParserVBOMapped extends ModelObjectParserVBO
   {
     this.array_buffer_type = VertexTypeInformation.typeDescriptor(type);
     this.array_buffer =
-      this.gl.arrayBufferAllocate(count, this.array_buffer_type);
+      this.gl.arrayBufferAllocate(
+        count,
+        this.array_buffer_type,
+        UsageHint.USAGE_STATIC_READ);
     this.array_buffer_data = this.gl.arrayBufferMapWrite(this.array_buffer);
 
     switch (type) {

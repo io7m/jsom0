@@ -65,6 +65,21 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>com.io7m.jcanephora.jogl</groupId>
+      <artifactId>io7m-jcanephora-jogl</artifactId>
+      <version>0.9.3</version>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.jcanephora.core</groupId>
+      <artifactId>io7m-jcanephora-core</artifactId>
+      <version>0.9.3</version>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.jvvfs.core</groupId>
+      <artifactId>io7m-jvvfs-core</artifactId>
+      <version>[3.0.0, 4.0.0)</version>
+    </dependency>
+    <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
       <version>2.0.1</version>
@@ -73,27 +88,17 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
-      <version>4.10</version>
+      <version>4.11</version>
     </dependency>
     <dependency>
       <groupId>org.jogamp.gluegen</groupId>
       <artifactId>gluegen-rt-main</artifactId>
-      <version>2.0-rc11</version>
+      <version>2.0.2-rc12</version>
     </dependency>
     <dependency>
       <groupId>org.jogamp.jogl</groupId>
       <artifactId>jogl-all-main</artifactId>
-      <version>2.0-rc11</version>
-    </dependency>
-    <dependency>
-    	<groupId>com.io7m.jcanephora.jogl</groupId>
-    	<artifactId>io7m-jcanephora-jogl</artifactId>
-    	<version>[1.0.0, 2.0.0)</version>
-    </dependency>
-    <dependency>
-    	<groupId>com.io7m.jcanephora.core</groupId>
-    	<artifactId>io7m-jcanephora-core</artifactId>
-    	<version>[1.0.0, 2.0.0)</version>
+      <version>2.0.2-rc12</version>
     </dependency>
   </dependencies>
 

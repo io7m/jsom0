@@ -1,3 +1,19 @@
+/*
+ * Copyright © 2013 <code@io7m.com> http://io7m.com
+ * 
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+ * SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+ * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
+
 package com.io7m.jsom0.parser;
 
 import java.io.IOException;
@@ -12,8 +28,8 @@ import com.io7m.jaux.UnreachableCodeException;
 import com.io7m.jaux.functional.Option;
 import com.io7m.jlog.Log;
 import com.io7m.jsom0.ModelObject;
-import com.io7m.jsom0.VertexTypeInformation;
 import com.io7m.jsom0.VertexType;
+import com.io7m.jsom0.VertexTypeInformation;
 import com.io7m.jtensors.VectorM2F;
 import com.io7m.jtensors.VectorM3F;
 import com.io7m.jtensors.VectorReadable2F;
@@ -387,7 +403,8 @@ public abstract class ModelObjectParser<O extends ModelObject, E extends Throwab
   {
     ++this.highest_vertex;
 
-    this.consumeSymbol(VertexTypeInformation.vertexTypeName(VertexType.VERTEX_TYPE_P3N3));
+    this.consumeSymbol(VertexTypeInformation
+      .vertexTypeName(VertexType.VERTEX_TYPE_P3N3));
     this.consume(ModelObjectTokenType.OBJECT_TOKEN_SEMICOLON);
 
     final VectorM3F position = this.vertexPosition();
@@ -411,7 +428,8 @@ public abstract class ModelObjectParser<O extends ModelObject, E extends Throwab
   {
     ++this.highest_vertex;
 
-    this.consumeSymbol(VertexTypeInformation.vertexTypeName(VertexType.VERTEX_TYPE_P3N3T2));
+    this.consumeSymbol(VertexTypeInformation
+      .vertexTypeName(VertexType.VERTEX_TYPE_P3N3T2));
     this.consume(ModelObjectTokenType.OBJECT_TOKEN_SEMICOLON);
 
     final VectorM3F position = this.vertexPosition();
@@ -475,7 +493,9 @@ public abstract class ModelObjectParser<O extends ModelObject, E extends Throwab
         this.debug("expecting " + elements + " vertices");
 
         if (VertexTypeInformation.validTypeName(this.token.value) == false) {
-          throw Error.unexpectedOneOf(this.token, VertexTypeInformation.vertexTypeNames());
+          throw Error.unexpectedOneOf(
+            this.token,
+            VertexTypeInformation.vertexTypeNames());
         }
 
         final String name = this.token.value;

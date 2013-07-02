@@ -6,7 +6,8 @@ import com.io7m.jaux.Constraints;
 import com.io7m.jaux.Constraints.ConstraintError;
 import com.io7m.jcanephora.GLCompileException;
 import com.io7m.jcanephora.GLException;
-import com.io7m.jcanephora.GLInterfaceEmbedded;
+import com.io7m.jcanephora.GLMeta;
+import com.io7m.jcanephora.GLShaders;
 import com.io7m.jcanephora.Program;
 import com.io7m.jcanephora.ProgramAttribute;
 import com.io7m.jcanephora.ProgramUniform;
@@ -16,7 +17,7 @@ import com.io7m.jtensors.MatrixReadable3x3F;
 import com.io7m.jtensors.MatrixReadable4x4F;
 import com.io7m.jtensors.VectorReadable3F;
 import com.io7m.jtensors.VectorReadable4F;
-import com.io7m.jvvfs.FilesystemAPI;
+import com.io7m.jvvfs.FSCapabilityRead;
 import com.io7m.jvvfs.FilesystemError;
 import com.io7m.jvvfs.PathVirtual;
 
@@ -32,7 +33,7 @@ public final class ModelProgramTextured extends ModelProgram
   }
 
   @Override public void activate(
-    final @Nonnull GLInterfaceEmbedded gl)
+    final @Nonnull GLShaders gl)
     throws ConstraintError,
       GLException
   {
@@ -53,17 +54,20 @@ public final class ModelProgramTextured extends ModelProgram
     this.program.addVertexShader(path);
   }
 
-  @Override public void compile(
-    final @Nonnull FilesystemAPI fs,
-    final @Nonnull GLInterfaceEmbedded gl)
-    throws ConstraintError,
-      GLCompileException
+  @Override public
+    <G extends GLShaders & GLMeta, F extends FSCapabilityRead>
+    void
+    compile(
+      final @Nonnull F fs,
+      final @Nonnull G gl)
+      throws ConstraintError,
+        GLCompileException
   {
     this.program.compile(fs, gl);
   }
 
   @Override public void deactivate(
-    final @Nonnull GLInterfaceEmbedded gl)
+    final @Nonnull GLShaders gl)
     throws ConstraintError,
       GLException
   {
@@ -95,7 +99,7 @@ public final class ModelProgramTextured extends ModelProgram
   }
 
   @Override void putAlpha(
-    final @Nonnull GLInterfaceEmbedded gl,
+    final @Nonnull GLShaders gl,
     final float alpha)
     throws ConstraintError,
       GLException
@@ -106,7 +110,7 @@ public final class ModelProgramTextured extends ModelProgram
   }
 
   @Override public void putAmbient(
-    final @Nonnull GLInterfaceEmbedded gl,
+    final @Nonnull GLShaders gl,
     final @Nonnull VectorReadable3F ambient)
     throws GLException,
       ConstraintError
@@ -117,7 +121,7 @@ public final class ModelProgramTextured extends ModelProgram
   }
 
   @Override public void putDiffuse(
-    final @Nonnull GLInterfaceEmbedded gl,
+    final @Nonnull GLShaders gl,
     final @Nonnull VectorReadable3F diffuse)
     throws GLException,
       ConstraintError
@@ -128,7 +132,7 @@ public final class ModelProgramTextured extends ModelProgram
   }
 
   @Override public void putLightColor(
-    final @Nonnull GLInterfaceEmbedded gl,
+    final @Nonnull GLShaders gl,
     final @Nonnull VectorReadable3F rgb)
     throws GLException,
       ConstraintError
@@ -139,7 +143,7 @@ public final class ModelProgramTextured extends ModelProgram
   }
 
   @Override public void putLightPosition(
-    final @Nonnull GLInterfaceEmbedded gl,
+    final @Nonnull GLShaders gl,
     final @Nonnull VectorReadable3F position)
     throws GLException,
       ConstraintError
@@ -150,7 +154,7 @@ public final class ModelProgramTextured extends ModelProgram
   }
 
   @Override public void putLightPower(
-    final @Nonnull GLInterfaceEmbedded gl,
+    final @Nonnull GLShaders gl,
     final float power)
     throws GLException,
       ConstraintError
@@ -161,7 +165,7 @@ public final class ModelProgramTextured extends ModelProgram
   }
 
   @Override public void putModelMatrix(
-    final @Nonnull GLInterfaceEmbedded gl,
+    final @Nonnull GLShaders gl,
     final @Nonnull MatrixReadable4x4F m)
     throws GLException,
       ConstraintError
@@ -172,7 +176,7 @@ public final class ModelProgramTextured extends ModelProgram
   }
 
   @Override public void putNormalMatrix(
-    final @Nonnull GLInterfaceEmbedded gl,
+    final @Nonnull GLShaders gl,
     final @Nonnull MatrixReadable3x3F m)
     throws GLException,
       ConstraintError
@@ -183,7 +187,7 @@ public final class ModelProgramTextured extends ModelProgram
   }
 
   @Override public void putProjectionMatrix(
-    final @Nonnull GLInterfaceEmbedded gl,
+    final @Nonnull GLShaders gl,
     final @Nonnull MatrixReadable4x4F m)
     throws GLException,
       ConstraintError
@@ -194,7 +198,7 @@ public final class ModelProgramTextured extends ModelProgram
   }
 
   @Override public void putShininess(
-    final @Nonnull GLInterfaceEmbedded gl,
+    final @Nonnull GLShaders gl,
     final float shininess)
     throws GLException,
       ConstraintError
@@ -205,7 +209,7 @@ public final class ModelProgramTextured extends ModelProgram
   }
 
   @Override public void putSpecular(
-    final @Nonnull GLInterfaceEmbedded gl,
+    final @Nonnull GLShaders gl,
     final @Nonnull VectorReadable4F specular)
     throws GLException,
       ConstraintError
@@ -216,7 +220,7 @@ public final class ModelProgramTextured extends ModelProgram
   }
 
   public void putTexture(
-    final @Nonnull GLInterfaceEmbedded gl,
+    final @Nonnull GLShaders gl,
     final @Nonnull TextureUnit unit)
     throws ConstraintError,
       GLException
@@ -227,7 +231,7 @@ public final class ModelProgramTextured extends ModelProgram
   }
 
   public void putTextureAlpha(
-    final @Nonnull GLInterfaceEmbedded gl,
+    final @Nonnull GLShaders gl,
     final float alpha)
     throws ConstraintError,
       GLException
@@ -238,7 +242,7 @@ public final class ModelProgramTextured extends ModelProgram
   }
 
   @Override public void putViewMatrix(
-    final @Nonnull GLInterfaceEmbedded gl,
+    final @Nonnull GLShaders gl,
     final @Nonnull MatrixReadable4x4F m)
     throws GLException,
       ConstraintError
@@ -250,7 +254,7 @@ public final class ModelProgramTextured extends ModelProgram
 
   @Override public void removeFragmentShader(
     final @Nonnull PathVirtual path,
-    final @Nonnull GLInterfaceEmbedded gl)
+    final @Nonnull GLShaders gl)
     throws ConstraintError,
       GLException
   {
@@ -259,7 +263,7 @@ public final class ModelProgramTextured extends ModelProgram
 
   @Override public void removeVertexShader(
     final @Nonnull PathVirtual path,
-    final @Nonnull GLInterfaceEmbedded gl)
+    final @Nonnull GLShaders gl)
     throws ConstraintError,
       GLException
   {
@@ -267,8 +271,8 @@ public final class ModelProgramTextured extends ModelProgram
   }
 
   @Override public boolean requiresCompilation(
-    final @Nonnull FilesystemAPI fs,
-    final @Nonnull GLInterfaceEmbedded gl)
+    final @Nonnull FSCapabilityRead fs,
+    final @Nonnull GLShaders gl)
     throws FilesystemError,
       ConstraintError
   {

@@ -22,34 +22,34 @@ import com.io7m.jaux.functional.Option;
 import com.io7m.jaux.functional.Option.Some;
 import com.io7m.jcanephora.GLException;
 import com.io7m.jcanephora.GLImplementation;
-import com.io7m.jcanephora.GLInterfaceGL3;
+import com.io7m.jcanephora.GLInterfaceGL2;
 import com.io7m.jcanephora.GLUnsupportedException;
 import com.io7m.jlog.Log;
-import com.io7m.jsom0.parser.contracts.ModelObjectParserVBOMappedTestContract;
+import com.io7m.jsom0.parser.contracts.ModelObjectParserVBOImmediateTestContract;
 
-public final class JOGL30ModelObjectParserVBOMappedTest extends
-  ModelObjectParserVBOMappedTestContract<GLInterfaceGL3>
+public final class JOGL21ModelObjectParserVBOImmediateTest extends
+  ModelObjectParserVBOImmediateTestContract<GLInterfaceGL2>
 {
-  @Override public Log getLog()
-  {
-    return JOGLTestDisplay.getLog(JOGLTestDisplay.LOG_DESTINATION_OPENGL_3_X);
-  }
-
   @Override public boolean isSupported()
   {
-    return JOGLTestDisplay.isOpenGL3Supported();
+    return JOGLTestDisplay.isOpenGL21WithExtensionsSupported();
   }
 
-  @Override public GLInterfaceGL3 makeNewGL()
+  @Override public Log getLog()
+  {
+    return JOGLTestDisplay.getLog(JOGLTestDisplay.LOG_DESTINATION_OPENGL_2_1);
+  }
+
+  @Override public GLInterfaceGL2 makeNewGL()
     throws GLException,
       ConstraintError,
       GLUnsupportedException
   {
-    final GLImplementation gi = JOGLTestDisplay.makeContextWithOpenGL3_X();
-    final Option<GLInterfaceGL3> go = gi.getGL3();
+    final GLImplementation gi = JOGLTestDisplay.makeContextWithOpenGL2_1();
+    final Option<GLInterfaceGL2> go = gi.getGL2();
 
     if (go.isSome()) {
-      final Some<GLInterfaceGL3> gs = (Option.Some<GLInterfaceGL3>) go;
+      final Some<GLInterfaceGL2> gs = (Option.Some<GLInterfaceGL2>) go;
       return gs.value;
     }
 

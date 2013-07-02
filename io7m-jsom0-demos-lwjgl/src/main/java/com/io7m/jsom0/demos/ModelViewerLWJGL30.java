@@ -13,8 +13,8 @@ import org.lwjgl.opengl.DisplayMode;
 import com.io7m.jaux.Constraints.ConstraintError;
 import com.io7m.jcanephora.GLCompileException;
 import com.io7m.jcanephora.GLException;
-import com.io7m.jcanephora.GLInterface;
-import com.io7m.jcanephora.GLInterface_LWJGL30;
+import com.io7m.jcanephora.GLImplementationLWJGL;
+import com.io7m.jcanephora.GLUnsupportedException;
 import com.io7m.jlog.Log;
 import com.io7m.jsom0.parser.Error;
 import com.io7m.jvvfs.FilesystemError;
@@ -71,17 +71,17 @@ public final class ModelViewerLWJGL30
       p.setProperty("com.io7m.jsom0.demos.logs.mv", "true");
       p.setProperty(
         "com.io7m.jsom0.demos.logs.mv.model-viewer.filesystem",
-        "false");
+        "true");
       p.setProperty(
         "com.io7m.jsom0.demos.logs.mv.model-viewer.object-parser",
         "true");
 
       final Log log = new Log(p, "com.io7m.jsom0.demos", "mv");
-      final GLInterface g = new GLInterface_LWJGL30(log);
+      final GLImplementationLWJGL g = new GLImplementationLWJGL(log);
 
       final ModelViewer viewer =
         new ModelViewer(
-          g,
+          g.getGLCommon(),
           log,
           texture_directory,
           file_material,
@@ -90,7 +90,7 @@ public final class ModelViewerLWJGL30
 
       while (Display.isCloseRequested() == false) {
         ModelViewerLWJGL30.input(viewer);
-        viewer.render(g);
+        viewer.render(g.getGLCommon());
 
         Display.update();
         Display.sync(60);
@@ -109,6 +109,8 @@ public final class ModelViewerLWJGL30
       ErrorBox.showError("Constraint error", e);
     } catch (final FilesystemError e) {
       ErrorBox.showError("Filesystem error", e);
+    } catch (final GLUnsupportedException e) {
+      ErrorBox.showError("OpenGL unsupported error", e);
     }
   }
 

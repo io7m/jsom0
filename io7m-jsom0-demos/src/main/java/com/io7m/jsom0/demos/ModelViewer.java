@@ -21,17 +21,20 @@ import com.io7m.jcanephora.BlendFunction;
 import com.io7m.jcanephora.DepthFunction;
 import com.io7m.jcanephora.FaceSelection;
 import com.io7m.jcanephora.FaceWindingOrder;
+import com.io7m.jcanephora.GLArrayBuffers;
 import com.io7m.jcanephora.GLCompileException;
 import com.io7m.jcanephora.GLException;
-import com.io7m.jcanephora.GLInterfaceEmbedded;
+import com.io7m.jcanephora.GLIndexBuffers;
+import com.io7m.jcanephora.GLInterfaceCommon;
 import com.io7m.jcanephora.Primitives;
 import com.io7m.jcanephora.ProjectionMatrix;
 import com.io7m.jcanephora.Texture2DStatic;
-import com.io7m.jcanephora.TextureFilter;
+import com.io7m.jcanephora.TextureFilterMagnification;
+import com.io7m.jcanephora.TextureFilterMinification;
 import com.io7m.jcanephora.TextureLoaderImageIO;
-import com.io7m.jcanephora.TextureType;
 import com.io7m.jcanephora.TextureUnit;
-import com.io7m.jcanephora.TextureWrap;
+import com.io7m.jcanephora.TextureWrapS;
+import com.io7m.jcanephora.TextureWrapT;
 import com.io7m.jlog.Log;
 import com.io7m.jsom0.Model;
 import com.io7m.jsom0.ModelMaterial;
@@ -78,18 +81,21 @@ public final class ModelViewer
     return m;
   }
 
-  private static Model<ModelObjectVBO> loadModel(
-    final String file,
-    final GLInterfaceEmbedded gl,
-    final Log log)
-    throws IOException,
-      Error,
-      ConstraintError,
-      GLException
+  private static
+    <G extends GLArrayBuffers & GLIndexBuffers>
+    Model<ModelObjectVBO>
+    loadModel(
+      final String file,
+      final G gl,
+      final Log log)
+      throws IOException,
+        Error,
+        ConstraintError,
+        GLException
   {
     final InputStream stream = new FileInputStream(file);
-    final ModelObjectParserVBOImmediate op =
-      new ModelObjectParserVBOImmediate(file, stream, log, gl);
+    final ModelObjectParserVBOImmediate<G> op =
+      new ModelObjectParserVBOImmediate<G>(file, stream, log, gl);
 
     final ModelParser<ModelObjectVBO, GLException> parser =
       new ModelParser<ModelObjectVBO, GLException>(op);
@@ -136,14 +142,14 @@ public final class ModelViewer
       case OPTION_NONE:
       {
         final ModelProgramFlat p = new ModelProgramFlat(log);
-        p.addVertexShader(new PathVirtual("/shaders/jsom0.v"));
+        p.addVertexShader(PathVirtual.ofString("/shaders/jsom0.v"));
         p.addFragmentShader(ModelViewer.selectShader(log, m));
         return p;
       }
       case OPTION_SOME:
       {
         final ModelProgramTextured p = new ModelProgramTextured(log);
-        p.addVertexShader(new PathVirtual("/shaders/jsom0.v"));
+        p.addVertexShader(PathVirtual.ofString("/shaders/jsom0.v"));
         p.addFragmentShader(ModelViewer.selectShader(log, m));
         return p;
       }
@@ -161,7 +167,7 @@ public final class ModelViewer
       case OPTION_NONE:
       {
         log.debug("using untextured shader");
-        return new PathVirtual("/shaders/jsom0-untextured.f");
+        return PathVirtual.ofString("/shaders/jsom0-untextured.f");
       }
       case OPTION_SOME:
       {
@@ -170,10 +176,10 @@ public final class ModelViewer
         switch (some_texture.value.mapping) {
           case MODEL_TEXTURE_MAPPING_CHROME:
             log.debug("using chrome shader");
-            return new PathVirtual("/shaders/jsom0-textured-chrome.f");
+            return PathVirtual.ofString("/shaders/jsom0-textured-chrome.f");
           case MODEL_TEXTURE_MAPPING_UV:
             log.debug("using uv shader");
-            return new PathVirtual("/shaders/jsom0-textured-uv.f");
+            return PathVirtual.ofString("/shaders/jsom0-textured-uv.f");
         }
       }
     }
@@ -208,7 +214,7 @@ public final class ModelViewer
   private final @Nonnull VectorM3F             light_position;
 
   ModelViewer(
-    final @Nonnull GLInterfaceEmbedded g,
+    final @Nonnull GLInterfaceCommon g,
     final @Nonnull Log log,
     final @Nonnull String texture_directory,
     final @Nonnull String file_material,
@@ -227,9 +233,9 @@ public final class ModelViewer
     Constraints.constrainNotNull(object_name, "Object name");
 
     this.log = new Log(log, "model-viewer");
-    this.fs = new Filesystem(this.log);
-    this.fs.mountUnsafeClasspathItem(Model.class, new PathVirtual("/"));
-    this.fs.mountUnsafeClasspathItem(ModelViewer.class, new PathVirtual("/"));
+    this.fs = Filesystem.makeWithoutArchiveDirectory(this.log);
+    this.fs.mountClasspathArchive(Model.class, PathVirtual.ROOT);
+    this.fs.mountClasspathArchive(ModelViewer.class, PathVirtual.ROOT);
 
     this.texture_directory = texture_directory;
     this.texture_units = g.textureGetUnits();
@@ -255,13 +261,12 @@ public final class ModelViewer
 
       final InputStream stream = new FileInputStream(texture_path.toString());
       this.texture =
-        this.texture_loader.load2DStaticSpecific(
+        this.texture_loader.load2DStaticRGBA8888(
           g,
-          TextureType.TEXTURE_TYPE_RGBA_8888_4BPP,
-          TextureWrap.TEXTURE_WRAP_REPEAT,
-          TextureWrap.TEXTURE_WRAP_REPEAT,
-          TextureFilter.TEXTURE_FILTER_NEAREST,
-          TextureFilter.TEXTURE_FILTER_NEAREST,
+          TextureWrapS.TEXTURE_WRAP_REPEAT,
+          TextureWrapT.TEXTURE_WRAP_REPEAT,
+          TextureFilterMinification.TEXTURE_FILTER_NEAREST,
+          TextureFilterMagnification.TEXTURE_FILTER_NEAREST,
           stream,
           m_texture.getName());
       stream.close();
@@ -294,7 +299,7 @@ public final class ModelViewer
   }
 
   private void drawViewedModel(
-    final @Nonnull GLInterfaceEmbedded g)
+    final @Nonnull GLInterfaceCommon g)
     throws ConstraintError,
       GLException
   {
@@ -440,7 +445,7 @@ public final class ModelViewer
   }
 
   public void render(
-    final @Nonnull GLInterfaceEmbedded g)
+    final @Nonnull GLInterfaceCommon g)
     throws GLException,
       ConstraintError
   {
