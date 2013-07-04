@@ -38,7 +38,7 @@ import com.io7m.jtensors.VectorReadable3F;
 /**
  * A generic parser type that parses model objects of type <code>O</code> and
  * may raise exceptions of type <code>E</code> (in addition to the normal
- * parser or I/O errors, whilst parsing.
+ * parser or I/O errors) whilst parsing.
  * 
  * @param <O>
  *          The type of model object.
