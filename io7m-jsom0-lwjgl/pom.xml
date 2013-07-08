@@ -8,7 +8,7 @@
   <artifactId>io7m-jsom0-lwjgl</artifactId>
   <name>io7m-jsom0-lwjgl</name>
   <description>API implementation using LWJGL</description>
-  <version>1.0.0</version>
+  <version>0.9.0</version>
   <url>http://mvn.io7m.com/jsom0-lwjgl</url>
   <packaging>jar</packaging>
 
@@ -55,12 +55,12 @@
     <dependency>
       <groupId>com.io7m.jsom0.core</groupId>
       <artifactId>io7m-jsom0-core</artifactId>
-      <version>1.0.0</version>
+      <version>0.9.0</version>
     </dependency>
     <dependency>
       <groupId>com.io7m.jsom0.core</groupId>
       <artifactId>io7m-jsom0-core</artifactId>
-      <version>1.0.0</version>
+      <version>0.9.0</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
