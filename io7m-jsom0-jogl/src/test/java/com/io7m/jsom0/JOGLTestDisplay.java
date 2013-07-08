@@ -33,17 +33,20 @@ import com.io7m.jcanephora.GLUnsupportedException;
 import com.io7m.jlog.Log;
 import com.io7m.jvvfs.FSCapabilityAll;
 import com.io7m.jvvfs.Filesystem;
+import com.jogamp.common.util.VersionNumber;
 
 public final class JOGLTestDisplay
 {
   private static GLOffscreenAutoDrawable buffer;
   static final String                    LOG_DESTINATION_OPENGL_ES_2_0;
-  static final String                    LOG_DESTINATION_OPENGL_3_X;
+  static final String                    LOG_DESTINATION_OPENGL_3_0;
+  static final String                    LOG_DESTINATION_OPENGL_3_p;
   static final String                    LOG_DESTINATION_OPENGL_2_1;
 
   static {
     LOG_DESTINATION_OPENGL_ES_2_0 = "jogl_es_2_0-test";
-    LOG_DESTINATION_OPENGL_3_X = "jogl_3_x-test";
+    LOG_DESTINATION_OPENGL_3_0 = "jogl_3_0-test";
+    LOG_DESTINATION_OPENGL_3_p = "jogl_3_p-test";
     LOG_DESTINATION_OPENGL_2_1 = "jogl_2_1-test";
   }
 
@@ -83,38 +86,119 @@ public final class JOGLTestDisplay
     return context;
   }
 
+  static FSCapabilityAll getFS(
+    final String destination)
+  {
+    try {
+      return Filesystem.makeWithoutArchiveDirectory(JOGLTestDisplay
+        .getLog(destination));
+    } catch (final ConstraintError e) {
+      throw new java.lang.RuntimeException(e);
+    }
+  }
+
   static Log getLog(
     final String destination)
   {
     final Properties properties = new Properties();
-    properties.setProperty(
-      "com.io7m.jcanephora." + destination + ".logs",
-      "true");
-    properties.setProperty(
-      "com.io7m.jcanephora." + destination + ".level",
-      "LOG_DEBUG");
-    return new Log(properties, "com.io7m.jcanephora", destination);
+    return new Log(properties, "com.io7m.jsom0", destination);
   }
 
-  public static boolean isOpenGL3Supported()
-  {
-    final boolean a = GLProfile.isAvailable(GLProfile.GL3);
-    System.err.println("OpenGL 3_X available: " + a);
-    return a;
-  }
+  /**
+   * Return <code>true</code> if the implementation supports OpenGL 2.1, and
+   * additionally the extensions needed to make 2.1 act somewhat like 3.0.
+   */
 
   public static boolean isOpenGL21WithExtensionsSupported()
   {
-    final boolean a = GLProfile.isAvailable(GLProfile.GL2);
-    System.err.println("OpenGL 2_1 available: " + a);
-    return a;
+    if (GLProfile.isAvailable(GLProfile.GL2)) {
+      final GLContext ctx =
+        JOGLTestDisplay.getContext(GLProfile.get(GLProfile.GL2));
+
+      final VersionNumber v = ctx.getGLVersionNumber();
+      if (v.getMajor() != 2) {
+        System.err
+          .println("isOpenGL21WithExtensionsSupported: unavailable: GL2 profile available, but version is "
+            + v);
+        return false;
+      }
+      if (ctx.hasFullFBOSupport() == false) {
+        System.err
+          .println("isOpenGL21WithExtensionsSupported: unavailable: GL2 profile and 2.1 available, but full FBO support is missing");
+        return false;
+      }
+
+      System.err
+        .println("isOpenGL21WithExtensionsSupported: available: GL2 profile and 2.1 available");
+      return true;
+    }
+
+    System.err
+      .println("isOpenGL21WithExtensionsSupported: unavailable: GL2 profile not available");
+    return false;
   }
+
+  /**
+   * Return <code>true</code> if the implementation supports OpenGL 3.0.
+   */
+
+  public static boolean isOpenGL30Supported()
+  {
+    if (GLProfile.isAvailable(GLProfile.GL2)) {
+      final GLContext ctx =
+        JOGLTestDisplay.getContext(GLProfile.get(GLProfile.GL2));
+
+      final VersionNumber v = ctx.getGLVersionNumber();
+      if (v.getMajor() == 3) {
+        System.err
+          .println("isOpenGL30Supported: available: GL2 profile available, major version is 3");
+        return true;
+      }
+
+      System.err
+        .println("isOpenGL30Supported: unavailable: GL2 profile available, major version is "
+          + v.getMajor());
+      return false;
+    }
+
+    System.err
+      .println("isOpenGL30Supported: unavailable: GL2 profile not available");
+    return false;
+  }
+
+  /**
+   * Return <code>true</code> if the implementation supports OpenGL 3.p, where
+   * p >= 1.
+   */
+
+  public static boolean isOpenGL3pSupported()
+  {
+    if (GLProfile.isAvailable(GLProfile.GL3)) {
+      System.err
+        .println("isOpenGL3pSupported: available: GL3 profile available");
+      return true;
+    }
+
+    System.err
+      .println("isOpenGL3pSupported: unavailable: GL3 profile not available");
+    return false;
+  }
+
+  /**
+   * Return <code>true</code> if the implementation supports OpenGL ES2.
+   */
 
   public static boolean isOpenGLES2Supported()
   {
-    final boolean a = GLProfile.isAvailable(GLProfile.GLES2);
-    System.err.println("OpenGL ES2 available: " + a);
-    return a;
+    if (GLProfile.isAvailable(GLProfile.GLES2)) {
+      System.err
+        .println("isOpenGLES2Supported: available: GLES2 profile available");
+      return true;
+    }
+
+    System.err
+      .println("isOpenGLES2Supported: unavailable: GLES2 profile not available");
+    return false;
   }
 
   public static GLImplementation makeContextWithOpenGL_ES2()
@@ -127,23 +211,7 @@ public final class JOGLTestDisplay
 
     final GLContext ctx =
       JOGLTestDisplay.getContext(GLProfile.get(GLProfile.GLES2));
-    final GLImplementation gi = new GLImplementationJOGL(ctx, log);
-
-    return gi;
-  }
-
-  public static GLImplementation makeContextWithOpenGL3_X()
-    throws GLException,
-      GLUnsupportedException,
-      ConstraintError
-  {
-    final Log log =
-      JOGLTestDisplay.getLog(JOGLTestDisplay.LOG_DESTINATION_OPENGL_3_X);
-
-    final GLContext ctx =
-      JOGLTestDisplay.getContext(GLProfile.get(GLProfile.GL3));
-    final GLImplementation gi = new GLImplementationJOGL(ctx, log);
-    return gi;
+    return new GLImplementationJOGL(ctx, log);
   }
 
   public static GLImplementation makeContextWithOpenGL2_1()
@@ -156,23 +224,58 @@ public final class JOGLTestDisplay
 
     final GLContext ctx =
       JOGLTestDisplay.getContext(GLProfile.get(GLProfile.GL2));
+    return new GLImplementationJOGL(ctx, log);
+  }
+
+  public static GLImplementation makeContextWithOpenGL3_0()
+    throws GLException,
+      GLUnsupportedException,
+      ConstraintError
+  {
+    final Log log =
+      JOGLTestDisplay.getLog(JOGLTestDisplay.LOG_DESTINATION_OPENGL_3_0);
+
+    final GLContext ctx =
+      JOGLTestDisplay.getContext(GLProfile.get(GLProfile.GL2));
     final GLImplementation gi = new GLImplementationJOGL(ctx, log);
+
+    final VersionNumber version = ctx.getGLVersionNumber();
+    if (version.getMajor() != 3) {
+      throw new GLUnsupportedException("GL2 profile is not 3.0!");
+    }
+
+    return gi;
+  }
+
+  public static GLImplementation makeContextWithOpenGL3_p()
+    throws GLException,
+      GLUnsupportedException,
+      ConstraintError
+  {
+    final Log log =
+      JOGLTestDisplay.getLog(JOGLTestDisplay.LOG_DESTINATION_OPENGL_3_p);
+
+    final GLContext ctx =
+      JOGLTestDisplay.getContext(GLProfile.get(GLProfile.GL3));
+    final GLImplementation gi = new GLImplementationJOGL(ctx, log);
+
+    final VersionNumber version = ctx.getGLVersionNumber();
+    if (version.getMajor() != 3) {
+      throw new GLUnsupportedException("GL3 profile "
+        + version
+        + " is not 3.p");
+    }
+    if (version.getMinor() == 0) {
+      throw new GLUnsupportedException("GL3 profile "
+        + version
+        + " is not 3.p");
+    }
+
     return gi;
   }
 
   private JOGLTestDisplay()
   {
     throw new UnreachableCodeException();
-  }
-
-  static FSCapabilityAll getFS(
-    final String destination)
-  {
-    try {
-      return Filesystem.makeWithoutArchiveDirectory(JOGLTestDisplay
-        .getLog(destination));
-    } catch (final ConstraintError e) {
-      throw new java.lang.RuntimeException(e);
-    }
   }
 }

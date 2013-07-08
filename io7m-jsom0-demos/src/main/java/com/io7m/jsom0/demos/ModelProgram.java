@@ -15,10 +15,10 @@ public abstract class ModelProgram implements
   MatrixProgram,
   PhongProgram
 {
-  abstract @Nonnull ProgramAttribute getPositionAttribute()
+  abstract @Nonnull ProgramAttribute getNormalAttribute()
     throws ConstraintError;
 
-  abstract @Nonnull ProgramAttribute getNormalAttribute()
+  abstract @Nonnull ProgramAttribute getPositionAttribute()
     throws ConstraintError;
 
   abstract void putAlpha(

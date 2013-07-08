@@ -14,15 +14,15 @@ import com.io7m.jsom0.parser.contracts.ModelObjectParserVBOImmediateTestContract
 public final class LWJGL21ModelObjectParserVBOImmediateTest extends
   ModelObjectParserVBOImmediateTestContract<GLInterfaceGL2>
 {
-  @Override public boolean isSupported()
-  {
-    return LWJGLTestContext.isOpenGL21Supported();
-  }
-
   @Override public Log getLog()
   {
     return LWJGLTestContext
       .getLog(LWJGLTestContext.LOG_DESTINATION_OPENGL_2_1);
+  }
+
+  @Override public boolean isSupported()
+  {
+    return LWJGLTestContext.isOpenGL21Supported();
   }
 
   @Override public GLInterfaceGL2 makeNewGL()

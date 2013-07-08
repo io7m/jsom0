@@ -32,12 +32,12 @@ public final class JOGL30ModelObjectParserVBOMappedTest extends
 {
   @Override public Log getLog()
   {
-    return JOGLTestDisplay.getLog(JOGLTestDisplay.LOG_DESTINATION_OPENGL_3_X);
+    return JOGLTestDisplay.getLog(JOGLTestDisplay.LOG_DESTINATION_OPENGL_3_0);
   }
 
   @Override public boolean isSupported()
   {
-    return JOGLTestDisplay.isOpenGL3Supported();
+    return JOGLTestDisplay.isOpenGL30Supported();
   }
 
   @Override public GLInterfaceGL3 makeNewGL()
@@ -45,7 +45,7 @@ public final class JOGL30ModelObjectParserVBOMappedTest extends
       ConstraintError,
       GLUnsupportedException
   {
-    final GLImplementation gi = JOGLTestDisplay.makeContextWithOpenGL3_X();
+    final GLImplementation gi = JOGLTestDisplay.makeContextWithOpenGL3_0();
     final Option<GLInterfaceGL3> go = gi.getGL3();
 
     if (go.isSome()) {

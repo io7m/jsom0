@@ -33,6 +33,9 @@ import com.io7m.jcanephora.GLUnsupportedException;
 import com.io7m.jcanephora.IndexBuffer;
 import com.io7m.jcanephora.UsageHint;
 import com.io7m.jsom0.ModelObjectVBO;
+import com.io7m.jsom0.NameNormalAttribute;
+import com.io7m.jsom0.NamePositionAttribute;
+import com.io7m.jsom0.NameUVAttribute;
 import com.io7m.jtensors.VectorI3F;
 
 public abstract class ModelObjectVBOTestContract<G extends GLArrayBuffers & GLIndexBuffers> implements
@@ -66,7 +69,10 @@ public abstract class ModelObjectVBOTestContract<G extends GLArrayBuffers & GLIn
       VectorI3F.ZERO,
       VectorI3F.ZERO,
       null,
-      ib);
+      ib,
+      new NamePositionAttribute("position"),
+      new NameNormalAttribute("normal"),
+      new NameUVAttribute("uv"));
   }
 
   @Test public void testIdentities()
@@ -91,7 +97,10 @@ public abstract class ModelObjectVBOTestContract<G extends GLArrayBuffers & GLIn
         VectorI3F.ZERO,
         VectorI3F.ZERO,
         vb,
-        ib);
+        ib,
+        new NamePositionAttribute("position"),
+        new NameNormalAttribute("normal"),
+        new NameUVAttribute("uv"));
 
     Assert.assertEquals("name", o.getName());
     Assert.assertEquals("material", o.getMaterialName());
@@ -121,7 +130,10 @@ public abstract class ModelObjectVBOTestContract<G extends GLArrayBuffers & GLIn
       VectorI3F.ZERO,
       VectorI3F.ZERO,
       vb,
-      null);
+      null,
+      new NamePositionAttribute("position"),
+      new NameNormalAttribute("normal"),
+      new NameUVAttribute("uv"));
   }
 
   @SuppressWarnings("unused") @Test(expected = ConstraintError.class) public
@@ -141,7 +153,16 @@ public abstract class ModelObjectVBOTestContract<G extends GLArrayBuffers & GLIn
     final ArrayBuffer vb =
       gl.arrayBufferAllocate(1, d, UsageHint.USAGE_STATIC_READ);
     final IndexBuffer ib = gl.indexBufferAllocate(vb, 3);
-    new ModelObjectVBO("name", null, VectorI3F.ZERO, VectorI3F.ZERO, vb, ib);
+    new ModelObjectVBO(
+      "name",
+      null,
+      VectorI3F.ZERO,
+      VectorI3F.ZERO,
+      vb,
+      ib,
+      new NamePositionAttribute("position"),
+      new NameNormalAttribute("normal"),
+      new NameUVAttribute("uv"));
   }
 
   @SuppressWarnings("unused") @Test(expected = ConstraintError.class) public
@@ -167,7 +188,10 @@ public abstract class ModelObjectVBOTestContract<G extends GLArrayBuffers & GLIn
       VectorI3F.ZERO,
       VectorI3F.ZERO,
       vb,
-      ib);
+      ib,
+      new NamePositionAttribute("position"),
+      new NameNormalAttribute("normal"),
+      new NameUVAttribute("uv"));
   }
 
   @Test public void testToStringMaterialDifferent()
@@ -193,7 +217,11 @@ public abstract class ModelObjectVBOTestContract<G extends GLArrayBuffers & GLIn
         VectorI3F.ZERO,
         VectorI3F.ZERO,
         vb,
-        ib);
+        ib,
+        new NamePositionAttribute("position"),
+        new NameNormalAttribute("normal"),
+        new NameUVAttribute("uv"));
+
     final ModelObjectVBO o1 =
       new ModelObjectVBO(
         "name",
@@ -201,7 +229,10 @@ public abstract class ModelObjectVBOTestContract<G extends GLArrayBuffers & GLIn
         VectorI3F.ZERO,
         VectorI3F.ZERO,
         vb,
-        ib);
+        ib,
+        new NamePositionAttribute("position"),
+        new NameNormalAttribute("normal"),
+        new NameUVAttribute("uv"));
 
     final String s0 = o0.toString();
     final String s1 = o1.toString();
@@ -232,7 +263,11 @@ public abstract class ModelObjectVBOTestContract<G extends GLArrayBuffers & GLIn
         VectorI3F.ZERO,
         VectorI3F.ZERO,
         vb,
-        ib);
+        ib,
+        new NamePositionAttribute("position"),
+        new NameNormalAttribute("normal"),
+        new NameUVAttribute("uv"));
+
     final ModelObjectVBO o1 =
       new ModelObjectVBO(
         "name1",
@@ -240,7 +275,10 @@ public abstract class ModelObjectVBOTestContract<G extends GLArrayBuffers & GLIn
         VectorI3F.ZERO,
         VectorI3F.ZERO,
         vb,
-        ib);
+        ib,
+        new NamePositionAttribute("position"),
+        new NameNormalAttribute("normal"),
+        new NameUVAttribute("uv"));
 
     final String s0 = o0.toString();
     final String s1 = o1.toString();

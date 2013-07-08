@@ -24,10 +24,10 @@ import com.io7m.jcanephora.GLUnsupportedException;
 
 public interface JSOM0GLUnmappedTestContract extends JSOM0LogTestContract
 {
+  public boolean isSupported();
+
   public <G extends GLArrayBuffers & GLIndexBuffers> G makeNewGL()
     throws GLException,
       ConstraintError,
       GLUnsupportedException;
-
-  public boolean isSupported();
 }

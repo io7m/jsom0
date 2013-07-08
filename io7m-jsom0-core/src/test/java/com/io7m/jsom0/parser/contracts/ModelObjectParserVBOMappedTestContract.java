@@ -30,6 +30,9 @@ import com.io7m.jcanephora.GLIndexBuffers;
 import com.io7m.jcanephora.GLIndexBuffersMapped;
 import com.io7m.jcanephora.GLUnsupportedException;
 import com.io7m.jsom0.ModelObjectVBO;
+import com.io7m.jsom0.NameNormalAttribute;
+import com.io7m.jsom0.NamePositionAttribute;
+import com.io7m.jsom0.NameUVAttribute;
 import com.io7m.jsom0.contracts.JSOM0GLTestContract;
 import com.io7m.jsom0.parser.Error;
 import com.io7m.jsom0.parser.ModelObjectParserVBOImmediate;
@@ -60,6 +63,9 @@ public abstract class ModelObjectParserVBOMappedTestContract<G extends GLArrayBu
     return new ModelObjectParserVBOImmediate<G>(
       file,
       stream,
+      new NamePositionAttribute("position"),
+      new NameNormalAttribute("normal"),
+      new NameUVAttribute("uv"),
       this.getLog(),
       gl);
   }

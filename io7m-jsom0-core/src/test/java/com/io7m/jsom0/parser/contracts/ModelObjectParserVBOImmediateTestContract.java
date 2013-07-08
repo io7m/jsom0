@@ -28,6 +28,9 @@ import com.io7m.jcanephora.GLException;
 import com.io7m.jcanephora.GLIndexBuffers;
 import com.io7m.jcanephora.GLUnsupportedException;
 import com.io7m.jsom0.ModelObjectVBO;
+import com.io7m.jsom0.NameNormalAttribute;
+import com.io7m.jsom0.NamePositionAttribute;
+import com.io7m.jsom0.NameUVAttribute;
 import com.io7m.jsom0.contracts.JSOM0GLUnmappedTestContract;
 import com.io7m.jsom0.parser.Error;
 import com.io7m.jsom0.parser.ModelObjectParserVBOImmediate;
@@ -59,6 +62,9 @@ public abstract class ModelObjectParserVBOImmediateTestContract<G extends GLArra
     return new ModelObjectParserVBOImmediate<G>(
       file,
       stream,
+      new NamePositionAttribute("position"),
+      new NameNormalAttribute("normal"),
+      new NameUVAttribute("uv"),
       this.getLog(),
       gl);
   }

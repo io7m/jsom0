@@ -14,15 +14,15 @@ import com.io7m.jsom0.contracts.ModelObjectVBOTestContract;
 public final class LWJGL21ModelObjectVBOTest extends
   ModelObjectVBOTestContract<GLInterfaceGL2>
 {
-  @Override public boolean isSupported()
-  {
-    return LWJGLTestContext.isOpenGL21Supported();
-  }
-
   @Override public Log getLog()
   {
     return LWJGLTestContext
       .getLog(LWJGLTestContext.LOG_DESTINATION_OPENGL_2_1);
+  }
+
+  @Override public boolean isSupported()
+  {
+    return LWJGLTestContext.isOpenGL21Supported();
   }
 
   @Override public GLInterfaceGL2 makeNewGL()

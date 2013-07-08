@@ -25,19 +25,19 @@ import com.io7m.jcanephora.GLImplementation;
 import com.io7m.jcanephora.GLInterfaceGL3;
 import com.io7m.jcanephora.GLUnsupportedException;
 import com.io7m.jlog.Log;
-import com.io7m.jsom0.contracts.ModelObjectVBOTestContract;
+import com.io7m.jsom0.parser.contracts.ModelObjectParserVBOMappedTestContract;
 
-public final class JOGL30ModelObjectVBOTest extends
-  ModelObjectVBOTestContract<GLInterfaceGL3>
+public final class JOGL3pModelObjectParserVBOMappedTest extends
+  ModelObjectParserVBOMappedTestContract<GLInterfaceGL3>
 {
   @Override public Log getLog()
   {
-    return JOGLTestDisplay.getLog(JOGLTestDisplay.LOG_DESTINATION_OPENGL_3_0);
+    return JOGLTestDisplay.getLog(JOGLTestDisplay.LOG_DESTINATION_OPENGL_3_p);
   }
 
   @Override public boolean isSupported()
   {
-    return JOGLTestDisplay.isOpenGL30Supported();
+    return JOGLTestDisplay.isOpenGL3pSupported();
   }
 
   @Override public GLInterfaceGL3 makeNewGL()
@@ -45,7 +45,7 @@ public final class JOGL30ModelObjectVBOTest extends
       ConstraintError,
       GLUnsupportedException
   {
-    final GLImplementation gi = JOGLTestDisplay.makeContextWithOpenGL3_0();
+    final GLImplementation gi = JOGLTestDisplay.makeContextWithOpenGL3_p();
     final Option<GLInterfaceGL3> go = gi.getGL3();
 
     if (go.isSome()) {

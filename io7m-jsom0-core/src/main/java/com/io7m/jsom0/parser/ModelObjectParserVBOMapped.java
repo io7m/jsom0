@@ -33,8 +33,10 @@ import com.io7m.jcanephora.GLIndexBuffersMapped;
 import com.io7m.jcanephora.IndexBufferWritableMap;
 import com.io7m.jcanephora.UsageHint;
 import com.io7m.jlog.Log;
+import com.io7m.jsom0.NameNormalAttribute;
+import com.io7m.jsom0.NamePositionAttribute;
+import com.io7m.jsom0.NameUVAttribute;
 import com.io7m.jsom0.VertexType;
-import com.io7m.jsom0.VertexTypeInformation;
 
 /**
  * <p>
@@ -58,13 +60,22 @@ public final class ModelObjectParserVBOMapped<G extends GLArrayBuffers & GLArray
   public ModelObjectParserVBOMapped(
     final @Nonnull String file_name,
     final @Nonnull InputStream in,
+    final @Nonnull NamePositionAttribute name_position_attribute,
+    final @Nonnull NameNormalAttribute name_normal_attribute,
+    final @Nonnull NameUVAttribute name_uv_attribute,
     final @Nonnull Log log,
     final @Nonnull G gl)
     throws ConstraintError,
       IOException,
       Error
   {
-    super(file_name, in, log);
+    super(
+      file_name,
+      in,
+      name_position_attribute,
+      name_normal_attribute,
+      name_uv_attribute,
+      log);
     this.gl = Constraints.constrainNotNull(gl, "GL interface");
   }
 
@@ -94,7 +105,8 @@ public final class ModelObjectParserVBOMapped<G extends GLArrayBuffers & GLArray
     throws GLException,
       ConstraintError
   {
-    this.array_buffer_type = VertexTypeInformation.typeDescriptor(type);
+    this.array_buffer_type = this.getArrayTypeDescriptor(type);
+
     this.array_buffer =
       this.gl.arrayBufferAllocate(
         count,
@@ -106,19 +118,30 @@ public final class ModelObjectParserVBOMapped<G extends GLArrayBuffers & GLArray
       case VERTEX_TYPE_P3N3:
       {
         this.cursor_position =
-          this.array_buffer_data.getCursor3f("vertex_position");
+          this.array_buffer_data.getCursor3f(this
+            .getVertexPositionAttributeName()
+            .toString());
         this.cursor_normal =
-          this.array_buffer_data.getCursor3f("vertex_normal");
+          this.array_buffer_data.getCursor3f(this
+            .getVertexNormalAttributeName()
+            .toString());
         this.cursor_uv = null;
         break;
       }
       case VERTEX_TYPE_P3N3T2:
       {
         this.cursor_position =
-          this.array_buffer_data.getCursor3f("vertex_position");
+          this.array_buffer_data.getCursor3f(this
+            .getVertexPositionAttributeName()
+            .toString());
         this.cursor_normal =
-          this.array_buffer_data.getCursor3f("vertex_normal");
-        this.cursor_uv = this.array_buffer_data.getCursor2f("vertex_uv");
+          this.array_buffer_data.getCursor3f(this
+            .getVertexNormalAttributeName()
+            .toString());
+        this.cursor_uv =
+          this.array_buffer_data.getCursor2f(this
+            .getVertexUVAttributeName()
+            .toString());
         break;
       }
     }

@@ -22,25 +22,36 @@ import java.io.InputStream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
+import com.io7m.jaux.Constraints;
 import com.io7m.jaux.Constraints.ConstraintError;
+import com.io7m.jaux.UnreachableCodeException;
 import com.io7m.jcanephora.ArrayBuffer;
+import com.io7m.jcanephora.ArrayBufferAttribute;
 import com.io7m.jcanephora.ArrayBufferDescriptor;
 import com.io7m.jcanephora.CursorWritable2f;
 import com.io7m.jcanephora.CursorWritable3f;
 import com.io7m.jcanephora.CursorWritableIndex;
 import com.io7m.jcanephora.GLException;
+import com.io7m.jcanephora.GLScalarType;
 import com.io7m.jcanephora.IndexBuffer;
 import com.io7m.jlog.Log;
 import com.io7m.jsom0.ModelObjectVBO;
+import com.io7m.jsom0.NameNormalAttribute;
+import com.io7m.jsom0.NamePositionAttribute;
+import com.io7m.jsom0.NameUVAttribute;
+import com.io7m.jsom0.VertexType;
 import com.io7m.jtensors.VectorReadable2F;
 import com.io7m.jtensors.VectorReadable3F;
 
 /**
+ * <p>
  * Abstract parser type that produces a vertex buffer object whilst parsing.
  * This class implements the parts that are common to all parsers that produce
  * VBOs directly.
- * 
+ * </p>
+ * <p>
  * See one of the subtypes for usable, concrete implementations.
+ * </p>
  */
 
 abstract class ModelObjectParserVBO extends
@@ -55,16 +66,33 @@ abstract class ModelObjectParserVBO extends
   protected @CheckForNull CursorWritable3f      cursor_normal;
   protected @CheckForNull CursorWritable2f      cursor_uv;
   protected @CheckForNull CursorWritableIndex   cursor_index;
+  private final @Nonnull NamePositionAttribute  name_position_attribute;
+  private final @Nonnull NameNormalAttribute    name_normal_attribute;
+  private final @Nonnull NameUVAttribute        name_uv_attribute;
 
   ModelObjectParserVBO(
     final @Nonnull String file_name,
     final @Nonnull InputStream in,
+    final @Nonnull NamePositionAttribute name_position_attribute,
+    final @Nonnull NameNormalAttribute name_normal_attribute,
+    final @Nonnull NameUVAttribute name_uv_attribute,
     final @Nonnull Log log)
     throws ConstraintError,
       IOException,
       Error
   {
     super(file_name, in, log);
+
+    this.name_normal_attribute =
+      Constraints.constrainNotNull(
+        name_normal_attribute,
+        "Normal attribute name");
+    this.name_uv_attribute =
+      Constraints.constrainNotNull(name_uv_attribute, "UV attribute name");
+    this.name_position_attribute =
+      Constraints.constrainNotNull(
+        name_position_attribute,
+        "Position attribute name");
   }
 
   @Override final void eventIndexBufferAppendTriangle(
@@ -96,7 +124,10 @@ abstract class ModelObjectParserVBO extends
       this.getBoundLower(),
       this.getBoundUpper(),
       this.array_buffer,
-      this.index_buffer);
+      this.index_buffer,
+      this.name_position_attribute,
+      this.name_normal_attribute,
+      this.name_uv_attribute);
   }
 
   @Override final void eventObjectName(
@@ -132,5 +163,86 @@ abstract class ModelObjectParserVBO extends
       position.getZF());
     this.cursor_normal.put3f(normal.getXF(), normal.getYF(), normal.getZF());
     this.cursor_uv.put2f(uv.getXF(), uv.getYF());
+  }
+
+  /**
+   * Construct a type descriptor to use for the VBO.
+   * 
+   * @throws ConstraintError
+   */
+
+  protected final @Nonnull ArrayBufferDescriptor getArrayTypeDescriptor(
+    final @Nonnull VertexType type)
+    throws ConstraintError
+  {
+    switch (type) {
+      case VERTEX_TYPE_P3N3:
+      {
+        final ArrayBufferAttribute[] attributes = new ArrayBufferAttribute[2];
+        attributes[0] =
+          new ArrayBufferAttribute(this
+            .getVertexPositionAttributeName()
+            .toString(), GLScalarType.TYPE_FLOAT, 3);
+        attributes[1] =
+          new ArrayBufferAttribute(this
+            .getVertexNormalAttributeName()
+            .toString(), GLScalarType.TYPE_FLOAT, 3);
+
+        return new ArrayBufferDescriptor(attributes);
+      }
+      case VERTEX_TYPE_P3N3T2:
+      {
+        final ArrayBufferAttribute[] attributes = new ArrayBufferAttribute[3];
+        attributes[0] =
+          new ArrayBufferAttribute(this
+            .getVertexPositionAttributeName()
+            .toString(), GLScalarType.TYPE_FLOAT, 3);
+        attributes[1] =
+          new ArrayBufferAttribute(this
+            .getVertexNormalAttributeName()
+            .toString(), GLScalarType.TYPE_FLOAT, 3);
+        attributes[2] =
+          new ArrayBufferAttribute(
+            this.getVertexUVAttributeName().toString(),
+            GLScalarType.TYPE_FLOAT,
+            2);
+
+        return new ArrayBufferDescriptor(attributes);
+      }
+    }
+
+    throw new UnreachableCodeException();
+  }
+
+  /**
+   * Retrieve the name used for the vertex normal attribute configured in the
+   * array buffer.
+   */
+
+  public final @Nonnull NameNormalAttribute getVertexNormalAttributeName()
+  {
+    return this.name_normal_attribute;
+  }
+
+  /**
+   * Retrieve the name used for the vertex position attribute configured in
+   * the array buffer.
+   */
+
+  public final @Nonnull
+    NamePositionAttribute
+    getVertexPositionAttributeName()
+  {
+    return this.name_position_attribute;
+  }
+
+  /**
+   * Retrieve the name used for the vertex UV attribute configured in the
+   * array buffer.
+   */
+
+  public final @Nonnull NameUVAttribute getVertexUVAttributeName()
+  {
+    return this.name_uv_attribute;
   }
 }

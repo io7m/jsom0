@@ -26,8 +26,11 @@ import com.io7m.jtensors.VectorReadable3F;
 
 public final class ModelObjectVBO extends ModelObject
 {
-  private final @Nonnull ArrayBuffer array_buffer;
-  private final @Nonnull IndexBuffer index_buffer;
+  private final @Nonnull ArrayBuffer           array_buffer;
+  private final @Nonnull IndexBuffer           index_buffer;
+  private final @Nonnull NamePositionAttribute name_position_attribute;
+  private final @Nonnull NameNormalAttribute   name_normal_attribute;
+  private final @Nonnull NameUVAttribute       name_uv_attribute;
 
   public ModelObjectVBO(
     final @Nonnull String name,
@@ -35,7 +38,10 @@ public final class ModelObjectVBO extends ModelObject
     final @Nonnull VectorReadable3F bound_lower,
     final @Nonnull VectorReadable3F bound_upper,
     final @Nonnull ArrayBuffer array_buffer,
-    final @Nonnull IndexBuffer index_buffer)
+    final @Nonnull IndexBuffer index_buffer,
+    final @Nonnull NamePositionAttribute name_position_attribute,
+    final @Nonnull NameNormalAttribute name_normal_attribute,
+    final @Nonnull NameUVAttribute name_uv_attribute)
     throws ConstraintError
   {
     super(name, material_name, bound_lower, bound_upper);
@@ -43,6 +49,17 @@ public final class ModelObjectVBO extends ModelObject
       Constraints.constrainNotNull(array_buffer, "Array buffer");
     this.index_buffer =
       Constraints.constrainNotNull(index_buffer, "Index buffer");
+
+    this.name_normal_attribute =
+      Constraints.constrainNotNull(
+        name_normal_attribute,
+        "Normal attribute name");
+    this.name_uv_attribute =
+      Constraints.constrainNotNull(name_uv_attribute, "UV attribute name");
+    this.name_position_attribute =
+      Constraints.constrainNotNull(
+        name_position_attribute,
+        "Position attribute name");
   }
 
   public @Nonnull ArrayBuffer getArrayBuffer()
@@ -53,6 +70,38 @@ public final class ModelObjectVBO extends ModelObject
   public @Nonnull IndexBuffer getIndexBuffer()
   {
     return this.index_buffer;
+  }
+
+  /**
+   * Retrieve the name used for the vertex normal attribute configured in the
+   * array buffer.
+   */
+
+  public final @Nonnull NameNormalAttribute getVertexNormalAttributeName()
+  {
+    return this.name_normal_attribute;
+  }
+
+  /**
+   * Retrieve the name used for the vertex position attribute configured in
+   * the array buffer.
+   */
+
+  public final @Nonnull
+    NamePositionAttribute
+    getVertexPositionAttributeName()
+  {
+    return this.name_position_attribute;
+  }
+
+  /**
+   * Retrieve the name used for the vertex UV attribute configured in the
+   * array buffer.
+   */
+
+  public final @Nonnull NameUVAttribute getVertexUVAttributeName()
+  {
+    return this.name_uv_attribute;
   }
 
   @Override public String toString()

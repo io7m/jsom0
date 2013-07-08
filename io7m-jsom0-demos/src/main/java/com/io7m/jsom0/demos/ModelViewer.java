@@ -40,6 +40,9 @@ import com.io7m.jsom0.Model;
 import com.io7m.jsom0.ModelMaterial;
 import com.io7m.jsom0.ModelObjectVBO;
 import com.io7m.jsom0.ModelTexture;
+import com.io7m.jsom0.NameNormalAttribute;
+import com.io7m.jsom0.NamePositionAttribute;
+import com.io7m.jsom0.NameUVAttribute;
 import com.io7m.jsom0.parser.Error;
 import com.io7m.jsom0.parser.ModelMaterialParser;
 import com.io7m.jsom0.parser.ModelObjectParserVBOImmediate;
@@ -95,7 +98,14 @@ public final class ModelViewer
   {
     final InputStream stream = new FileInputStream(file);
     final ModelObjectParserVBOImmediate<G> op =
-      new ModelObjectParserVBOImmediate<G>(file, stream, log, gl);
+      new ModelObjectParserVBOImmediate<G>(
+        file,
+        stream,
+        new NamePositionAttribute("vertex_position"),
+        new NameNormalAttribute("vertex_normal"),
+        new NameUVAttribute("vertex_uv"),
+        log,
+        gl);
 
     final ModelParser<ModelObjectVBO, GLException> parser =
       new ModelParser<ModelObjectVBO, GLException>(op);

@@ -16,31 +16,40 @@
 
 package com.io7m.jsom0;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
-
 import javax.annotation.Nonnull;
+import javax.annotation.concurrent.Immutable;
 
-import com.io7m.jaux.UnreachableCodeException;
-import com.io7m.jlog.Log;
+import com.io7m.jaux.Constraints;
+import com.io7m.jaux.Constraints.ConstraintError;
 
-public final class TestUtilities
+/**
+ * The name used for a vertex UV attribute.
+ */
+
+@Immutable public final class NameUVAttribute
 {
-  public static @Nonnull Log getLog()
-    throws IOException
+  private final @Nonnull String actual;
+
+  public NameUVAttribute(
+    final @Nonnull String actual)
+    throws ConstraintError
   {
-    final InputStream rstream =
-      TestUtilities.class
-        .getResourceAsStream("/com/io7m/jsom0/test.properties");
-    final Properties props = new Properties();
-    props.load(rstream);
-    rstream.close();
-    return new Log(props, "com.io7m.jsom0", "test");
+    this.actual = Constraints.constrainNotNull(actual, "Name");
   }
 
-  private TestUtilities()
+  @Override public boolean equals(
+    final Object obj)
   {
-    throw new UnreachableCodeException();
+    return this.actual.equals(obj);
+  }
+
+  @Override public int hashCode()
+  {
+    return this.actual.hashCode();
+  }
+
+  @Override public String toString()
+  {
+    return this.actual;
   }
 }

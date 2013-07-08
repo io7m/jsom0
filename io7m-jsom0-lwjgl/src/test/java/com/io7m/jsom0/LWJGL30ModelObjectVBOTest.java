@@ -14,15 +14,15 @@ import com.io7m.jsom0.contracts.ModelObjectVBOTestContract;
 public final class LWJGL30ModelObjectVBOTest extends
   ModelObjectVBOTestContract<GLInterfaceGL3>
 {
-  @Override public boolean isSupported()
-  {
-    return LWJGLTestContext.isOpenGL30Supported();
-  }
-
   @Override public Log getLog()
   {
     return LWJGLTestContext
       .getLog(LWJGLTestContext.LOG_DESTINATION_OPENGL_3_X);
+  }
+
+  @Override public boolean isSupported()
+  {
+    return LWJGLTestContext.isOpenGL30Supported();
   }
 
   @Override public GLInterfaceGL3 makeNewGL()

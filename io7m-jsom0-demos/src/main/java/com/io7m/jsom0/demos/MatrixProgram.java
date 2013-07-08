@@ -16,12 +16,6 @@ interface MatrixProgram
     throws GLException,
       ConstraintError;
 
-  public void putViewMatrix(
-    final @Nonnull GLShaders gl,
-    final @Nonnull MatrixReadable4x4F m)
-    throws GLException,
-      ConstraintError;
-
   public void putNormalMatrix(
     final @Nonnull GLShaders gl,
     final @Nonnull MatrixReadable3x3F m)
@@ -29,6 +23,12 @@ interface MatrixProgram
       ConstraintError;
 
   public void putProjectionMatrix(
+    final @Nonnull GLShaders gl,
+    final @Nonnull MatrixReadable4x4F m)
+    throws GLException,
+      ConstraintError;
+
+  public void putViewMatrix(
     final @Nonnull GLShaders gl,
     final @Nonnull MatrixReadable4x4F m)
     throws GLException,

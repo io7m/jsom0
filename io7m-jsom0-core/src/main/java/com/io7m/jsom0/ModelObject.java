@@ -51,6 +51,25 @@ public abstract class ModelObject implements Comparable<ModelObject>
     return this.name.compareTo(other.name);
   }
 
+  @Override public boolean equals(
+    final Object obj)
+  {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (this.getClass() != obj.getClass()) {
+      return false;
+    }
+    final ModelObject other = (ModelObject) obj;
+    if (!this.name.equals(other.name)) {
+      return false;
+    }
+    return true;
+  }
+
   public final @Nonnull VectorReadable3F getLowerBound()
   {
     return this.bound_lower;
@@ -77,25 +96,6 @@ public abstract class ModelObject implements Comparable<ModelObject>
     int result = 1;
     result = (prime * result) + this.name.hashCode();
     return result;
-  }
-
-  @Override public boolean equals(
-    final Object obj)
-  {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null) {
-      return false;
-    }
-    if (this.getClass() != obj.getClass()) {
-      return false;
-    }
-    final ModelObject other = (ModelObject) obj;
-    if (!this.name.equals(other.name)) {
-      return false;
-    }
-    return true;
   }
 
   @Override public @Nonnull String toString()

@@ -51,69 +51,6 @@ public final class ModelViewerLWJGL30
     }
   }
 
-  public static void main(
-    final @Nonnull String[] args)
-  {
-    try {
-      if (args.length != 4) {
-        ModelViewerLWJGL30.usage();
-      }
-
-      ModelViewerLWJGL30.createDisplay("Model viewer", 640, 480);
-
-      final String texture_directory = args[0];
-      final String file_material = args[1];
-      final String file_model = args[2];
-      final String object_name = args[3];
-
-      final Properties p = new Properties();
-      p.setProperty("com.io7m.jsom0.demos.level", "LOG_DEBUG");
-      p.setProperty("com.io7m.jsom0.demos.logs.mv", "true");
-      p.setProperty(
-        "com.io7m.jsom0.demos.logs.mv.model-viewer.filesystem",
-        "true");
-      p.setProperty(
-        "com.io7m.jsom0.demos.logs.mv.model-viewer.object-parser",
-        "true");
-
-      final Log log = new Log(p, "com.io7m.jsom0.demos", "mv");
-      final GLImplementationLWJGL g = new GLImplementationLWJGL(log);
-
-      final ModelViewer viewer =
-        new ModelViewer(
-          g.getGLCommon(),
-          log,
-          texture_directory,
-          file_material,
-          file_model,
-          object_name);
-
-      while (Display.isCloseRequested() == false) {
-        ModelViewerLWJGL30.input(viewer);
-        viewer.render(g.getGLCommon());
-
-        Display.update();
-        Display.sync(60);
-      }
-
-      Display.destroy();
-    } catch (final GLException e) {
-      ErrorBox.showError("OpenGL error", e);
-    } catch (final IOException e) {
-      ErrorBox.showError("I/O error", e);
-    } catch (final Error e) {
-      ErrorBox.showError("Model error", e);
-    } catch (final GLCompileException e) {
-      ErrorBox.showError("Shader compilation error", e);
-    } catch (final ConstraintError e) {
-      ErrorBox.showError("Constraint error", e);
-    } catch (final FilesystemError e) {
-      ErrorBox.showError("Filesystem error", e);
-    } catch (final GLUnsupportedException e) {
-      ErrorBox.showError("OpenGL unsupported error", e);
-    }
-  }
-
   private static void input(
     final @Nonnull ModelViewer viewer)
   {
@@ -196,6 +133,69 @@ public final class ModelViewerLWJGL30
           viewer.toggleWireframe();
         }
       }
+    }
+  }
+
+  public static void main(
+    final @Nonnull String[] args)
+  {
+    try {
+      if (args.length != 4) {
+        ModelViewerLWJGL30.usage();
+      }
+
+      ModelViewerLWJGL30.createDisplay("Model viewer", 640, 480);
+
+      final String texture_directory = args[0];
+      final String file_material = args[1];
+      final String file_model = args[2];
+      final String object_name = args[3];
+
+      final Properties p = new Properties();
+      p.setProperty("com.io7m.jsom0.demos.level", "LOG_DEBUG");
+      p.setProperty("com.io7m.jsom0.demos.logs.mv", "true");
+      p.setProperty(
+        "com.io7m.jsom0.demos.logs.mv.model-viewer.filesystem",
+        "true");
+      p.setProperty(
+        "com.io7m.jsom0.demos.logs.mv.model-viewer.object-parser",
+        "true");
+
+      final Log log = new Log(p, "com.io7m.jsom0.demos", "mv");
+      final GLImplementationLWJGL g = new GLImplementationLWJGL(log);
+
+      final ModelViewer viewer =
+        new ModelViewer(
+          g.getGLCommon(),
+          log,
+          texture_directory,
+          file_material,
+          file_model,
+          object_name);
+
+      while (Display.isCloseRequested() == false) {
+        ModelViewerLWJGL30.input(viewer);
+        viewer.render(g.getGLCommon());
+
+        Display.update();
+        Display.sync(60);
+      }
+
+      Display.destroy();
+    } catch (final GLException e) {
+      ErrorBox.showError("OpenGL error", e);
+    } catch (final IOException e) {
+      ErrorBox.showError("I/O error", e);
+    } catch (final Error e) {
+      ErrorBox.showError("Model error", e);
+    } catch (final GLCompileException e) {
+      ErrorBox.showError("Shader compilation error", e);
+    } catch (final ConstraintError e) {
+      ErrorBox.showError("Constraint error", e);
+    } catch (final FilesystemError e) {
+      ErrorBox.showError("Filesystem error", e);
+    } catch (final GLUnsupportedException e) {
+      ErrorBox.showError("OpenGL unsupported error", e);
     }
   }
 

@@ -31,14 +31,14 @@ import com.io7m.jsom0.parser.contracts.ModelObjectParserVBOMappedTestContract;
 public final class JOGL21ModelObjectParserVBOMappedTest extends
   ModelObjectParserVBOMappedTestContract<GLInterfaceGL3>
 {
-  @Override public boolean isSupported()
-  {
-    return JOGLTestDisplay.isOpenGL21WithExtensionsSupported();
-  }
-
   @Override public Log getLog()
   {
     return JOGLTestDisplay.getLog(JOGLTestDisplay.LOG_DESTINATION_OPENGL_2_1);
+  }
+
+  @Override public boolean isSupported()
+  {
+    return JOGLTestDisplay.isOpenGL21WithExtensionsSupported();
   }
 
   @Override public GLInterfaceGL2 makeNewGL()

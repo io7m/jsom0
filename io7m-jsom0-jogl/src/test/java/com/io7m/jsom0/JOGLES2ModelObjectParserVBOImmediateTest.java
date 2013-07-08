@@ -30,15 +30,15 @@ import com.io7m.jsom0.parser.contracts.ModelObjectParserVBOImmediateTestContract
 public final class JOGLES2ModelObjectParserVBOImmediateTest extends
   ModelObjectParserVBOImmediateTestContract<GLInterfaceGLES2>
 {
-  @Override public boolean isSupported()
-  {
-    return JOGLTestDisplay.isOpenGLES2Supported();
-  }
-
   @Override public Log getLog()
   {
     return JOGLTestDisplay
       .getLog(JOGLTestDisplay.LOG_DESTINATION_OPENGL_ES_2_0);
+  }
+
+  @Override public boolean isSupported()
+  {
+    return JOGLTestDisplay.isOpenGLES2Supported();
   }
 
   @Override public GLInterfaceGLES2 makeNewGL()
