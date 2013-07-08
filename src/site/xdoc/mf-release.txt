@@ -1,0 +1,15 @@
+2013-07-08:io7m-jsom0-core-0.9.0.jar:55434
+2013-07-08:io7m-jsom0-demos-lwjgl-0.9.0-sources.jar:2978
+2013-07-08:io7m-jsom0-demos-0.9.0.jar:843548
+2013-07-08:io7m-jsom0-demos-lwjgl-0.9.0.jar:7870
+2013-07-08:io7m-jsom0-demos-lwjgl-0.9.0-javadoc.jar:39821
+2013-07-08:io7m-jsom0-demos-0.9.0-sources.jar:832962
+2013-07-08:io7m-jsom0-lwjgl-0.9.0.jar:3386
+2013-07-08:io7m-jsom0-core-0.9.0-javadoc.jar:158174
+2013-07-08:io7m-jsom0-jogl-0.9.0.jar:3217
+2013-07-08:io7m-jsom0-demos-0.9.0-javadoc.jar:57782
+2013-07-08:io7m-jsom0-core-0.9.0-sources.jar:38530
+2013-07-08:io7m-jsom0-core-0.9.0-tests.jar:47470
+2013-07-08:io7m-jsom0-0.9.0-documentation.zip:12254
+2013-07-08:io7m-jsom0-0.9.0.zip:1028270
+2013-07-08:io7m-jsom0-demos-lwjgl-0.9.0-dist.zip:4315156

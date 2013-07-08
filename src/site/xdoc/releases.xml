@@ -7,14 +7,216 @@
     <title>Releases</title>
   </properties>
   <body>
+
     <section name="Releases">
-      No releases are currently available.
+      <table class="software_releases page_table" summary="Current project releases">
+        <thead class="page_table_head">
+          <tr>
+            <th class="page_table_column_name">Date</th>
+            <th class="page_table_column_name">Size</th>
+            <th class="page_table_column_name">PGP</th>
+            <th class="page_table_column_name">Package</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="page_table_row">
+            <td class="page_table_column">2013-07-08</td>
+            <td class="page_table_column">55434</td>
+            <td class="page_table_column">
+              <a class="page_link_file" href="http://distribution.io7m.com/jsom0/io7m-jsom0-core-0.9.0.jar.asc">asc</a>
+            </td>
+            <td class="page_table_column">
+              <a class="page_link_file" href="http://distribution.io7m.com/jsom0/io7m-jsom0-core-0.9.0.jar">io7m-jsom0-core-0.9.0.jar</a>
+            </td>
+          </tr>
+          <tr class="page_table_row">
+            <td class="page_table_column">2013-07-08</td>
+            <td class="page_table_column">2978</td>
+            <td class="page_table_column">
+              <a class="page_link_file" href="http://distribution.io7m.com/jsom0/io7m-jsom0-demos-lwjgl-0.9.0-sources.jar.asc">asc</a>
+            </td>
+            <td class="page_table_column">
+              <a class="page_link_file" href="http://distribution.io7m.com/jsom0/io7m-jsom0-demos-lwjgl-0.9.0-sources.jar">io7m-jsom0-demos-lwjgl-0.9.0-sources.jar</a>
+            </td>
+          </tr>
+          <tr class="page_table_row">
+            <td class="page_table_column">2013-07-08</td>
+            <td class="page_table_column">843548</td>
+            <td class="page_table_column">
+              <a class="page_link_file" href="http://distribution.io7m.com/jsom0/io7m-jsom0-demos-0.9.0.jar.asc">asc</a>
+            </td>
+            <td class="page_table_column">
+              <a class="page_link_file" href="http://distribution.io7m.com/jsom0/io7m-jsom0-demos-0.9.0.jar">io7m-jsom0-demos-0.9.0.jar</a>
+            </td>
+          </tr>
+          <tr class="page_table_row">
+            <td class="page_table_column">2013-07-08</td>
+            <td class="page_table_column">7870</td>
+            <td class="page_table_column">
+              <a class="page_link_file" href="http://distribution.io7m.com/jsom0/io7m-jsom0-demos-lwjgl-0.9.0.jar.asc">asc</a>
+            </td>
+            <td class="page_table_column">
+              <a class="page_link_file" href="http://distribution.io7m.com/jsom0/io7m-jsom0-demos-lwjgl-0.9.0.jar">io7m-jsom0-demos-lwjgl-0.9.0.jar</a>
+            </td>
+          </tr>
+          <tr class="page_table_row">
+            <td class="page_table_column">2013-07-08</td>
+            <td class="page_table_column">39821</td>
+            <td class="page_table_column">
+              <a class="page_link_file" href="http://distribution.io7m.com/jsom0/io7m-jsom0-demos-lwjgl-0.9.0-javadoc.jar.asc">asc</a>
+            </td>
+            <td class="page_table_column">
+              <a class="page_link_file" href="http://distribution.io7m.com/jsom0/io7m-jsom0-demos-lwjgl-0.9.0-javadoc.jar">io7m-jsom0-demos-lwjgl-0.9.0-javadoc.jar</a>
+            </td>
+          </tr>
+          <tr class="page_table_row">
+            <td class="page_table_column">2013-07-08</td>
+            <td class="page_table_column">832962</td>
+            <td class="page_table_column">
+              <a class="page_link_file" href="http://distribution.io7m.com/jsom0/io7m-jsom0-demos-0.9.0-sources.jar.asc">asc</a>
+            </td>
+            <td class="page_table_column">
+              <a class="page_link_file" href="http://distribution.io7m.com/jsom0/io7m-jsom0-demos-0.9.0-sources.jar">io7m-jsom0-demos-0.9.0-sources.jar</a>
+            </td>
+          </tr>
+          <tr class="page_table_row">
+            <td class="page_table_column">2013-07-08</td>
+            <td class="page_table_column">3386</td>
+            <td class="page_table_column">
+              <a class="page_link_file" href="http://distribution.io7m.com/jsom0/io7m-jsom0-lwjgl-0.9.0.jar.asc">asc</a>
+            </td>
+            <td class="page_table_column">
+              <a class="page_link_file" href="http://distribution.io7m.com/jsom0/io7m-jsom0-lwjgl-0.9.0.jar">io7m-jsom0-lwjgl-0.9.0.jar</a>
+            </td>
+          </tr>
+          <tr class="page_table_row">
+            <td class="page_table_column">2013-07-08</td>
+            <td class="page_table_column">158174</td>
+            <td class="page_table_column">
+              <a class="page_link_file" href="http://distribution.io7m.com/jsom0/io7m-jsom0-core-0.9.0-javadoc.jar.asc">asc</a>
+            </td>
+            <td class="page_table_column">
+              <a class="page_link_file" href="http://distribution.io7m.com/jsom0/io7m-jsom0-core-0.9.0-javadoc.jar">io7m-jsom0-core-0.9.0-javadoc.jar</a>
+            </td>
+          </tr>
+          <tr class="page_table_row">
+            <td class="page_table_column">2013-07-08</td>
+            <td class="page_table_column">3217</td>
+            <td class="page_table_column">
+              <a class="page_link_file" href="http://distribution.io7m.com/jsom0/io7m-jsom0-jogl-0.9.0.jar.asc">asc</a>
+            </td>
+            <td class="page_table_column">
+              <a class="page_link_file" href="http://distribution.io7m.com/jsom0/io7m-jsom0-jogl-0.9.0.jar">io7m-jsom0-jogl-0.9.0.jar</a>
+            </td>
+          </tr>
+          <tr class="page_table_row">
+            <td class="page_table_column">2013-07-08</td>
+            <td class="page_table_column">57782</td>
+            <td class="page_table_column">
+              <a class="page_link_file" href="http://distribution.io7m.com/jsom0/io7m-jsom0-demos-0.9.0-javadoc.jar.asc">asc</a>
+            </td>
+            <td class="page_table_column">
+              <a class="page_link_file" href="http://distribution.io7m.com/jsom0/io7m-jsom0-demos-0.9.0-javadoc.jar">io7m-jsom0-demos-0.9.0-javadoc.jar</a>
+            </td>
+          </tr>
+          <tr class="page_table_row">
+            <td class="page_table_column">2013-07-08</td>
+            <td class="page_table_column">38530</td>
+            <td class="page_table_column">
+              <a class="page_link_file" href="http://distribution.io7m.com/jsom0/io7m-jsom0-core-0.9.0-sources.jar.asc">asc</a>
+            </td>
+            <td class="page_table_column">
+              <a class="page_link_file" href="http://distribution.io7m.com/jsom0/io7m-jsom0-core-0.9.0-sources.jar">io7m-jsom0-core-0.9.0-sources.jar</a>
+            </td>
+          </tr>
+          <tr class="page_table_row">
+            <td class="page_table_column">2013-07-08</td>
+            <td class="page_table_column">47470</td>
+            <td class="page_table_column">
+              <a class="page_link_file" href="http://distribution.io7m.com/jsom0/io7m-jsom0-core-0.9.0-tests.jar.asc">asc</a>
+            </td>
+            <td class="page_table_column">
+              <a class="page_link_file" href="http://distribution.io7m.com/jsom0/io7m-jsom0-core-0.9.0-tests.jar">io7m-jsom0-core-0.9.0-tests.jar</a>
+            </td>
+          </tr>
+          <tr class="page_table_row">
+            <td class="page_table_column">2013-07-08</td>
+            <td class="page_table_column">12254</td>
+            <td class="page_table_column">
+              <a class="page_link_file" href="http://distribution.io7m.com/jsom0/io7m-jsom0-0.9.0-documentation.zip.asc">asc</a>
+            </td>
+            <td class="page_table_column">
+              <a class="page_link_file" href="http://distribution.io7m.com/jsom0/io7m-jsom0-0.9.0-documentation.zip">io7m-jsom0-0.9.0-documentation.zip</a>
+            </td>
+          </tr>
+          <tr class="page_table_row">
+            <td class="page_table_column">2013-07-08</td>
+            <td class="page_table_column">1028270</td>
+            <td class="page_table_column">
+              <a class="page_link_file" href="http://distribution.io7m.com/jsom0/io7m-jsom0-0.9.0.zip.asc">asc</a>
+            </td>
+            <td class="page_table_column">
+              <a class="page_link_file" href="http://distribution.io7m.com/jsom0/io7m-jsom0-0.9.0.zip">io7m-jsom0-0.9.0.zip</a>
+            </td>
+          </tr>
+          <tr class="page_table_row">
+            <td class="page_table_column">2013-07-08</td>
+            <td class="page_table_column">4315156</td>
+            <td class="page_table_column">
+              <a class="page_link_file" href="http://distribution.io7m.com/jsom0/io7m-jsom0-demos-lwjgl-0.9.0-dist.zip.asc">asc</a>
+            </td>
+            <td class="page_table_column">
+              <a class="page_link_file" href="http://distribution.io7m.com/jsom0/io7m-jsom0-demos-lwjgl-0.9.0-dist.zip">io7m-jsom0-demos-lwjgl-0.9.0-dist.zip</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </section>
+
     <section name="Documentation">
-      No documentation is currently available.
+      <table class="documentation_releases page_table" summary="Current project documentation releases">
+        <thead class="page_table_head">
+          <tr>
+            <th class="page_table_column_name">Date</th>
+            <th class="page_table_column_name">Size</th>
+            <th class="page_table_column_name">PGP</th>
+            <th class="page_table_column_name">Online</th>
+            <th class="page_table_column_name">Package</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="page_table_row">
+            <td class="page_table_column">2013-07-08</td>
+            <td class="page_table_column">12254</td>
+            <td class="page_table_column">
+              <a class="page_link_file" href="http://distribution.io7m.com/jsom0/io7m-jsom0-0.9.0-documentation.zip.asc">asc</a>
+            </td>
+            <td class="page_table_column">
+              <a class="page_link_file" href="http://io7m.com/software/jsom0/doc/0.9.0/d1.xhtml">io7m-jsom0 0.9.0</a>
+            </td>
+            <td class="page_table_column">
+              <a class="page_link_file" href="http://distribution.io7m.com/jsom0/io7m-jsom0-0.9.0-documentation.zip">io7m-jsom0-0.9.0-documentation.zip</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </section>
+
     <section name="Changes">
-      No changelog is currently available.
+<table xmlns="http://www.w3.org/1999/xhtml"
+       class="changelog page_table"
+       summary="Changes">
+   <tr class="page_table_row">
+      <td class="page_table_column">2012-03-15</td>
+      <td class="page_table_column">Release: io7m-jsom0 1.0.0</td>
+   </tr>
+   <tr class="page_table_row">
+      <td class="page_table_column">2012-03-15</td>
+      <td class="page_table_column">Code new: Initial version</td>
+   </tr>
+</table>
+
     </section>
+
   </body>
 </document>
