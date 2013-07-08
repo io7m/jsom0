@@ -29,35 +29,36 @@ import com.io7m.jaux.functional.Option.Type;
 import com.io7m.jsom0.ModelMaterial;
 import com.io7m.jsom0.ModelTexture;
 import com.io7m.jsom0.ModelTextureMapping;
+import com.io7m.jsom0.TestUtilities;
 import com.io7m.jsom0.parser.Error;
 import com.io7m.jsom0.parser.ModelMaterialParser;
 import com.io7m.jsom0.parser.ModelObjectTokenType;
 
-public abstract class ModelMaterialParserTestContract implements
-  ModelMaterialParserContract
+public final class ModelMaterialParserTest
 {
-  @Override @SuppressWarnings("resource") public
-    ModelMaterialParser
-    getParser(
-      final String file)
+  @SuppressWarnings("resource") public static ModelMaterialParser getParser(
+    final String file)
+    throws IOException,
+      Error,
+      ConstraintError
+  {
+    final InputStream fstream =
+      ModelMaterialParserTest.class.getResourceAsStream(file);
+    final ModelMaterialParser parser =
+      new ModelMaterialParser(file, fstream, TestUtilities.getLog());
+    return parser;
+  }
+
+  @SuppressWarnings("static-method") @Test(expected = Error.class) public
+    void
+    testInvalidDuplicateAlpha()
       throws IOException,
         Error,
         ConstraintError
   {
-    final InputStream fstream =
-      ModelMaterialParserTestContract.class.getResourceAsStream(file);
     final ModelMaterialParser parser =
-      new ModelMaterialParser(file, fstream, this.getLog());
-    return parser;
-  }
-
-  @Test(expected = Error.class) public void testInvalidDuplicateAlpha()
-    throws IOException,
-      Error,
-      ConstraintError
-  {
-    final ModelMaterialParser parser =
-      this.getParser("/com/io7m/jsom0/inv-duplicate-alpha.i7m");
+      ModelMaterialParserTest
+        .getParser("/com/io7m/jsom0/inv-duplicate-alpha.i7m");
 
     try {
       parser.modelMaterial();
@@ -69,13 +70,16 @@ public abstract class ModelMaterialParserTestContract implements
     }
   }
 
-  @Test(expected = Error.class) public void testInvalidDuplicateAmbient()
-    throws IOException,
-      Error,
-      ConstraintError
+  @SuppressWarnings("static-method") @Test(expected = Error.class) public
+    void
+    testInvalidDuplicateAmbient()
+      throws IOException,
+        Error,
+        ConstraintError
   {
     final ModelMaterialParser parser =
-      this.getParser("/com/io7m/jsom0/inv-duplicate-ambient.i7m");
+      ModelMaterialParserTest
+        .getParser("/com/io7m/jsom0/inv-duplicate-ambient.i7m");
 
     try {
       parser.modelMaterial();
@@ -87,13 +91,16 @@ public abstract class ModelMaterialParserTestContract implements
     }
   }
 
-  @Test(expected = Error.class) public void testInvalidDuplicateDiffuse()
-    throws IOException,
-      Error,
-      ConstraintError
+  @SuppressWarnings("static-method") @Test(expected = Error.class) public
+    void
+    testInvalidDuplicateDiffuse()
+      throws IOException,
+        Error,
+        ConstraintError
   {
     final ModelMaterialParser parser =
-      this.getParser("/com/io7m/jsom0/inv-duplicate-diffuse.i7m");
+      ModelMaterialParserTest
+        .getParser("/com/io7m/jsom0/inv-duplicate-diffuse.i7m");
 
     try {
       parser.modelMaterial();
@@ -105,13 +112,16 @@ public abstract class ModelMaterialParserTestContract implements
     }
   }
 
-  @Test(expected = Error.class) public void testInvalidDuplicateName()
-    throws IOException,
-      Error,
-      ConstraintError
+  @SuppressWarnings("static-method") @Test(expected = Error.class) public
+    void
+    testInvalidDuplicateName()
+      throws IOException,
+        Error,
+        ConstraintError
   {
     final ModelMaterialParser parser =
-      this.getParser("/com/io7m/jsom0/inv-duplicate-name.i7m");
+      ModelMaterialParserTest
+        .getParser("/com/io7m/jsom0/inv-duplicate-name.i7m");
 
     try {
       parser.modelMaterial();
@@ -123,13 +133,16 @@ public abstract class ModelMaterialParserTestContract implements
     }
   }
 
-  @Test(expected = Error.class) public void testInvalidDuplicateShininess()
-    throws IOException,
-      Error,
-      ConstraintError
+  @SuppressWarnings("static-method") @Test(expected = Error.class) public
+    void
+    testInvalidDuplicateShininess()
+      throws IOException,
+        Error,
+        ConstraintError
   {
     final ModelMaterialParser parser =
-      this.getParser("/com/io7m/jsom0/inv-duplicate-shininess.i7m");
+      ModelMaterialParserTest
+        .getParser("/com/io7m/jsom0/inv-duplicate-shininess.i7m");
 
     try {
       parser.modelMaterial();
@@ -141,13 +154,16 @@ public abstract class ModelMaterialParserTestContract implements
     }
   }
 
-  @Test(expected = Error.class) public void testInvalidDuplicateSpecular()
-    throws IOException,
-      Error,
-      ConstraintError
+  @SuppressWarnings("static-method") @Test(expected = Error.class) public
+    void
+    testInvalidDuplicateSpecular()
+      throws IOException,
+        Error,
+        ConstraintError
   {
     final ModelMaterialParser parser =
-      this.getParser("/com/io7m/jsom0/inv-duplicate-specular.i7m");
+      ModelMaterialParserTest
+        .getParser("/com/io7m/jsom0/inv-duplicate-specular.i7m");
 
     try {
       parser.modelMaterial();
@@ -159,13 +175,16 @@ public abstract class ModelMaterialParserTestContract implements
     }
   }
 
-  @Test(expected = Error.class) public void testInvalidDuplicateTexture()
-    throws IOException,
-      Error,
-      ConstraintError
+  @SuppressWarnings("static-method") @Test(expected = Error.class) public
+    void
+    testInvalidDuplicateTexture()
+      throws IOException,
+        Error,
+        ConstraintError
   {
     final ModelMaterialParser parser =
-      this.getParser("/com/io7m/jsom0/inv-duplicate-texture.i7m");
+      ModelMaterialParserTest
+        .getParser("/com/io7m/jsom0/inv-duplicate-texture.i7m");
 
     try {
       parser.modelMaterial();
@@ -177,13 +196,15 @@ public abstract class ModelMaterialParserTestContract implements
     }
   }
 
-  @Test(expected = Error.class) public void testInvalidEmpty()
-    throws IOException,
-      Error,
-      ConstraintError
+  @SuppressWarnings("static-method") @Test(expected = Error.class) public
+    void
+    testInvalidEmpty()
+      throws IOException,
+        Error,
+        ConstraintError
   {
     final ModelMaterialParser parser =
-      this.getParser("/com/io7m/jsom0/inv-empty.i7m");
+      ModelMaterialParserTest.getParser("/com/io7m/jsom0/inv-empty.i7m");
 
     try {
       parser.modelMaterial();
@@ -201,13 +222,16 @@ public abstract class ModelMaterialParserTestContract implements
     }
   }
 
-  @Test(expected = Error.class) public void testInvalidMissingAlpha()
-    throws IOException,
-      Error,
-      ConstraintError
+  @SuppressWarnings("static-method") @Test(expected = Error.class) public
+    void
+    testInvalidMissingAlpha()
+      throws IOException,
+        Error,
+        ConstraintError
   {
     final ModelMaterialParser parser =
-      this.getParser("/com/io7m/jsom0/inv-missing-alpha.i7m");
+      ModelMaterialParserTest
+        .getParser("/com/io7m/jsom0/inv-missing-alpha.i7m");
 
     try {
       parser.modelMaterial();
@@ -219,13 +243,16 @@ public abstract class ModelMaterialParserTestContract implements
     }
   }
 
-  @Test(expected = Error.class) public void testInvalidMissingAmbient()
-    throws IOException,
-      Error,
-      ConstraintError
+  @SuppressWarnings("static-method") @Test(expected = Error.class) public
+    void
+    testInvalidMissingAmbient()
+      throws IOException,
+        Error,
+        ConstraintError
   {
     final ModelMaterialParser parser =
-      this.getParser("/com/io7m/jsom0/inv-missing-ambient.i7m");
+      ModelMaterialParserTest
+        .getParser("/com/io7m/jsom0/inv-missing-ambient.i7m");
 
     try {
       parser.modelMaterial();
@@ -237,13 +264,16 @@ public abstract class ModelMaterialParserTestContract implements
     }
   }
 
-  @Test(expected = Error.class) public void testInvalidMissingDiffuse()
-    throws IOException,
-      Error,
-      ConstraintError
+  @SuppressWarnings("static-method") @Test(expected = Error.class) public
+    void
+    testInvalidMissingDiffuse()
+      throws IOException,
+        Error,
+        ConstraintError
   {
     final ModelMaterialParser parser =
-      this.getParser("/com/io7m/jsom0/inv-missing-diffuse.i7m");
+      ModelMaterialParserTest
+        .getParser("/com/io7m/jsom0/inv-missing-diffuse.i7m");
 
     try {
       parser.modelMaterial();
@@ -255,13 +285,16 @@ public abstract class ModelMaterialParserTestContract implements
     }
   }
 
-  @Test(expected = Error.class) public void testInvalidMissingName()
-    throws IOException,
-      Error,
-      ConstraintError
+  @SuppressWarnings("static-method") @Test(expected = Error.class) public
+    void
+    testInvalidMissingName()
+      throws IOException,
+        Error,
+        ConstraintError
   {
     final ModelMaterialParser parser =
-      this.getParser("/com/io7m/jsom0/inv-missing-name.i7m");
+      ModelMaterialParserTest
+        .getParser("/com/io7m/jsom0/inv-missing-name.i7m");
 
     try {
       parser.modelMaterial();
@@ -273,13 +306,16 @@ public abstract class ModelMaterialParserTestContract implements
     }
   }
 
-  @Test(expected = Error.class) public void testInvalidMissingShininess()
-    throws IOException,
-      Error,
-      ConstraintError
+  @SuppressWarnings("static-method") @Test(expected = Error.class) public
+    void
+    testInvalidMissingShininess()
+      throws IOException,
+        Error,
+        ConstraintError
   {
     final ModelMaterialParser parser =
-      this.getParser("/com/io7m/jsom0/inv-missing-shininess.i7m");
+      ModelMaterialParserTest
+        .getParser("/com/io7m/jsom0/inv-missing-shininess.i7m");
 
     try {
       parser.modelMaterial();
@@ -291,13 +327,16 @@ public abstract class ModelMaterialParserTestContract implements
     }
   }
 
-  @Test(expected = Error.class) public void testInvalidMissingSpecular()
-    throws IOException,
-      Error,
-      ConstraintError
+  @SuppressWarnings("static-method") @Test(expected = Error.class) public
+    void
+    testInvalidMissingSpecular()
+      throws IOException,
+        Error,
+        ConstraintError
   {
     final ModelMaterialParser parser =
-      this.getParser("/com/io7m/jsom0/inv-missing-specular.i7m");
+      ModelMaterialParserTest
+        .getParser("/com/io7m/jsom0/inv-missing-specular.i7m");
 
     try {
       parser.modelMaterial();
@@ -309,13 +348,15 @@ public abstract class ModelMaterialParserTestContract implements
     }
   }
 
-  @Test(expected = Error.class) public void testInvalidSemi()
-    throws IOException,
-      Error,
-      ConstraintError
+  @SuppressWarnings("static-method") @Test(expected = Error.class) public
+    void
+    testInvalidSemi()
+      throws IOException,
+        Error,
+        ConstraintError
   {
     final ModelMaterialParser parser =
-      this.getParser("/com/io7m/jsom0/inv-semi.i7m");
+      ModelMaterialParserTest.getParser("/com/io7m/jsom0/inv-semi.i7m");
 
     try {
       parser.modelMaterial();
@@ -333,13 +374,16 @@ public abstract class ModelMaterialParserTestContract implements
     }
   }
 
-  @Test(expected = Error.class) public void testInvalidTextureBadMap()
-    throws IOException,
-      Error,
-      ConstraintError
+  @SuppressWarnings("static-method") @Test(expected = Error.class) public
+    void
+    testInvalidTextureBadMap()
+      throws IOException,
+        Error,
+        ConstraintError
   {
     final ModelMaterialParser parser =
-      this.getParser("/com/io7m/jsom0/inv-texture-bad-map.i7m");
+      ModelMaterialParserTest
+        .getParser("/com/io7m/jsom0/inv-texture-bad-map.i7m");
 
     try {
       parser.modelMaterial();
@@ -351,13 +395,13 @@ public abstract class ModelMaterialParserTestContract implements
     }
   }
 
-  @Test public void testValidSimple0()
+  @SuppressWarnings("static-method") @Test public void testValidSimple0()
     throws IOException,
       Error,
       ConstraintError
   {
     final ModelMaterialParser parser =
-      this.getParser("/com/io7m/jsom0/val-simple0.i7m");
+      ModelMaterialParserTest.getParser("/com/io7m/jsom0/val-simple0.i7m");
     final ModelMaterial m = parser.modelMaterial();
 
     Assert.assertTrue(m.name.equals("name"));
@@ -380,13 +424,13 @@ public abstract class ModelMaterialParserTestContract implements
     Assert.assertTrue(m.texture.type == Type.OPTION_NONE);
   }
 
-  @Test public void testValidSimple1()
+  @SuppressWarnings("static-method") @Test public void testValidSimple1()
     throws IOException,
       Error,
       ConstraintError
   {
     final ModelMaterialParser parser =
-      this.getParser("/com/io7m/jsom0/val-simple1.i7m");
+      ModelMaterialParserTest.getParser("/com/io7m/jsom0/val-simple1.i7m");
     final ModelMaterial m = parser.modelMaterial();
 
     Assert.assertTrue(m.name.equals("name"));
