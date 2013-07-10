@@ -1,8 +1,4 @@
 bin
 build
-io7m-jsom0-core/target
-io7m-jsom0-demos/target
-io7m-jsom0-demos-lwjgl/target
-io7m-jsom0-jogl/target
-io7m-jsom0-lwjgl/target
+io7m-jsom0-*/target
 target

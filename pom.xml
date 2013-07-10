@@ -55,11 +55,12 @@
   </properties>
 
   <modules>
+    <module>io7m-jsom0-collada</module>
     <module>io7m-jsom0-core</module>
-    <module>io7m-jsom0-lwjgl</module>
-    <module>io7m-jsom0-jogl</module>
-    <module>io7m-jsom0-demos</module>
     <module>io7m-jsom0-demos-lwjgl</module>
+    <module>io7m-jsom0-demos</module>
+    <module>io7m-jsom0-jogl</module>
+    <module>io7m-jsom0-lwjgl</module>
   </modules>
 
   <reporting>
