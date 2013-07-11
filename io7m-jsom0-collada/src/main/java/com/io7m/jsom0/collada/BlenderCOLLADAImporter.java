@@ -339,13 +339,19 @@ final class BlenderCOLLADAImporter
             final VectorI3F p0 = source.positions.get(poly.pos0);
             final VectorI3F p1 = source.positions.get(poly.pos1);
             final VectorI3F p2 = source.positions.get(poly.pos2);
+
             final VectorI3F n0 = source.normals.get(poly.norm0);
             final VectorI3F n1 = source.normals.get(poly.norm1);
             final VectorI3F n2 = source.normals.get(poly.norm2);
 
-            final Jsom0VertexP3N3 v0 = new Jsom0VertexP3N3(p0, n0);
-            final Jsom0VertexP3N3 v1 = new Jsom0VertexP3N3(p1, n1);
-            final Jsom0VertexP3N3 v2 = new Jsom0VertexP3N3(p2, n2);
+            // Convert from Blender's coordinate system to OpenGL
+            final VectorI3F p0_gl = Jsom0Object.axesBlenderToOpenGL(p0);
+            final VectorI3F p1_gl = Jsom0Object.axesBlenderToOpenGL(p1);
+            final VectorI3F p2_gl = Jsom0Object.axesBlenderToOpenGL(p2);
+
+            final Jsom0VertexP3N3 v0 = new Jsom0VertexP3N3(p0_gl, n0);
+            final Jsom0VertexP3N3 v1 = new Jsom0VertexP3N3(p1_gl, n1);
+            final Jsom0VertexP3N3 v2 = new Jsom0VertexP3N3(p2_gl, n2);
 
             this.reuseAddVertex(v0, v1, v2);
           }
@@ -357,16 +363,23 @@ final class BlenderCOLLADAImporter
             final VectorI3F p0 = source.positions.get(poly.pos0);
             final VectorI3F p1 = source.positions.get(poly.pos1);
             final VectorI3F p2 = source.positions.get(poly.pos2);
+
             final VectorI3F n0 = source.normals.get(poly.norm0);
             final VectorI3F n1 = source.normals.get(poly.norm1);
             final VectorI3F n2 = source.normals.get(poly.norm2);
+
             final VectorI2F t0 = source.texcoords.get(poly.uv0);
             final VectorI2F t1 = source.texcoords.get(poly.uv1);
             final VectorI2F t2 = source.texcoords.get(poly.uv2);
 
-            final Jsom0VertexP3N3T2 v0 = new Jsom0VertexP3N3T2(p0, n0, t0);
-            final Jsom0VertexP3N3T2 v1 = new Jsom0VertexP3N3T2(p1, n1, t1);
-            final Jsom0VertexP3N3T2 v2 = new Jsom0VertexP3N3T2(p2, n2, t2);
+            // Convert from Blender's coordinate system to OpenGL
+            final VectorI3F p0_gl = Jsom0Object.axesBlenderToOpenGL(p0);
+            final VectorI3F p1_gl = Jsom0Object.axesBlenderToOpenGL(p1);
+            final VectorI3F p2_gl = Jsom0Object.axesBlenderToOpenGL(p2);
+
+            final Jsom0VertexP3N3T2 v0 = new Jsom0VertexP3N3T2(p0_gl, n0, t0);
+            final Jsom0VertexP3N3T2 v1 = new Jsom0VertexP3N3T2(p1_gl, n1, t1);
+            final Jsom0VertexP3N3T2 v2 = new Jsom0VertexP3N3T2(p2_gl, n2, t2);
 
             this.reuseAddVertex(v0, v1, v2);
           }
@@ -377,6 +390,12 @@ final class BlenderCOLLADAImporter
       log.debug("object has "
         + this.vertices.size()
         + " vertices after sharing");
+    }
+
+    private static @Nonnull VectorI3F axesBlenderToOpenGL(
+      final @Nonnull VectorI3F v)
+    {
+      return new VectorI3F(v.x, -v.z, v.y);
     }
 
     private void reuseAddVertex(
