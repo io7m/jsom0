@@ -57,7 +57,7 @@ import com.io7m.jtensors.VectorReadable4F;
  * A program to extract information from the COLLADA data exported by Blender.
  */
 
-final class BlenderCOLLADAImporter
+public final class BlenderCOLLADAImporter
 {
   private static class ColladaModel
   {

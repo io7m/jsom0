@@ -10,6 +10,16 @@
   <url>http://mvn.io7m.com/jsom0/</url>
   <packaging>pom</packaging>
 
+  <modules>
+    <module>io7m-jsom0-collada</module>
+    <module>io7m-jsom0-core</module>
+    <module>io7m-jsom0-demos-jogl</module>
+    <module>io7m-jsom0-demos-lwjgl</module>
+    <module>io7m-jsom0-demos</module>
+    <module>io7m-jsom0-jogl</module>
+    <module>io7m-jsom0-lwjgl</module>
+  </modules>
+
   <licenses>
     <license>
       <name>ISC License</name>
@@ -53,15 +63,6 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
-
-  <modules>
-    <module>io7m-jsom0-collada</module>
-    <module>io7m-jsom0-core</module>
-    <module>io7m-jsom0-demos-lwjgl</module>
-    <module>io7m-jsom0-demos</module>
-    <module>io7m-jsom0-jogl</module>
-    <module>io7m-jsom0-lwjgl</module>
-  </modules>
 
   <reporting>
     <plugins>
