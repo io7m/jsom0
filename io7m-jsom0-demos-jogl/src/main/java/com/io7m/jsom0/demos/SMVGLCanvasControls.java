@@ -59,12 +59,25 @@ final class SMVGLCanvasControls extends JPanel
 
       final DesignGridLayout dg = new DesignGridLayout(this);
 
-      this.origin_x = new JTextField("0.0");
-      this.origin_y = new JTextField("2.0");
-      this.origin_z = new JTextField("0.0");
-      this.target_x = new JTextField("0.0");
-      this.target_y = new JTextField("2.0");
-      this.target_z = new JTextField("-5.0");
+      this.origin_x =
+        new JTextField(Float.toString(SMVGLCanvas.INITIAL_ORIGIN_CAMERA
+          .getXF()));
+      this.origin_y =
+        new JTextField(Float.toString(SMVGLCanvas.INITIAL_ORIGIN_CAMERA
+          .getYF()));
+      this.origin_z =
+        new JTextField(Float.toString(SMVGLCanvas.INITIAL_ORIGIN_CAMERA
+          .getZF()));
+      this.target_x =
+        new JTextField(Float.toString(SMVGLCanvas.INITIAL_ORIGIN_MODEL
+          .getXF()));
+      this.target_y =
+        new JTextField(Float.toString(SMVGLCanvas.INITIAL_ORIGIN_MODEL
+          .getYF()));
+      this.target_z =
+        new JTextField(Float.toString(SMVGLCanvas.INITIAL_ORIGIN_MODEL
+          .getZF()));
+
       this.update = new JButton("Update");
       this.update.addActionListener(new ActionListener() {
         @Override public void actionPerformed(
@@ -261,9 +274,16 @@ final class SMVGLCanvasControls extends JPanel
 
       final DesignGridLayout dg = new DesignGridLayout(this);
 
-      this.origin_x = new JTextField("0.0");
-      this.origin_y = new JTextField("2.0");
-      this.origin_z = new JTextField("-10.0");
+      this.origin_x =
+        new JTextField(Float.toString(SMVGLCanvas.INITIAL_ORIGIN_MODEL
+          .getXF()));
+      this.origin_y =
+        new JTextField(Float.toString(SMVGLCanvas.INITIAL_ORIGIN_MODEL
+          .getYF()));
+      this.origin_z =
+        new JTextField(Float.toString(SMVGLCanvas.INITIAL_ORIGIN_MODEL
+          .getZF()));
+
       this.rotate_x = new JTextField("0.0");
       this.rotate_y = new JTextField("0.0");
       this.rotate_z = new JTextField("0.0");

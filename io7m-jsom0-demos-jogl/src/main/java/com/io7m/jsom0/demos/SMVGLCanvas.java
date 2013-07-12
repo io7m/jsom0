@@ -81,6 +81,14 @@ import com.io7m.jvvfs.PathVirtual;
 
 public final class SMVGLCanvas extends GLCanvas
 {
+  static final @Nonnull VectorReadable3F INITIAL_ORIGIN_MODEL;
+  static final @Nonnull VectorReadable3F INITIAL_ORIGIN_CAMERA;
+
+  static {
+    INITIAL_ORIGIN_MODEL = new VectorI3F(0.0f, 2.0f, 0f);
+    INITIAL_ORIGIN_CAMERA = new VectorI3F(0.0f, 2.0f, 5.0f);
+  }
+
   private static final class ViewKeyListener implements KeyListener
   {
     ViewKeyListener(
@@ -187,9 +195,18 @@ public final class SMVGLCanvas extends GLCanvas
       this.matrix_projection = new MatrixM4x4F();
       this.m4_context = new MatrixM4x4F.Context();
 
-      this.camera = new SMVCamera();
-      this.model_position = new VectorM3F(0.0f, 2.0f, -10.0f);
+      this.model_position = new VectorM3F(SMVGLCanvas.INITIAL_ORIGIN_MODEL);
       this.model_orientation = new QuaternionM4F();
+
+      this.camera = new SMVCamera();
+      this.camera.setPosition(
+        SMVGLCanvas.INITIAL_ORIGIN_CAMERA.getXF(),
+        SMVGLCanvas.INITIAL_ORIGIN_CAMERA.getYF(),
+        SMVGLCanvas.INITIAL_ORIGIN_CAMERA.getZF());
+      this.camera.setTarget(
+        this.model_position.x,
+        this.model_position.y,
+        this.model_position.z);
     }
 
     @Override public void display(

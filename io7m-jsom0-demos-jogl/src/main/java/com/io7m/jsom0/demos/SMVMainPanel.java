@@ -16,7 +16,6 @@
 
 package com.io7m.jsom0.demos;
 
-import java.awt.Color;
 import java.awt.Dimension;
 
 import javax.annotation.Nonnull;
@@ -49,7 +48,7 @@ public class SMVMainPanel extends JPanel
       throws ConstraintError,
         FilesystemError
     {
-      this.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+      this.setBorder(BorderFactory.createTitledBorder("OpenGL"));
 
       this.canvas = SMVGLCanvas.makeCanvas(config, log);
       this.canvas.setPreferredSize(new Dimension(400, 400));
@@ -82,7 +81,7 @@ public class SMVMainPanel extends JPanel
     final DesignGridLayout layout = new DesignGridLayout(this);
     layout
       .row()
-      .left()
+      .grid()
       .add(this.canvas_container)
       .add(this.control_container);
   }
