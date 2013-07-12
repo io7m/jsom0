@@ -38,19 +38,19 @@ final class SMVGLCanvasControls extends JPanel
 {
   private static final class CameraControls extends JPanel
   {
-    private static final long         serialVersionUID;
+    private static final long           serialVersionUID;
 
     static {
       serialVersionUID = -6469218528918251954L;
     }
 
-    private final @Nonnull JTextField origin_x;
-    private final @Nonnull JTextField origin_y;
-    private final @Nonnull JTextField origin_z;
-    private final @Nonnull JTextField target_x;
-    private final @Nonnull JTextField target_y;
-    private final @Nonnull JTextField target_z;
-    private final @Nonnull JButton    update;
+    protected final @Nonnull JTextField origin_x;
+    protected final @Nonnull JTextField origin_y;
+    protected final @Nonnull JTextField origin_z;
+    protected final @Nonnull JTextField target_x;
+    protected final @Nonnull JTextField target_y;
+    protected final @Nonnull JTextField target_z;
+    protected final @Nonnull JButton    update;
 
     CameraControls(
       final @Nonnull SMVGLCanvas canvas)
@@ -253,19 +253,19 @@ final class SMVGLCanvasControls extends JPanel
 
   private static final class ModelControls extends JPanel
   {
-    private static final long         serialVersionUID;
+    private static final long           serialVersionUID;
 
     static {
       serialVersionUID = -6469218528918251954L;
     }
 
-    private final @Nonnull JTextField origin_x;
-    private final @Nonnull JTextField origin_y;
-    private final @Nonnull JTextField origin_z;
-    private final @Nonnull JTextField rotate_x;
-    private final @Nonnull JTextField rotate_y;
-    private final @Nonnull JTextField rotate_z;
-    private final @Nonnull JButton    update;
+    protected final @Nonnull JTextField origin_x;
+    protected final @Nonnull JTextField origin_y;
+    protected final @Nonnull JTextField origin_z;
+    protected final @Nonnull JTextField rotate_x;
+    protected final @Nonnull JTextField rotate_y;
+    protected final @Nonnull JTextField rotate_z;
+    protected final @Nonnull JButton    update;
 
     ModelControls(
       final @Nonnull SMVGLCanvas canvas)
