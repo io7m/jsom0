@@ -9,11 +9,19 @@
 .command,
 .constant,
 .element,
+.expression,
 .file,
 .function,
-.type
+.keyword,
+.type,
+.variable
 {
   font-family: monospace;
+}
+
+.term
+{
+  font-style: italic;
 }
 
 .example, .license, .terminal
