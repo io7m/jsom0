@@ -19,10 +19,8 @@ package com.io7m.jsom0.demos;
 import java.awt.Dimension;
 
 import javax.annotation.Nonnull;
-import javax.swing.BorderFactory;
 import javax.swing.JPanel;
-
-import net.java.dev.designgridlayout.DesignGridLayout;
+import javax.swing.JSplitPane;
 
 import com.io7m.jaux.Constraints.ConstraintError;
 import com.io7m.jlog.Log;
@@ -31,42 +29,16 @@ import com.jogamp.opengl.util.FPSAnimator;
 
 public class SMVMainPanel extends JPanel
 {
-  private static final long serialVersionUID = 6107820323163155729L;
+  private static final long                  serialVersionUID;
 
-  private static class CanvasContainer extends JPanel
-  {
-    private static final long          serialVersionUID;
-    private final @Nonnull SMVGLCanvas canvas;
-
-    static {
-      serialVersionUID = 9031666475369374710L;
-    }
-
-    CanvasContainer(
-      final @Nonnull SMVConfig config,
-      final @Nonnull Log log)
-      throws ConstraintError,
-        FilesystemError
-    {
-      this.setBorder(BorderFactory.createTitledBorder("OpenGL"));
-
-      this.canvas = SMVGLCanvas.makeCanvas(config, log);
-      this.canvas.setPreferredSize(new Dimension(400, 400));
-
-      final FPSAnimator animator = new FPSAnimator(this.canvas, 60);
-      animator.start();
-
-      this.add(this.canvas);
-    }
-
-    @Nonnull SMVGLCanvas getCanvas()
-    {
-      return this.canvas;
-    }
+  static {
+    serialVersionUID = 6107820323163155729L;
   }
 
-  private final @Nonnull CanvasContainer     canvas_container;
-  private final @Nonnull SMVGLCanvasControls control_container;
+  private final @Nonnull JSplitPane          pane;
+  private final @Nonnull SMVGLCanvas         canvas;
+  private final @Nonnull SMVGLCanvasControls controls;
+  private final @Nonnull JPanel              canvas_panel;
 
   SMVMainPanel(
     final @Nonnull SMVConfig config,
@@ -74,15 +46,20 @@ public class SMVMainPanel extends JPanel
     throws ConstraintError,
       FilesystemError
   {
-    this.canvas_container = new CanvasContainer(config, log);
-    this.control_container =
-      new SMVGLCanvasControls(this.canvas_container.getCanvas());
+    this.pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
-    final DesignGridLayout layout = new DesignGridLayout(this);
-    layout
-      .row()
-      .grid()
-      .add(this.canvas_container)
-      .add(this.control_container);
+    this.canvas = SMVGLCanvas.makeCanvas(config, log);
+    this.canvas.setPreferredSize(new Dimension(400, 400));
+    this.canvas_panel = new JPanel();
+    this.canvas_panel.add(this.canvas);
+
+    final FPSAnimator animator = new FPSAnimator(this.canvas, 60);
+    animator.start();
+
+    this.controls = new SMVGLCanvasControls(this.canvas);
+
+    this.pane.add(this.canvas_panel);
+    this.pane.add(this.controls);
+    this.add(this.pane);
   }
 }

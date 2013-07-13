@@ -27,6 +27,7 @@ import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
 import net.java.dev.designgridlayout.DesignGridLayout;
@@ -34,7 +35,7 @@ import net.java.dev.designgridlayout.Tag;
 
 import com.io7m.jtensors.VectorM3F;
 
-final class SMVGLCanvasControls extends JPanel
+final class SMVGLCanvasControls extends JTabbedPane
 {
   private static final class CameraControls extends JPanel
   {
@@ -129,7 +130,7 @@ final class SMVGLCanvasControls extends JPanel
     }
   }
 
-  private static final class DataControls extends JPanel
+  private static final class DataTab extends JPanel
   {
     private static final long                          serialVersionUID;
     protected final @Nonnull JTextField                model_field;
@@ -143,11 +144,9 @@ final class SMVGLCanvasControls extends JPanel
       serialVersionUID = 3789062523559521691L;
     }
 
-    DataControls(
+    DataTab(
       final @Nonnull SMVGLCanvas canvas)
     {
-      this.setBorder(BorderFactory.createTitledBorder("Data"));
-
       this.object_menu = new JComboBox<String>();
       this.model_field = new JTextField();
       this.model_field.setEditable(false);
@@ -160,13 +159,13 @@ final class SMVGLCanvasControls extends JPanel
           final JFileChooser chooser = new JFileChooser();
           chooser.setMultiSelectionEnabled(false);
 
-          final int r = chooser.showOpenDialog(DataControls.this);
+          final int r = chooser.showOpenDialog(DataTab.this);
           switch (r) {
             case JFileChooser.APPROVE_OPTION:
             {
               final File file = chooser.getSelectedFile();
               canvas.loadModel(file);
-              DataControls.this.model_field.setText(file.toString());
+              DataTab.this.model_field.setText(file.toString());
               break;
             }
             case JFileChooser.CANCEL_OPTION:
@@ -192,13 +191,13 @@ final class SMVGLCanvasControls extends JPanel
           final JFileChooser chooser = new JFileChooser();
           chooser.setMultiSelectionEnabled(false);
 
-          final int r = chooser.showOpenDialog(DataControls.this);
+          final int r = chooser.showOpenDialog(DataTab.this);
           switch (r) {
             case JFileChooser.APPROVE_OPTION:
             {
               final File file = chooser.getSelectedFile();
               canvas.loadMaterial(file);
-              DataControls.this.material_field.setText(file.toString());
+              DataTab.this.material_field.setText(file.toString());
               break;
             }
             case JFileChooser.CANCEL_OPTION:
@@ -219,7 +218,7 @@ final class SMVGLCanvasControls extends JPanel
           final @Nonnull ActionEvent e)
         {
           final SMVRenderStyle style =
-            (SMVRenderStyle) DataControls.this.model_render_style
+            (SMVRenderStyle) DataTab.this.model_render_style
               .getSelectedItem();
           canvas.selectRenderStyle(style);
         }
@@ -340,26 +339,45 @@ final class SMVGLCanvasControls extends JPanel
     }
   }
 
-  private static final long             serialVersionUID;
+  private static final long serialVersionUID;
 
   static {
     serialVersionUID = -3663209745613242332L;
   }
 
-  private final @Nonnull DataControls   d_controls;
-  private final @Nonnull ModelControls  m_controls;
-  private final @Nonnull CameraControls c_controls;
+  private static class ViewTab extends JPanel
+  {
+    private static final long             serialVersionUID;
+
+    static {
+      serialVersionUID = -1892389128933242332L;
+    }
+
+    private final @Nonnull ModelControls  m_controls;
+    private final @Nonnull CameraControls c_controls;
+
+    ViewTab(
+      final @Nonnull SMVGLCanvas canvas)
+    {
+      this.m_controls = new ModelControls(canvas);
+      this.c_controls = new CameraControls(canvas);
+
+      final DesignGridLayout dg = new DesignGridLayout(this);
+      dg.row().grid().add(this.m_controls);
+      dg.row().grid().add(this.c_controls);
+    }
+  }
+
+  private final @Nonnull DataTab d_tab;
+  private final @Nonnull ViewTab v_tab;
 
   SMVGLCanvasControls(
     final @Nonnull SMVGLCanvas canvas)
   {
-    this.d_controls = new DataControls(canvas);
-    this.m_controls = new ModelControls(canvas);
-    this.c_controls = new CameraControls(canvas);
+    this.d_tab = new DataTab(canvas);
+    this.v_tab = new ViewTab(canvas);
 
-    final DesignGridLayout dg = new DesignGridLayout(this);
-    dg.row().grid().add(this.d_controls);
-    dg.row().grid().add(this.m_controls);
-    dg.row().grid().add(this.c_controls);
+    this.add("Data", this.d_tab);
+    this.add("View", this.v_tab);
   }
 }
