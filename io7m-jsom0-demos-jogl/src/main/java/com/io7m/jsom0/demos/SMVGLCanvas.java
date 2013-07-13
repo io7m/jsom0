@@ -698,27 +698,31 @@ public final class SMVGLCanvas extends GLCanvas
               final ProgramAttribute p_uv = program.getAttribute("v_uv");
 
               final ArrayBuffer a = object.getArrayBuffer();
+              gl.arrayBufferBind(a);
+
               final ArrayBufferAttribute a_pos =
                 a.getDescriptor().getAttribute(
                   ViewRenderer.NAME_POSITION_ATTRIBUTE.toString());
+              gl.arrayBufferBindVertexAttribute(a, a_pos, p_pos);
+
               final ArrayBufferAttribute a_norm =
                 a.getDescriptor().getAttribute(
                   ViewRenderer.NAME_NORMAL_ATTRIBUTE.toString());
-              final ArrayBufferAttribute a_uv =
-                a.getDescriptor().getAttribute(
-                  ViewRenderer.NAME_UV_ATTRIBUTE.toString());
-
-              final IndexBuffer i = object.getIndexBuffer();
-
-              gl.arrayBufferBind(a);
-              gl.arrayBufferBindVertexAttribute(a, a_pos, p_pos);
               if (p_norm != null) {
                 gl.arrayBufferBindVertexAttribute(a, a_norm, p_norm);
               }
-              if (p_uv != null) {
-                gl.arrayBufferBindVertexAttribute(a, a_uv, p_uv);
+
+              if (a.getDescriptor().hasAttribute(
+                ViewRenderer.NAME_UV_ATTRIBUTE.toString())) {
+                final ArrayBufferAttribute a_uv =
+                  a.getDescriptor().getAttribute(
+                    ViewRenderer.NAME_UV_ATTRIBUTE.toString());
+                if (p_uv != null) {
+                  gl.arrayBufferBindVertexAttribute(a, a_uv, p_uv);
+                }
               }
 
+              final IndexBuffer i = object.getIndexBuffer();
               gl.drawElements(Primitives.PRIMITIVE_TRIANGLES, i);
 
             } catch (final ConstraintError e) {

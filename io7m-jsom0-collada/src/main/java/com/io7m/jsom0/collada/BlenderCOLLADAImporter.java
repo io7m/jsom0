@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 import nu.xom.Attribute;
@@ -99,11 +100,11 @@ public final class BlenderCOLLADAImporter
     final @Nonnull ArrayList<VectorI2F>   texcoords;
     final @Nonnull ColladaVertexType      vertex_type;
     final @Nonnull String                 name;
-    final @Nonnull ModelMaterial          material;
+    final @CheckForNull ModelMaterial     material;
 
     ColladaObject(
       final @Nonnull String name,
-      final @Nonnull ModelMaterial material,
+      final @CheckForNull ModelMaterial material,
       final @Nonnull ColladaVertexType vertex_type)
     {
       this.name = name;
@@ -210,7 +211,12 @@ public final class BlenderCOLLADAImporter
         out.println("\";");
 
         out.print("  material_name \"");
-        out.print(o.material.name);
+        if (o.material != null) {
+          out.print(o.material.name);
+        } else {
+          // XXX: Materials should really be optional...
+          out.print("none");
+        }
         out.println("\";");
 
         out.println("  vertices;");
@@ -314,11 +320,18 @@ public final class BlenderCOLLADAImporter
 
   private static class Jsom0Object
   {
+    private static @Nonnull VectorI3F axesBlenderToOpenGL(
+      final @Nonnull VectorI3F v)
+    {
+      return new VectorI3F(v.x, -v.z, v.y);
+    }
+
     final @Nonnull Map<Jsom0Vertex, Integer> vertices_map;
     final @Nonnull ArrayList<Jsom0Vertex>    vertices;
     final @Nonnull VertexType                type;
     final @Nonnull ArrayList<Jsom0Triangle>  polygons;
     final @Nonnull String                    name;
+
     final @Nonnull ModelMaterial             material;
 
     Jsom0Object(
@@ -407,12 +420,6 @@ public final class BlenderCOLLADAImporter
       log.debug("object has "
         + this.vertices.size()
         + " vertices after sharing");
-    }
-
-    private static @Nonnull VectorI3F axesBlenderToOpenGL(
-      final @Nonnull VectorI3F v)
-    {
-      return new VectorI3F(v.x, -v.z, v.y);
     }
 
     private void reuseAddVertex(
@@ -919,6 +926,17 @@ public final class BlenderCOLLADAImporter
     return array.getValue().split("\\s+");
   }
 
+  private static boolean hasTexCoord(
+    final @Nonnull XPathContext xpc,
+    final @Nonnull Element mesh)
+  {
+    assert mesh.getLocalName().equals("mesh");
+
+    final Nodes normal_input_nodes =
+      mesh.query("c:polylist/c:input[@semantic='TEXCOORD']", xpc);
+    return normal_input_nodes.size() >= 1;
+  }
+
   private static String getTexCoordSourceName(
     final @Nonnull XPathContext xpc,
     final @Nonnull Element mesh)
@@ -1105,6 +1123,13 @@ public final class BlenderCOLLADAImporter
         }
       }
     }
+  }
+
+  private static boolean polylistHasMaterial(
+    final @Nonnull Element polylist)
+  {
+    assert polylist.getLocalName().equals("polylist");
+    return polylist.getAttribute("material") != null;
   }
 
   private static void populateNormalArray(
@@ -1333,12 +1358,15 @@ public final class BlenderCOLLADAImporter
     final Element polylist =
       BlenderCOLLADAImporter.getPolylistFromMesh(xpc, mesh);
 
-    final String material_address =
-      BlenderCOLLADAImporter.getPolylistMaterialAddress(polylist);
-    final ModelMaterial material =
-      BlenderCOLLADAImporter.getMaterialWithId(xpc, mesh
-        .getDocument()
-        .getRootElement(), material_address);
+    ModelMaterial material = null;
+    if (BlenderCOLLADAImporter.polylistHasMaterial(polylist)) {
+      final String material_address =
+        BlenderCOLLADAImporter.getPolylistMaterialAddress(polylist);
+      material =
+        BlenderCOLLADAImporter.getMaterialWithId(xpc, mesh
+          .getDocument()
+          .getRootElement(), material_address);
+    }
 
     final ColladaVertexType vertex_type =
       BlenderCOLLADAImporter.getVertexType(xpc, polylist);
@@ -1347,9 +1375,20 @@ public final class BlenderCOLLADAImporter
 
     BlenderCOLLADAImporter.populateVertexArray(xpc, model, mesh, log);
     BlenderCOLLADAImporter.populateNormalArray(xpc, model, mesh, log);
-    BlenderCOLLADAImporter.populateTexCoordArray(xpc, model, mesh, log);
-    BlenderCOLLADAImporter.populatePolyArray(xpc, model, log, polylist);
 
+    switch (vertex_type.type) {
+      case VERTEX_TYPE_P3N3:
+      {
+        break;
+      }
+      case VERTEX_TYPE_P3N3T2:
+      {
+        BlenderCOLLADAImporter.populateTexCoordArray(xpc, model, mesh, log);
+        break;
+      }
+    }
+
+    BlenderCOLLADAImporter.populatePolyArray(xpc, model, log, polylist);
     return model;
   }
 
