@@ -2,12 +2,12 @@
 
 uniform sampler2D t_diffuse_0;
 
-in vec2 f_uv;
+in vec3 f_normal;
 
 out vec4 out_frag_color;
 
 void
 main (void)
 {
-  out_frag_color = texture2D(t_diffuse_0, vec2(f_uv.x, 1.0 - f_uv.y));
+  out_frag_color = texture2D(t_diffuse_0, f_normal.xy);
 }

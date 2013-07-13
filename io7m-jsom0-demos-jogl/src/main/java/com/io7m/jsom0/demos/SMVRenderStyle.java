@@ -21,7 +21,7 @@ import javax.annotation.Nonnull;
 public enum SMVRenderStyle
 {
   RENDER_STYLE_TEXTURED_FLAT("textured-flat"),
-  RENDER_STYLE_TEXTURED_LIT("textured-lit"),
+  RENDER_STYLE_TEXTURED_FLAT_CHROME("textured-flat-chrome"),
   RENDER_STYLE_NORMALS_ONLY("normals-only"),
   RENDER_STYLE_VERTEX_COLOR("vertex-color"),
   RENDER_STYLE_COLOR("color");

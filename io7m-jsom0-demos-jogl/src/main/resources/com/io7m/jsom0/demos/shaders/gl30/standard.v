@@ -7,7 +7,6 @@ in vec3 v_color;
 
 uniform mat4 m_modelview;
 uniform mat4 m_projection;
-uniform mat3 m_normal;
 
 out vec2 f_uv;
 out vec3 f_normal;
@@ -19,7 +18,7 @@ main()
 {
   gl_Position  = m_projection * m_modelview * vec4(v_position, 1.0);
   f_uv         = v_uv;
-  f_normal     = m_normal * v_normal;
+  f_normal     = (m_modelview * vec4(v_normal, 0.0)).xyz;
   f_normal_raw = v_normal;
   f_color      = v_color;
 }

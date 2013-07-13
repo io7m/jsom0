@@ -33,11 +33,313 @@ import javax.swing.JTextField;
 import net.java.dev.designgridlayout.DesignGridLayout;
 import net.java.dev.designgridlayout.Tag;
 
+import com.io7m.jaux.Constraints.ConstraintError;
+import com.io7m.jsom0.ModelMaterial;
+import com.io7m.jsom0.ModelTexture;
+import com.io7m.jsom0.ModelTextureMapping;
 import com.io7m.jtensors.VectorM3F;
 
 final class SMVGLCanvasControls extends JTabbedPane
 {
-  private static final class CameraControls extends JPanel
+  private static final class DataTabModelControls extends JPanel
+  {
+    private static final long                          serialVersionUID;
+    protected final @Nonnull JTextField                model_field;
+    private final @Nonnull JButton                     model_browse;
+    private final @Nonnull JComboBox<String>           object_menu;
+    protected final @Nonnull JComboBox<SMVRenderStyle> model_render_style;
+
+    static {
+      serialVersionUID = 4407901430152351612L;
+    }
+
+    DataTabModelControls(
+      final @Nonnull SMVGLCanvas canvas)
+    {
+      this.setBorder(BorderFactory.createTitledBorder("Model"));
+
+      this.object_menu = new JComboBox<String>();
+      this.model_field = new JTextField();
+      this.model_field.setEditable(false);
+
+      this.model_browse = new JButton("Open...");
+      this.model_browse.addActionListener(new ActionListener() {
+        @Override public void actionPerformed(
+          final @Nonnull ActionEvent e)
+        {
+          final JFileChooser chooser = new JFileChooser();
+          chooser.setMultiSelectionEnabled(false);
+
+          final int r = chooser.showOpenDialog(DataTabModelControls.this);
+          switch (r) {
+            case JFileChooser.APPROVE_OPTION:
+            {
+              final File file = chooser.getSelectedFile();
+              canvas.loadModel(file);
+              DataTabModelControls.this.model_field.setText(file.toString());
+              break;
+            }
+            case JFileChooser.CANCEL_OPTION:
+            {
+              break;
+            }
+            case JFileChooser.ERROR_OPTION:
+            {
+              break;
+            }
+          }
+        }
+      });
+
+      this.model_render_style = new SMVRenderStyleSelector();
+      this.model_render_style.addActionListener(new ActionListener() {
+        @Override public void actionPerformed(
+          final @Nonnull ActionEvent e)
+        {
+          final SMVRenderStyle style =
+            (SMVRenderStyle) DataTabModelControls.this.model_render_style
+              .getSelectedItem();
+          canvas.selectRenderStyle(style);
+        }
+      });
+
+      final DesignGridLayout dg = new DesignGridLayout(this);
+
+      dg
+        .row()
+        .grid()
+        .add(new JLabel("File"))
+        .add(this.model_field, 3)
+        .add(this.model_browse);
+
+      dg.row().grid().add(new JLabel("Object")).add(this.object_menu, 4);
+
+      dg
+        .row()
+        .grid()
+        .add(new JLabel("Render"))
+        .add(this.model_render_style, 4);
+    }
+  }
+
+  private static final class DataTabMaterialControls extends JPanel
+  {
+    private static final long           serialVersionUID;
+
+    static {
+      serialVersionUID = 4407901430152351612L;
+    }
+
+    protected final @Nonnull JTextField diffuse_r;
+    protected final @Nonnull JTextField diffuse_g;
+    protected final @Nonnull JTextField diffuse_b;
+    protected final @Nonnull JTextField ambient_r;
+    protected final @Nonnull JTextField ambient_g;
+    protected final @Nonnull JTextField ambient_b;
+    protected final @Nonnull JTextField specular_r;
+    protected final @Nonnull JTextField specular_g;
+    protected final @Nonnull JTextField specular_b;
+    protected final @Nonnull JTextField specular_a;
+    protected final @Nonnull JTextField shininess;
+    protected final @Nonnull JTextField texture;
+    protected final @Nonnull JButton    texture_browse;
+    protected final @Nonnull JButton    texture_clear;
+    protected final @Nonnull JButton    update;
+
+    protected @Nonnull ModelMaterial makeMaterial()
+      throws ConstraintError
+    {
+      ModelMaterial m = new ModelMaterial("custom");
+
+      if (this.texture.getText().length() > 0) {
+        final ModelTexture t =
+          new ModelTexture(
+            this.texture.getText(),
+            ModelTextureMapping.MODEL_TEXTURE_MAPPING_UV);
+        m = new ModelMaterial("custom", t);
+      } else {
+        m = new ModelMaterial("custom");
+      }
+
+      m.diffuse.x = Float.parseFloat(this.diffuse_r.getText());
+      m.diffuse.y = Float.parseFloat(this.diffuse_g.getText());
+      m.diffuse.z = Float.parseFloat(this.diffuse_b.getText());
+
+      m.ambient.x = Float.parseFloat(this.ambient_r.getText());
+      m.ambient.y = Float.parseFloat(this.ambient_g.getText());
+      m.ambient.z = Float.parseFloat(this.ambient_b.getText());
+
+      m.specular.x = Float.parseFloat(this.specular_r.getText());
+      m.specular.y = Float.parseFloat(this.specular_g.getText());
+      m.specular.z = Float.parseFloat(this.specular_b.getText());
+      m.specular.w = Float.parseFloat(this.specular_a.getText());
+
+      m.shininess = Float.parseFloat(this.shininess.getText());
+      m.alpha = 1.0f;
+
+      return m;
+    }
+
+    DataTabMaterialControls(
+      final @Nonnull SMVGLCanvas canvas)
+    {
+      this.setBorder(BorderFactory.createTitledBorder("Material"));
+
+      this.diffuse_r = new JTextField("1.0");
+      this.diffuse_g = new JTextField("0.0");
+      this.diffuse_b = new JTextField("0.0");
+
+      this.ambient_r = new JTextField("0.0");
+      this.ambient_g = new JTextField("0.0");
+      this.ambient_b = new JTextField("0.0");
+
+      this.specular_r = new JTextField("1.0");
+      this.specular_g = new JTextField("1.0");
+      this.specular_b = new JTextField("1.0");
+      this.specular_a = new JTextField("1.0");
+
+      this.shininess = new JTextField("50.0");
+
+      this.texture = new JTextField();
+      this.texture.setEditable(false);
+      this.texture_browse = new JButton("Open...");
+      this.texture_browse
+        .setToolTipText("Select an image from the filesystem");
+      this.texture_browse.addActionListener(new ActionListener() {
+        @Override public void actionPerformed(
+          final ActionEvent e)
+        {
+          final JFileChooser chooser = new JFileChooser();
+          chooser.setMultiSelectionEnabled(false);
+
+          final int r = chooser.showOpenDialog(DataTabMaterialControls.this);
+          switch (r) {
+            case JFileChooser.APPROVE_OPTION:
+            {
+              final File file = chooser.getSelectedFile();
+              DataTabMaterialControls.this.texture.setText(file.toString());
+              break;
+            }
+            case JFileChooser.CANCEL_OPTION:
+            {
+              break;
+            }
+            case JFileChooser.ERROR_OPTION:
+            {
+              break;
+            }
+          }
+        }
+      });
+
+      this.texture_clear = new JButton("Unset");
+      this.texture_clear.setToolTipText("Forget the selected texture");
+
+      this.update = new JButton("Update");
+      this.update.addActionListener(new ActionListener() {
+        @Override public void actionPerformed(
+          final ActionEvent e)
+        {
+          try {
+            final ModelMaterial m =
+              DataTabMaterialControls.this.makeMaterial();
+            canvas.setMaterial(m);
+          } catch (final ConstraintError x) {
+            SMVErrorBox.showError("Constraint error", x);
+          } catch (final NumberFormatException x) {
+            SMVErrorBox.showError("Number format error", x);
+          }
+        }
+      });
+
+      final DesignGridLayout dg = new DesignGridLayout(this);
+
+      dg
+        .row()
+        .grid()
+        .add(new JLabel("Ambient"))
+        .add(this.ambient_r)
+        .add(this.ambient_g)
+        .add(this.ambient_b, 2);
+
+      dg
+        .row()
+        .grid()
+        .add(new JLabel("Diffuse"))
+        .add(this.diffuse_r)
+        .add(this.diffuse_g)
+        .add(this.diffuse_b, 2);
+
+      dg
+        .row()
+        .grid()
+        .add(new JLabel("Specular"))
+        .add(this.specular_r)
+        .add(this.specular_g)
+        .add(this.specular_b)
+        .add(this.specular_a);
+
+      dg.row().grid().add(new JLabel("Shininess")).add(this.shininess, 4);
+
+      dg
+        .row()
+        .grid()
+        .add(new JLabel("Texture"))
+        .add(this.texture, 2)
+        .add(this.texture_browse)
+        .add(this.texture_clear);
+
+      dg.row().bar().add(this.update, Tag.APPLY);
+    }
+  }
+
+  private static final class DataTab extends JPanel
+  {
+    private static final long                      serialVersionUID;
+
+    static {
+      serialVersionUID = 3789062523559521691L;
+    }
+
+    private final @Nonnull DataTabModelControls    mo_controls;
+    private final @Nonnull DataTabMaterialControls ma_controls;
+
+    DataTab(
+      final @Nonnull SMVGLCanvas canvas)
+    {
+      this.mo_controls = new DataTabModelControls(canvas);
+      this.ma_controls = new DataTabMaterialControls(canvas);
+
+      final DesignGridLayout dg = new DesignGridLayout(this);
+      dg.row().grid().add(this.mo_controls);
+      dg.row().grid().add(this.ma_controls);
+    }
+  }
+
+  private static class ViewTab extends JPanel
+  {
+    private static final long                    serialVersionUID;
+
+    static {
+      serialVersionUID = -1892389128933242332L;
+    }
+
+    private final @Nonnull ViewTabModelControls  m_controls;
+    private final @Nonnull ViewTabCameraControls c_controls;
+
+    ViewTab(
+      final @Nonnull SMVGLCanvas canvas)
+    {
+      this.m_controls = new ViewTabModelControls(canvas);
+      this.c_controls = new ViewTabCameraControls(canvas);
+
+      final DesignGridLayout dg = new DesignGridLayout(this);
+      dg.row().grid().add(this.m_controls);
+      dg.row().grid().add(this.c_controls);
+    }
+  }
+
+  private static final class ViewTabCameraControls extends JPanel
   {
     private static final long           serialVersionUID;
 
@@ -53,7 +355,7 @@ final class SMVGLCanvasControls extends JTabbedPane
     protected final @Nonnull JTextField target_z;
     protected final @Nonnull JButton    update;
 
-    CameraControls(
+    ViewTabCameraControls(
       final @Nonnull SMVGLCanvas canvas)
     {
       this.setBorder(BorderFactory.createTitledBorder("Camera"));
@@ -89,18 +391,18 @@ final class SMVGLCanvasControls extends JTabbedPane
             final VectorM3F target_new = new VectorM3F();
 
             origin_new.x =
-              Float.parseFloat(CameraControls.this.origin_x.getText());
+              Float.parseFloat(ViewTabCameraControls.this.origin_x.getText());
             origin_new.y =
-              Float.parseFloat(CameraControls.this.origin_y.getText());
+              Float.parseFloat(ViewTabCameraControls.this.origin_y.getText());
             origin_new.z =
-              Float.parseFloat(CameraControls.this.origin_z.getText());
+              Float.parseFloat(ViewTabCameraControls.this.origin_z.getText());
 
             target_new.x =
-              Float.parseFloat(CameraControls.this.target_x.getText());
+              Float.parseFloat(ViewTabCameraControls.this.target_x.getText());
             target_new.y =
-              Float.parseFloat(CameraControls.this.target_y.getText());
+              Float.parseFloat(ViewTabCameraControls.this.target_y.getText());
             target_new.z =
-              Float.parseFloat(CameraControls.this.target_z.getText());
+              Float.parseFloat(ViewTabCameraControls.this.target_z.getText());
 
             canvas.setCameraOriginTarget(origin_new, target_new);
 
@@ -130,127 +432,7 @@ final class SMVGLCanvasControls extends JTabbedPane
     }
   }
 
-  private static final class DataTab extends JPanel
-  {
-    private static final long                          serialVersionUID;
-    protected final @Nonnull JTextField                model_field;
-    private final @Nonnull JButton                     model_browse;
-    private final @Nonnull JComboBox<String>           object_menu;
-    protected final @Nonnull JComboBox<SMVRenderStyle> model_render_style;
-    protected final @Nonnull JTextField                material_field;
-    private final @Nonnull JButton                     material_browse;
-
-    static {
-      serialVersionUID = 3789062523559521691L;
-    }
-
-    DataTab(
-      final @Nonnull SMVGLCanvas canvas)
-    {
-      this.object_menu = new JComboBox<String>();
-      this.model_field = new JTextField();
-      this.model_field.setEditable(false);
-
-      this.model_browse = new JButton("Open...");
-      this.model_browse.addActionListener(new ActionListener() {
-        @Override public void actionPerformed(
-          final @Nonnull ActionEvent e)
-        {
-          final JFileChooser chooser = new JFileChooser();
-          chooser.setMultiSelectionEnabled(false);
-
-          final int r = chooser.showOpenDialog(DataTab.this);
-          switch (r) {
-            case JFileChooser.APPROVE_OPTION:
-            {
-              final File file = chooser.getSelectedFile();
-              canvas.loadModel(file);
-              DataTab.this.model_field.setText(file.toString());
-              break;
-            }
-            case JFileChooser.CANCEL_OPTION:
-            {
-              break;
-            }
-            case JFileChooser.ERROR_OPTION:
-            {
-              break;
-            }
-          }
-        }
-      });
-
-      this.material_field = new JTextField();
-      this.material_field.setEditable(false);
-
-      this.material_browse = new JButton("Open...");
-      this.material_browse.addActionListener(new ActionListener() {
-        @Override public void actionPerformed(
-          final @Nonnull ActionEvent e)
-        {
-          final JFileChooser chooser = new JFileChooser();
-          chooser.setMultiSelectionEnabled(false);
-
-          final int r = chooser.showOpenDialog(DataTab.this);
-          switch (r) {
-            case JFileChooser.APPROVE_OPTION:
-            {
-              final File file = chooser.getSelectedFile();
-              canvas.loadMaterial(file);
-              DataTab.this.material_field.setText(file.toString());
-              break;
-            }
-            case JFileChooser.CANCEL_OPTION:
-            {
-              break;
-            }
-            case JFileChooser.ERROR_OPTION:
-            {
-              break;
-            }
-          }
-        }
-      });
-
-      this.model_render_style = new SMVRenderStyleSelector();
-      this.model_render_style.addActionListener(new ActionListener() {
-        @Override public void actionPerformed(
-          final @Nonnull ActionEvent e)
-        {
-          final SMVRenderStyle style =
-            (SMVRenderStyle) DataTab.this.model_render_style
-              .getSelectedItem();
-          canvas.selectRenderStyle(style);
-        }
-      });
-
-      final DesignGridLayout dg = new DesignGridLayout(this);
-
-      dg
-        .row()
-        .grid()
-        .add(new JLabel("Model file"))
-        .add(this.model_field)
-        .add(this.model_browse);
-
-      dg.row().grid().add(new JLabel("Object")).add(this.object_menu, 2);
-
-      dg
-        .row()
-        .grid()
-        .add(new JLabel("Material file"))
-        .add(this.material_field)
-        .add(this.material_browse);
-
-      dg
-        .row()
-        .grid()
-        .add(new JLabel("Render"))
-        .add(this.model_render_style, 2);
-    }
-  }
-
-  private static final class ModelControls extends JPanel
+  private static final class ViewTabModelControls extends JPanel
   {
     private static final long           serialVersionUID;
 
@@ -266,7 +448,7 @@ final class SMVGLCanvasControls extends JTabbedPane
     protected final @Nonnull JTextField rotate_z;
     protected final @Nonnull JButton    update;
 
-    ModelControls(
+    ViewTabModelControls(
       final @Nonnull SMVGLCanvas canvas)
     {
       this.setBorder(BorderFactory.createTitledBorder("Model"));
@@ -297,18 +479,18 @@ final class SMVGLCanvasControls extends JTabbedPane
             final VectorM3F rotate_new = new VectorM3F();
 
             origin_new.x =
-              Float.parseFloat(ModelControls.this.origin_x.getText());
+              Float.parseFloat(ViewTabModelControls.this.origin_x.getText());
             origin_new.y =
-              Float.parseFloat(ModelControls.this.origin_y.getText());
+              Float.parseFloat(ViewTabModelControls.this.origin_y.getText());
             origin_new.z =
-              Float.parseFloat(ModelControls.this.origin_z.getText());
+              Float.parseFloat(ViewTabModelControls.this.origin_z.getText());
 
             rotate_new.x =
-              Float.parseFloat(ModelControls.this.rotate_x.getText());
+              Float.parseFloat(ViewTabModelControls.this.rotate_x.getText());
             rotate_new.y =
-              Float.parseFloat(ModelControls.this.rotate_y.getText());
+              Float.parseFloat(ViewTabModelControls.this.rotate_y.getText());
             rotate_new.z =
-              Float.parseFloat(ModelControls.this.rotate_z.getText());
+              Float.parseFloat(ViewTabModelControls.this.rotate_z.getText());
 
             canvas.setModelPosition(origin_new);
             canvas.setModelRotations(rotate_new);
@@ -339,33 +521,10 @@ final class SMVGLCanvasControls extends JTabbedPane
     }
   }
 
-  private static final long serialVersionUID;
+  private static final long      serialVersionUID;
 
   static {
     serialVersionUID = -3663209745613242332L;
-  }
-
-  private static class ViewTab extends JPanel
-  {
-    private static final long             serialVersionUID;
-
-    static {
-      serialVersionUID = -1892389128933242332L;
-    }
-
-    private final @Nonnull ModelControls  m_controls;
-    private final @Nonnull CameraControls c_controls;
-
-    ViewTab(
-      final @Nonnull SMVGLCanvas canvas)
-    {
-      this.m_controls = new ModelControls(canvas);
-      this.c_controls = new CameraControls(canvas);
-
-      final DesignGridLayout dg = new DesignGridLayout(this);
-      dg.row().grid().add(this.m_controls);
-      dg.row().grid().add(this.c_controls);
-    }
   }
 
   private final @Nonnull DataTab d_tab;

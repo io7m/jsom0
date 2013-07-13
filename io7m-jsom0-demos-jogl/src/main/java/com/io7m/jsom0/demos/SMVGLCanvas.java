@@ -23,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.CheckForNull;
@@ -37,6 +38,8 @@ import javax.media.opengl.awt.GLCanvas;
 import com.io7m.jaux.Constraints.ConstraintError;
 import com.io7m.jaux.UnreachableCodeException;
 import com.io7m.jaux.functional.Function;
+import com.io7m.jaux.functional.Option;
+import com.io7m.jaux.functional.Option.Some;
 import com.io7m.jaux.functional.Pair;
 import com.io7m.jaux.functional.Unit;
 import com.io7m.jcanephora.ArrayBuffer;
@@ -54,19 +57,25 @@ import com.io7m.jcanephora.Program;
 import com.io7m.jcanephora.ProgramAttribute;
 import com.io7m.jcanephora.ProgramUniform;
 import com.io7m.jcanephora.ProjectionMatrix;
+import com.io7m.jcanephora.Texture2DStatic;
+import com.io7m.jcanephora.TextureFilterMagnification;
+import com.io7m.jcanephora.TextureFilterMinification;
+import com.io7m.jcanephora.TextureLoaderImageIO;
+import com.io7m.jcanephora.TextureUnit;
+import com.io7m.jcanephora.TextureWrapS;
+import com.io7m.jcanephora.TextureWrapT;
 import com.io7m.jlog.Log;
 import com.io7m.jsom0.Model;
 import com.io7m.jsom0.ModelMaterial;
 import com.io7m.jsom0.ModelObjectVBO;
+import com.io7m.jsom0.ModelTexture;
 import com.io7m.jsom0.NameNormalAttribute;
 import com.io7m.jsom0.NamePositionAttribute;
 import com.io7m.jsom0.NameUVAttribute;
 import com.io7m.jsom0.parser.Error;
-import com.io7m.jsom0.parser.ModelMaterialParser;
 import com.io7m.jsom0.parser.ModelObjectParser;
 import com.io7m.jsom0.parser.ModelObjectParserVBOImmediate;
 import com.io7m.jsom0.parser.ModelParser;
-import com.io7m.jtensors.MatrixM3x3F;
 import com.io7m.jtensors.MatrixM4x4F;
 import com.io7m.jtensors.QuaternionM4F;
 import com.io7m.jtensors.VectorI3F;
@@ -160,16 +169,22 @@ public final class SMVGLCanvas extends GLCanvas
     private @CheckForNull Program                                 program_current;
     private @CheckForNull SMVVisibleGridPlane                     grid;
     private @CheckForNull SMVVisibleAxes                          axes;
+    protected @CheckForNull Texture2DStatic                       texture;
     protected final @Nonnull MatrixM4x4F                          matrix_temp;
     protected final @Nonnull MatrixM4x4F                          matrix_modelview;
     protected final @Nonnull MatrixM4x4F                          matrix_projection;
-    protected final @Nonnull MatrixM3x3F                          matrix_normal;
     protected final @Nonnull MatrixM4x4F                          matrix_model;
     protected final @Nonnull MatrixM4x4F                          matrix_view;
     protected final @Nonnull MatrixM4x4F.Context                  m4_context;
     private final @Nonnull SMVCamera                              camera;
     protected final @Nonnull VectorM3F                            model_position;
     protected final @Nonnull QuaternionM4F                        model_orientation;
+    protected final @Nonnull VectorM3F                            model_rotation;
+    protected @Nonnull TextureUnit[]                              texture_units;
+    protected final @Nonnull AtomicBoolean                        rotating_y;
+    private final @Nonnull QuaternionM4F                          rotate_x;
+    private final @Nonnull QuaternionM4F                          rotate_y;
+    private final @Nonnull QuaternionM4F                          rotate_z;
 
     ViewRenderer(
       final @Nonnull SMVGLCanvas canvas,
@@ -191,12 +206,16 @@ public final class SMVGLCanvas extends GLCanvas
       this.matrix_modelview = new MatrixM4x4F();
       this.matrix_model = new MatrixM4x4F();
       this.matrix_view = new MatrixM4x4F();
-      this.matrix_normal = new MatrixM3x3F();
       this.matrix_projection = new MatrixM4x4F();
       this.m4_context = new MatrixM4x4F.Context();
 
+      this.rotate_x = new QuaternionM4F();
+      this.rotate_y = new QuaternionM4F();
+      this.rotate_z = new QuaternionM4F();
+
       this.model_position = new VectorM3F(SMVGLCanvas.INITIAL_ORIGIN_MODEL);
       this.model_orientation = new QuaternionM4F();
+      this.model_rotation = new VectorM3F();
 
       this.camera = new SMVCamera();
       this.camera.setPosition(
@@ -207,6 +226,8 @@ public final class SMVGLCanvas extends GLCanvas
         this.model_position.x,
         this.model_position.y,
         this.model_position.z);
+
+      this.rotating_y = new AtomicBoolean(true);
     }
 
     @Override public void display(
@@ -227,8 +248,11 @@ public final class SMVGLCanvas extends GLCanvas
         if (this.axes == null) {
           this.axes = new SMVVisibleAxes(gl, 50, 50, 50);
         }
+        if (this.texture_units == null) {
+          this.texture_units = gl.textureGetUnits();
+        }
 
-        this.reloadMaterialIfRequested();
+        this.reloadMaterialIfRequested(gl);
         this.reloadModelIfRequested(gl);
 
         if (ViewRenderer.isTimeToCheckPrograms(this.frame)) {
@@ -321,31 +345,53 @@ public final class SMVGLCanvas extends GLCanvas
         Math.PI / 8.0);
     }
 
-    private void reloadMaterialIfRequested()
+    private void reloadMaterialIfRequested(
+      final @Nonnull GLInterfaceCommon gl)
     {
-      final File file = this.canvas.getLoadMaterialRequested();
-      if (file != null) {
-        FileInputStream stream = null;
+      final ModelMaterial new_material =
+        this.canvas.getLoadMaterialRequested();
+      if (new_material != null) {
+        if (new_material.texture.isSome()) {
+          final Some<ModelTexture> texture_s =
+            (Option.Some<ModelTexture>) new_material.texture;
 
-        try {
-          stream = new FileInputStream(file);
+          FileInputStream stream = null;
 
-          final ModelMaterialParser parser =
-            new ModelMaterialParser(file.toString(), stream, this.log);
+          final String tname = texture_s.value.name;
 
-          this.material.set(parser.modelMaterial());
-        } catch (final IOException e) {
-          SMVErrorBox.showError("I/O error", e);
-        } catch (final Error e) {
-          SMVErrorBox.showError("Parse error", e);
-        } catch (final ConstraintError e) {
-          SMVErrorBox.showError("Constraint error", e);
-        } finally {
-          if (stream != null) {
-            try {
-              stream.close();
-            } catch (final IOException e) {
-              SMVErrorBox.showError("I/O error", e);
+          try {
+            stream = new FileInputStream(tname);
+
+            final TextureLoaderImageIO loader = new TextureLoaderImageIO();
+            final Texture2DStatic new_texture =
+              loader.load2DStaticInferredGLES2(
+                gl,
+                TextureWrapS.TEXTURE_WRAP_REPEAT,
+                TextureWrapT.TEXTURE_WRAP_REPEAT,
+                TextureFilterMinification.TEXTURE_FILTER_NEAREST,
+                TextureFilterMagnification.TEXTURE_FILTER_NEAREST,
+                stream,
+                tname);
+
+            if (this.texture != null) {
+              gl.texture2DStaticDelete(this.texture);
+            }
+            this.texture = new_texture;
+
+            this.log.info("Loaded " + tname);
+          } catch (final IOException e) {
+            SMVErrorBox.showError("I/O error", e);
+          } catch (final ConstraintError e) {
+            SMVErrorBox.showError("Constraint error", e);
+          } catch (final GLException e) {
+            SMVErrorBox.showError("OpenGL error", e);
+          } finally {
+            if (stream != null) {
+              try {
+                stream.close();
+              } catch (final IOException e) {
+                SMVErrorBox.showError("I/O error", e);
+              }
             }
           }
         }
@@ -468,6 +514,7 @@ public final class SMVGLCanvas extends GLCanvas
         gl.programPutUniformMatrix4x4f(u_mmview, this.matrix_modelview);
         final ProgramUniform u_mproj = program.getUniform("m_projection");
         gl.programPutUniformMatrix4x4f(u_mproj, this.matrix_projection);
+
         final ProgramUniform u_fcolor = program.getUniform("color");
         gl.programPutUniformVector4f(u_fcolor, ViewRenderer.GRID_COLOR);
 
@@ -548,31 +595,49 @@ public final class SMVGLCanvas extends GLCanvas
       final VectorReadable3F rotation =
         this.canvas.getModelRotationRequested();
       if (rotation != null) {
-        final QuaternionM4F rotate_x = new QuaternionM4F();
-        final QuaternionM4F rotate_y = new QuaternionM4F();
-        final QuaternionM4F rotate_z = new QuaternionM4F();
+        VectorM3F.copy(rotation, this.model_rotation);
+      }
 
-        QuaternionM4F.makeFromAxisAngle(
-          ViewRenderer.X_AXIS,
-          Math.toRadians(rotation.getXF()),
-          rotate_x);
+      QuaternionM4F.makeFromAxisAngle(
+        ViewRenderer.X_AXIS,
+        Math.toRadians(this.model_rotation.getXF()),
+        this.rotate_x);
+
+      double y_radians = 0.0;
+      if (this.rotating_y.get()) {
+        final double plus = (this.frame * 0.1) % 360.0;
+        y_radians = Math.toRadians(this.model_rotation.getYF() + plus);
+      } else {
+        y_radians = Math.toRadians(this.model_rotation.getYF());
+      }
+
+      QuaternionM4F.makeFromAxisAngle(
+        ViewRenderer.Y_AXIS,
+        y_radians,
+        this.rotate_y);
+
+      QuaternionM4F.makeFromAxisAngle(
+        ViewRenderer.Z_AXIS,
+        Math.toRadians(this.model_rotation.getZF()),
+        this.rotate_z);
+
+      this.model_orientation.x = 0;
+      this.model_orientation.y = 0;
+      this.model_orientation.z = 0;
+      this.model_orientation.w = 1;
+
+      QuaternionM4F.multiplyInPlace(this.model_orientation, this.rotate_z);
+      QuaternionM4F.multiplyInPlace(this.model_orientation, this.rotate_y);
+      QuaternionM4F.multiplyInPlace(this.model_orientation, this.rotate_x);
+
+      if (this.rotating_y.get()) {
+        final double frame_double = this.frame / 100.0;
+        final QuaternionM4F temp = new QuaternionM4F();
         QuaternionM4F.makeFromAxisAngle(
           ViewRenderer.Y_AXIS,
-          Math.toRadians(rotation.getYF()),
-          rotate_y);
-        QuaternionM4F.makeFromAxisAngle(
-          ViewRenderer.Z_AXIS,
-          Math.toRadians(rotation.getZF()),
-          rotate_z);
-
-        this.model_orientation.x = 0;
-        this.model_orientation.y = 0;
-        this.model_orientation.z = 0;
-        this.model_orientation.w = 1;
-
-        QuaternionM4F.multiplyInPlace(this.model_orientation, rotate_z);
-        QuaternionM4F.multiplyInPlace(this.model_orientation, rotate_y);
-        QuaternionM4F.multiplyInPlace(this.model_orientation, rotate_x);
+          Math.toRadians(frame_double % 360),
+          temp);
+        QuaternionM4F.multiplyInPlace(this.model_orientation, temp);
       }
 
       model_actual.forEachObject(new Function<ModelObjectVBO, Unit>() {
@@ -612,6 +677,19 @@ public final class SMVGLCanvas extends GLCanvas
               gl.programPutUniformMatrix4x4f(
                 u_mproj,
                 ViewRenderer.this.matrix_projection);
+
+              if (ViewRenderer.this.texture != null) {
+                final ProgramUniform u_texture =
+                  program.getUniform("t_diffuse_0");
+                if (u_texture != null) {
+                  gl.texture2DStaticBind(
+                    ViewRenderer.this.texture_units[0],
+                    ViewRenderer.this.texture);
+                  gl.programPutUniformTextureUnit(
+                    u_texture,
+                    ViewRenderer.this.texture_units[0]);
+                }
+              }
 
               final ProgramAttribute p_pos =
                 program.getAttribute("v_position");
@@ -723,7 +801,7 @@ public final class SMVGLCanvas extends GLCanvas
 
   private final @Nonnull Log                                                       log_canvas;
   private final @Nonnull AtomicReference<File>                                     want_load_model;
-  private final @Nonnull AtomicReference<File>                                     want_load_material;
+  private final @Nonnull AtomicReference<ModelMaterial>                            want_load_material;
   private final @Nonnull AtomicReference<SMVRenderStyle>                           want_render_style;
   private final @Nonnull AtomicReference<Pair<VectorReadable3F, VectorReadable3F>> want_camera_set;
   private final @Nonnull AtomicReference<VectorReadable3F>                         want_model_position;
@@ -736,7 +814,7 @@ public final class SMVGLCanvas extends GLCanvas
     super(caps);
     this.log_canvas = new Log(log, "canvas");
     this.want_load_model = new AtomicReference<File>();
-    this.want_load_material = new AtomicReference<File>();
+    this.want_load_material = new AtomicReference<ModelMaterial>();
     this.want_render_style = new AtomicReference<SMVRenderStyle>();
     this.want_camera_set =
       new AtomicReference<Pair<VectorReadable3F, VectorReadable3F>>();
@@ -761,7 +839,7 @@ public final class SMVGLCanvas extends GLCanvas
     return this.want_model_position.getAndSet(null);
   }
 
-  protected @CheckForNull File getLoadMaterialRequested()
+  protected @CheckForNull ModelMaterial getLoadMaterialRequested()
   {
     return this.want_load_material.getAndSet(null);
   }
@@ -774,13 +852,6 @@ public final class SMVGLCanvas extends GLCanvas
   protected @CheckForNull SMVRenderStyle getRenderStyleRequested()
   {
     return this.want_render_style.getAndSet(null);
-  }
-
-  void loadMaterial(
-    final File file)
-  {
-    this.log_canvas.info("Loading material " + file);
-    this.want_load_material.set(file);
   }
 
   void loadModel(
@@ -820,5 +891,11 @@ public final class SMVGLCanvas extends GLCanvas
     final @Nonnull VectorReadable3F rotation_new)
   {
     this.want_model_rotation.set(rotation_new);
+  }
+
+  void setMaterial(
+    final ModelMaterial m)
+  {
+    this.want_load_material.set(m);
   }
 }

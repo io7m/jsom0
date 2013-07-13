@@ -48,6 +48,11 @@ public class SMVMainPanel extends JPanel
   {
     this.pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
+    /**
+     * The OpenGL canvas is placed inside a JPanel here because it misbehaves
+     * if it's directly placed in a JSplitPane (due to Swing limitations).
+     */
+
     this.canvas = SMVGLCanvas.makeCanvas(config, log);
     this.canvas.setPreferredSize(new Dimension(400, 400));
     this.canvas_panel = new JPanel();
