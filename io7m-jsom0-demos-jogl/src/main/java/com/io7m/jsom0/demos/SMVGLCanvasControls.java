@@ -23,6 +23,7 @@ import java.io.File;
 import javax.annotation.Nonnull;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -447,6 +448,7 @@ final class SMVGLCanvasControls extends JTabbedPane
     protected final @Nonnull JTextField rotate_y;
     protected final @Nonnull JTextField rotate_z;
     protected final @Nonnull JButton    update;
+    protected final @Nonnull JCheckBox  rotating_y;
 
     ViewTabModelControls(
       final @Nonnull SMVGLCanvas canvas)
@@ -494,12 +496,17 @@ final class SMVGLCanvasControls extends JTabbedPane
 
             canvas.setModelPosition(origin_new);
             canvas.setModelRotations(rotate_new);
+            canvas.setWandering(ViewTabModelControls.this.rotating_y
+              .isSelected());
 
           } catch (final NumberFormatException x) {
             SMVErrorBox.showError("Number format error", x);
           }
         }
       });
+
+      this.rotating_y = new JCheckBox();
+      this.rotating_y.setSelected(false);
 
       dg
         .row()
@@ -517,6 +524,12 @@ final class SMVGLCanvasControls extends JTabbedPane
         .add(this.rotate_y)
         .add(this.rotate_z);
 
+      dg
+        .row()
+        .grid()
+        .add(new JLabel("Wandering"))
+        .add(this.rotating_y, 1)
+        .empty(2);
       dg.row().bar().add(this.update, Tag.OK);
     }
   }

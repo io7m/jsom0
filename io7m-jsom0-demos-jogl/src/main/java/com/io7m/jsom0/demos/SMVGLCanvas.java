@@ -598,6 +598,8 @@ public final class SMVGLCanvas extends GLCanvas
         VectorM3F.copy(rotation, this.model_rotation);
       }
 
+      this.rotating_y.set(this.canvas.want_rotating_y.get());
+
       QuaternionM4F.makeFromAxisAngle(
         ViewRenderer.X_AXIS,
         Math.toRadians(this.model_rotation.getXF()),
@@ -810,6 +812,7 @@ public final class SMVGLCanvas extends GLCanvas
   private final @Nonnull AtomicReference<Pair<VectorReadable3F, VectorReadable3F>> want_camera_set;
   private final @Nonnull AtomicReference<VectorReadable3F>                         want_model_position;
   private final @Nonnull AtomicReference<VectorReadable3F>                         want_model_rotation;
+  protected final @Nonnull AtomicBoolean                                           want_rotating_y;
 
   private SMVGLCanvas(
     final @Nonnull GLCapabilitiesImmutable caps,
@@ -824,6 +827,7 @@ public final class SMVGLCanvas extends GLCanvas
       new AtomicReference<Pair<VectorReadable3F, VectorReadable3F>>();
     this.want_model_position = new AtomicReference<VectorReadable3F>();
     this.want_model_rotation = new AtomicReference<VectorReadable3F>();
+    this.want_rotating_y = new AtomicBoolean(false);
   }
 
   protected @CheckForNull
@@ -901,5 +905,11 @@ public final class SMVGLCanvas extends GLCanvas
     final ModelMaterial m)
   {
     this.want_load_material.set(m);
+  }
+
+  void setWandering(
+    final boolean wandering)
+  {
+    this.want_rotating_y.set(wandering);
   }
 }
