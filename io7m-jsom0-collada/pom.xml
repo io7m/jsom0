@@ -8,7 +8,7 @@
   <artifactId>io7m-jsom0-collada</artifactId>
   <name>io7m-jsom0-collada</name>
   <description>COLLADA conversion tools</description>
-  <version>0.9.0</version>
+  <version>0.9.1</version>
   <url>http://mvn.io7m.com/jsom0-collada</url>
   <packaging>jar</packaging>
 
