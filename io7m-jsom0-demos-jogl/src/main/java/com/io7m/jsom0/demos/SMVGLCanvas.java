@@ -737,6 +737,7 @@ public final class SMVGLCanvas extends GLCanvas
               this.matrix_view,
               light_eyespace,
               light_eyespace);
+            VectorM4F.normalizeInPlace(light_eyespace);
             gl.programPutUniformVector4f(u_ldirect, light_eyespace);
           }
           final ProgramUniform u_linten = program.getUniform("l_intensity");
