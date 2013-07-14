@@ -18,33 +18,41 @@ package com.io7m.jsom0.demos;
 
 import javax.annotation.Nonnull;
 
-public enum SMVRenderStyle
+import com.io7m.jtensors.VectorI3F;
+import com.io7m.jtensors.VectorI4F;
+import com.io7m.jtensors.VectorReadable3F;
+import com.io7m.jtensors.VectorReadable4F;
+
+final class SMVLightDirectional
 {
-  RENDER_STYLE_TEXTURED_FLAT("textured-flat", true),
-  RENDER_STYLE_TEXTURED_FLAT_CHROME("textured-flat-chrome", true),
-  RENDER_STYLE_NORMALS_ONLY("normals-only", true),
-  RENDER_STYLE_TEXTURED_LIT("textured-lit", true),
-  RENDER_STYLE_VERTEX_COLOR("vertex-color", false),
-  RENDER_STYLE_COLOR("color", false);
+  private final @Nonnull VectorI4F direction;
+  private final @Nonnull VectorI3F colour;
+  private final float              intensity;
 
-  private final @Nonnull String name;
-  private final boolean         selectable;
-
-  private SMVRenderStyle(
-    final @Nonnull String name,
-    final boolean selectable)
+  public SMVLightDirectional(
+    final @Nonnull VectorI4F direction,
+    final @Nonnull VectorI3F colour,
+    final float intensity)
   {
-    this.name = name;
-    this.selectable = selectable;
+    assert direction.w == 0.0f;
+
+    this.direction = direction;
+    this.colour = colour;
+    this.intensity = intensity;
   }
 
-  @Nonnull String getName()
+  public @Nonnull VectorReadable4F getDirection()
   {
-    return this.name;
+    return this.direction;
   }
 
-  boolean getSelectable()
+  public @Nonnull VectorReadable3F getColour()
   {
-    return this.selectable;
+    return this.colour;
+  }
+
+  public float getIntensity()
+  {
+    return this.intensity;
   }
 }

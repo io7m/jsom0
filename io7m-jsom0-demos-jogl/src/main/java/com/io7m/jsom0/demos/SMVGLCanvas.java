@@ -81,6 +81,7 @@ import com.io7m.jtensors.QuaternionM4F;
 import com.io7m.jtensors.VectorI3F;
 import com.io7m.jtensors.VectorI4F;
 import com.io7m.jtensors.VectorM3F;
+import com.io7m.jtensors.VectorM4F;
 import com.io7m.jtensors.VectorReadable3F;
 import com.io7m.jtensors.VectorReadable4F;
 import com.io7m.jvvfs.FSCapabilityRead;
@@ -186,6 +187,7 @@ public final class SMVGLCanvas extends GLCanvas
     private final @Nonnull QuaternionM4F                          rotate_x;
     private final @Nonnull QuaternionM4F                          rotate_y;
     private final @Nonnull QuaternionM4F                          rotate_z;
+    private @CheckForNull SMVLightDirectional                     light;
 
     ViewRenderer(
       final @Nonnull SMVGLCanvas canvas,
@@ -622,6 +624,12 @@ public final class SMVGLCanvas extends GLCanvas
       throws ConstraintError,
         GLException
     {
+      final SMVLightDirectional new_light =
+        this.canvas.want_light.getAndSet(null);
+      if (new_light != null) {
+        this.light = new_light;
+      }
+
       final VectorReadable3F position =
         this.canvas.want_model_position.getAndSet(null);
       if (position != null) {
@@ -715,6 +723,27 @@ public final class SMVGLCanvas extends GLCanvas
         gl.programPutUniformMatrix4x4f(
           u_mproj,
           ViewRenderer.this.matrix_projection);
+
+        if (this.light != null) {
+          final ProgramUniform u_lcolor = program.getUniform("l_color");
+          if (u_lcolor != null) {
+            gl.programPutUniformVector3f(u_lcolor, this.light.getColour());
+          }
+          final ProgramUniform u_ldirect = program.getUniform("l_direction");
+          if (u_ldirect != null) {
+            final VectorM4F light_eyespace =
+              new VectorM4F(this.light.getDirection());
+            MatrixM4x4F.multiplyVector4F(
+              this.matrix_view,
+              light_eyespace,
+              light_eyespace);
+            gl.programPutUniformVector4f(u_ldirect, light_eyespace);
+          }
+          final ProgramUniform u_linten = program.getUniform("l_intensity");
+          if (u_linten != null) {
+            gl.programPutUniformFloat(u_linten, this.light.getIntensity());
+          }
+        }
 
         if (ViewRenderer.this.texture != null) {
           final ProgramUniform u_texture = program.getUniform("t_diffuse_0");
@@ -835,6 +864,7 @@ public final class SMVGLCanvas extends GLCanvas
   protected final @Nonnull AtomicReference<VectorReadable3F>                         want_model_position;
   protected final @Nonnull AtomicReference<VectorReadable3F>                         want_model_rotation;
   protected final @Nonnull AtomicBoolean                                             want_rotating_y;
+  protected final @Nonnull AtomicReference<SMVLightDirectional>                      want_light;
 
   private SMVGLCanvas(
     final @Nonnull GLCapabilitiesImmutable caps,
@@ -851,6 +881,7 @@ public final class SMVGLCanvas extends GLCanvas
       new AtomicReference<Pair<VectorReadable3F, VectorReadable3F>>();
     this.want_model_position = new AtomicReference<VectorReadable3F>();
     this.want_model_rotation = new AtomicReference<VectorReadable3F>();
+    this.want_light = new AtomicReference<SMVLightDirectional>();
     this.want_rotating_y = new AtomicBoolean(false);
   }
 
