@@ -116,6 +116,8 @@ final class SMVGLCanvasControls extends JTabbedPane
 
       dg.row().grid().add(new JLabel("Intensity")).add(this.intensity, 4);
       dg.row().bar().add(this.update, Tag.APPLY);
+
+      canvas.want_light.set(this.makeLight());
     }
   }
 
