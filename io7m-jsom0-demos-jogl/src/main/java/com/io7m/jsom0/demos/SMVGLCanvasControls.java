@@ -323,6 +323,13 @@ final class SMVGLCanvasControls extends JTabbedPane
 
       this.texture_clear = new JButton("Unset");
       this.texture_clear.setToolTipText("Forget the selected texture");
+      this.texture_clear.addActionListener(new ActionListener() {
+        @Override public void actionPerformed(
+          final @Nonnull ActionEvent e)
+        {
+          DataTabMaterialControls.this.texture.setText("");
+        }
+      });
 
       this.update = new JButton("Update");
       this.update.addActionListener(new ActionListener() {

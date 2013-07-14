@@ -370,49 +370,68 @@ public final class SMVGLCanvas extends GLCanvas
     {
       final ModelMaterial new_material =
         this.canvas.want_load_material.getAndSet(null);
+
       if (new_material != null) {
-        if (new_material.texture.isSome()) {
-          final Some<ModelTexture> texture_s =
-            (Option.Some<ModelTexture>) new_material.texture;
-
-          FileInputStream stream = null;
-
-          final String tname = texture_s.value.name;
-
-          try {
-            stream = new FileInputStream(tname);
-
-            final TextureLoaderImageIO loader = new TextureLoaderImageIO();
-            final Texture2DStatic new_texture =
-              loader.load2DStaticInferredGLES2(
-                gl,
-                TextureWrapS.TEXTURE_WRAP_REPEAT,
-                TextureWrapT.TEXTURE_WRAP_REPEAT,
-                TextureFilterMinification.TEXTURE_FILTER_NEAREST,
-                TextureFilterMagnification.TEXTURE_FILTER_NEAREST,
-                stream,
-                tname);
-
-            if (this.texture != null) {
-              gl.texture2DStaticDelete(this.texture);
+        switch (new_material.texture.type) {
+          case OPTION_NONE:
+          {
+            try {
+              if (this.texture != null) {
+                gl.texture2DStaticDelete(this.texture);
+              }
+              this.texture = null;
+            } catch (final GLException e) {
+              SMVErrorBox.showError("OpenGL error", e);
+            } catch (final ConstraintError e) {
+              SMVErrorBox.showError("Constraint error", e);
             }
-            this.texture = new_texture;
+            break;
+          }
+          case OPTION_SOME:
+          {
+            final Some<ModelTexture> texture_s =
+              (Option.Some<ModelTexture>) new_material.texture;
 
-            this.log.info("Loaded " + tname);
-          } catch (final IOException e) {
-            SMVErrorBox.showError("I/O error", e);
-          } catch (final ConstraintError e) {
-            SMVErrorBox.showError("Constraint error", e);
-          } catch (final GLException e) {
-            SMVErrorBox.showError("OpenGL error", e);
-          } finally {
-            if (stream != null) {
-              try {
-                stream.close();
-              } catch (final IOException e) {
-                SMVErrorBox.showError("I/O error", e);
+            FileInputStream stream = null;
+            final String tname = texture_s.value.name;
+
+            try {
+              stream = new FileInputStream(tname);
+
+              final TextureLoaderImageIO loader = new TextureLoaderImageIO();
+              final Texture2DStatic new_texture =
+                loader.load2DStaticInferredGLES2(
+                  gl,
+                  TextureWrapS.TEXTURE_WRAP_REPEAT,
+                  TextureWrapT.TEXTURE_WRAP_REPEAT,
+                  TextureFilterMinification.TEXTURE_FILTER_NEAREST,
+                  TextureFilterMagnification.TEXTURE_FILTER_NEAREST,
+                  stream,
+                  tname);
+
+              if (this.texture != null) {
+                gl.texture2DStaticDelete(this.texture);
+              }
+              this.texture = new_texture;
+
+              this.log.info("Loaded " + tname);
+            } catch (final IOException e) {
+              SMVErrorBox.showError("I/O error", e);
+            } catch (final ConstraintError e) {
+              SMVErrorBox.showError("Constraint error", e);
+            } catch (final GLException e) {
+              SMVErrorBox.showError("OpenGL error", e);
+            } finally {
+              if (stream != null) {
+                try {
+                  stream.close();
+                } catch (final IOException e) {
+                  SMVErrorBox.showError("I/O error", e);
+                }
               }
             }
+
+            break;
           }
         }
       }
