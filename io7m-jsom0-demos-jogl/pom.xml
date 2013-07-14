@@ -189,22 +189,6 @@
         </configuration>
       </plugin>
 
-      <!-- Use mavennatives plugin to unpack native jar files -->
-      <plugin>
-        <groupId>com.googlecode.mavennatives</groupId>
-        <artifactId>maven-nativedependencies-plugin</artifactId>
-        <version>0.0.6</version>
-        <executions>
-          <execution>
-            <id>unpacknatives</id>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>copy</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
       <!-- Tell the surefire plugin to fork only once per set of unit tests, -->
       <!-- and redirect test output -->
       <!-- Tell the surefire plugin where to find native binaries -->
