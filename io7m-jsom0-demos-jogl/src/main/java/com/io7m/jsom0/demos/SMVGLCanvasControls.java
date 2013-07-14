@@ -47,7 +47,7 @@ final class SMVGLCanvasControls extends JTabbedPane
     private static final long                          serialVersionUID;
     protected final @Nonnull JTextField                model_field;
     private final @Nonnull JButton                     model_browse;
-    private final @Nonnull JComboBox<String>           object_menu;
+    protected final @Nonnull JComboBox<String>         object_menu;
     protected final @Nonnull JComboBox<SMVRenderStyle> model_render_style;
 
     static {
@@ -60,6 +60,15 @@ final class SMVGLCanvasControls extends JTabbedPane
       this.setBorder(BorderFactory.createTitledBorder("Model"));
 
       this.object_menu = new JComboBox<String>();
+      this.object_menu.addActionListener(new ActionListener() {
+        @Override public void actionPerformed(
+          final @Nonnull ActionEvent e)
+        {
+          canvas.selectObject((String) DataTabModelControls.this.object_menu
+            .getSelectedItem());
+        }
+      });
+
       this.model_field = new JTextField();
       this.model_field.setEditable(false);
 
@@ -76,7 +85,7 @@ final class SMVGLCanvasControls extends JTabbedPane
             case JFileChooser.APPROVE_OPTION:
             {
               final File file = chooser.getSelectedFile();
-              canvas.loadModel(file);
+              canvas.loadModel(file, DataTabModelControls.this.object_menu);
               DataTabModelControls.this.model_field.setText(file.toString());
               break;
             }
