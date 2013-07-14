@@ -165,36 +165,69 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.]]>
   	<s:part-title>Specification</s:part-title>
   	<s:part-contents/>
 
-  	<s:section>
-  	  <s:section-title>Object format</s:section-title>
+    <s:section>
+      <s:section-title>Overview</s:section-title>
+      <s:paragraph>
+        This section describes the syntax and semantics of the
+        <s:term type="package">jsom0</s:term> model formats. It
+        provides concrete syntax definitions given as
+        <s:link-external target="http://en.wikipedia.org/wiki/EBNF">ISO/IEC 14977 EBNF</s:link-external>
+        grammars, and type definitions given in the Gallina language of
+        <s:link-external target="http://coq.inria.fr">Coq</s:link-external>.
+      </s:paragraph>
+    </s:section>
+
+    <s:section xml:id="com.io7m.jsom0_1_0_0.specification.model">
+      <s:section-title>Models</s:section-title>
+      <s:subsection>
+      	<s:subsection-title>Overview</s:subsection-title>
+        <s:paragraph>
+          <s:term type="term">Models</s:term> in the <s:term type="package">jsom0</s:term>
+          package consist of a set of
+          <s:link target="com.io7m.jsom0_1_0_0.specification.object">objects</s:link> with
+          unique names.
+        </s:paragraph>
+      </s:subsection>
+      <s:subsection>
+      	<s:subsection-title>Syntax (concrete)</s:subsection-title>
+  	    <s:paragraph>
+  	      The concrete syntax for <s:term type="term">models</s:term> is
+  	      defined by the following grammar:
+  	    </s:paragraph>
+  	    <s:formal-item kind="specifications">
+  	      <s:formal-item-title>Model EBNF</s:formal-item-title>
+  	      <s:verbatim><![CDATA[
+model =
+  object , { object } ;
+]]></s:verbatim>
+		</s:formal-item>
+		<s:paragraph>
+		  Informally, a <s:term type="term">model</s:term> is simply a
+		  set of <s:link target="com.io7m.jsom0_1_0_0.specification.object">objects</s:link>
+		  placed into a file in no particular order.
+		</s:paragraph>
+      </s:subsection>
+    </s:section>
+
+  	<s:section xml:id="com.io7m.jsom0_1_0_0.specification.object">
+  	  <s:section-title>Objects</s:section-title>
+      <s:subsection>
+      	<s:subsection-title>Overview</s:subsection-title>
+        <s:paragraph>
+          <s:term type="term">Objects</s:term> in the <s:term type="package">jsom0</s:term>
+          package consist of a set of vertices and an associated
+          <s:link target="com.io7m.jsom0_1_0_0.specification.material">material</s:link>.
+          Each vertex may be of one of two
+          <s:link target="com.io7m.jsom0_1_0_0.specification.object.semantics">types</s:link>,
+          but every vertex in the <s:term type="term">object</s:term> must be of the same type.
+        </s:paragraph>
+      </s:subsection>
   	  <s:subsection xml:id="com.io7m.jsom0_1_0_0.specification.object.syntax_concrete">
   	    <s:subsection-title>Syntax (concrete)</s:subsection-title>
   	    <s:paragraph>
-  	      The concrete syntax for 3D mesh data is defined by the following
-  	      EBNF<s:footnote>
-  	        <s:link-external target="http://en.wikipedia.org/wiki/EBNF">ISO/IEC 14977</s:link-external>
-  	      </s:footnote>
-  	      grammars:
+  	      The concrete syntax for  is defined by the following
+  	      grammar:
   	    </s:paragraph>
-  	    <s:formal-item kind="specifications">
-  	      <s:formal-item-title>Basic definitions</s:formal-item-title>
-  	      <s:verbatim><![CDATA[
-digit_without_zero =
-  "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
-
-digit =
-  "0" | digit_without_zero ;
-
-positive =
-  digit_without_zero , { digit } ;
-
-natural =
-  "0" | positive ;
-
-real =
-  [ "-" ] , digit , [ "." , { digit } ] ;]]>
-  	      </s:verbatim>
-  	    </s:formal-item>
   	    <s:formal-item kind="specifications">
   	      <s:formal-item-title>Object EBNF</s:formal-item-title>
   	      <s:verbatim><![CDATA[
@@ -241,10 +274,10 @@ triangles =
   "triangles" , ";" , triangle_array , "end" , ";" ;
 
 name =
-  "name" , string , ";" ;
+  "name" , non_empty_string , ";" ;
 
 material_name =
-  "material_name" , string , ";" ;
+  "material_name" , non_empty_string , ";" ;
 
 object =
   "object" , ";" ,
@@ -256,14 +289,12 @@ object =
 ]]></s:verbatim>
   	    </s:formal-item>
   	  </s:subsection>
-  	  <s:subsection>
-  	    <s:subsection-title>Syntax (typed, abstract)</s:subsection-title>
+  	  <s:subsection xml:id="com.io7m.jsom0_1_0_0.specification.object.semantics">
+  	    <s:subsection-title>Semantics</s:subsection-title>
   	    <s:paragraph>
   	      The given <s:link target="com.io7m.jsom0_1_0_0.specification.object.syntax_concrete">concrete syntax</s:link>
-  	      is mapped to the following set of types, given in the
-  	      Gallina language of Coq <s:footnote>
-            <s:link-external target="http://coq.inria.fr">http://coq.inria.fr</s:link-external>
-          </s:footnote>. The <s:link-external target="object.v">source code</s:link-external>
+  	      is mapped to the following set of types.
+  	      The <s:link-external target="object.v">source code</s:link-external>
           to the development is <s:link-external target="object.v">included</s:link-external>
           with this specification.
   	    </s:paragraph>
@@ -337,9 +368,9 @@ Record object := {
   	      object language defines a generic <s:term type="type">array</s:term> type. Values
   	      of the <s:term type="type">array</s:term> type are defined with the
   	      <s:term type="keyword">array</s:term> keyword given in the
-  	      <s:link target="com.io7m.jsom0_1_0_0.specification.syntax_concrete">concrete syntax</s:link>,
-  	      which must be followed by a positive integer, denoting the size of the array,
-  	      and the name of a type, denoting the type of elements in the array. All elements
+  	      <s:link target="com.io7m.jsom0_1_0_0.specification.syntax_concrete">concrete syntax</s:link>
+  	      which must be followed by a positive integer (denoting the size of the array)
+  	      and the name of a type (denoting the type of elements in the array). All elements
   	      of the array must be of the same type.
   	    </s:paragraph>
   	  </s:subsection>
@@ -365,41 +396,19 @@ Record object := {
   	  </s:subsection>
   	</s:section>
 
-  	<s:section>
-  	  <s:section-title>Material format</s:section-title>
+  	<s:section xml:id="com.io7m.jsom0_1_0_0.specification.material">
+  	  <s:section-title>Materials</s:section-title>
   	  <s:subsection xml:id="com.io7m.jsom0_1_0_0.specification.material.syntax_concrete">
   	    <s:subsection-title>Syntax (concrete)</s:subsection-title>
   	    <s:paragraph>
   	      The concrete syntax for materials is defined by the following
-  	      EBNF<s:footnote>
-  	        <s:link-external target="http://en.wikipedia.org/wiki/EBNF">ISO/IEC 14977</s:link-external>
-  	      </s:footnote>
-  	      grammars:
+  	      grammar:
   	    </s:paragraph>
-  	    <s:formal-item kind="specifications">
-  	      <s:formal-item-title>Basic definitions</s:formal-item-title>
-  	      <s:verbatim><![CDATA[
-digit_without_zero =
-  "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
-
-digit =
-  "0" | digit_without_zero ;
-
-positive =
-  digit_without_zero , { digit } ;
-
-natural =
-  "0" | positive ;
-
-real =
-  [ "-" ] , digit , [ "." , { digit } ] ;]]>
-  	      </s:verbatim>
-  	    </s:formal-item>
   	    <s:formal-item kind="specifications">
   	      <s:formal-item-title>Material EBNF</s:formal-item-title>
   	      <s:verbatim><![CDATA[   
 name =
-  "name" , string , ";" ;
+  "name" , non_empty_string , ";" ;
 
 diffuse =
   "diffuse" , real , real , real , ";" ;
@@ -420,7 +429,7 @@ mapping =
   "map_chrome" | "map_uv" ;
 
 texture =
-  "texture" , string , real , mapping , ";" ;
+  "texture" , non_empty_string , real , mapping , ";" ;
 
 material =
   "material" , ";" ,
@@ -439,10 +448,8 @@ material =
   	    <s:subsection-title>Syntax (typed, abstract)</s:subsection-title>
   	    <s:paragraph>
   	      The given <s:link target="com.io7m.jsom0_1_0_0.specification.material.syntax_concrete">concrete syntax</s:link>
-  	      is mapped to the following set of types, given in the
-  	      Gallina language of Coq <s:footnote>
-            <s:link-external target="http://coq.inria.fr">http://coq.inria.fr</s:link-external>
-          </s:footnote>. The <s:link-external target="material.v">source code</s:link-external>
+  	      is mapped to the following set of types.
+  	      The <s:link-external target="material.v">source code</s:link-external>
           to the development is <s:link-external target="material.v">included</s:link-external>
           with this specification.
   	    </s:paragraph>
@@ -523,6 +530,48 @@ Record material := {
   	      <s:image source="monkey1.png">UV mapping</s:image>
   	    </s:formal-item>
   	  </s:subsection>
+  	</s:section>
+  	
+  	<s:section xml:id="com.io7m.jsom0_1_0_0.specification.base_definitions">
+  	  <s:section-title>Base definitions</s:section-title>
+  	  <s:paragraph>
+  	    All grammars defined rely on the following basic definitions:
+  	  </s:paragraph>
+  	  <s:formal-item kind="specifications">
+  	    <s:formal-item-title>Basic definitions</s:formal-item-title>
+  	    <s:verbatim><![CDATA[
+character =
+  "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" |
+  "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" |
+  "w" | "x" | "y" | "z" |
+  "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" |
+  "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T" | "U" | "V" |
+  "W" | "X" | "Y" | "Z" |
+  "_" | "." | "-" |
+  digit ;
+  
+string =
+  { character } ;
+
+non_empty_string =
+  character , string ;
+
+digit_without_zero =
+  "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
+
+digit =
+  "0" | digit_without_zero ;
+
+positive =
+  digit_without_zero , { digit } ;
+
+natural =
+  "0" | positive ;
+
+real =
+  [ "-" ] , digit , [ "." , { digit } ] ;]]>
+  	    </s:verbatim>
+  	  </s:formal-item>
   	</s:section>
   </s:part>
 
