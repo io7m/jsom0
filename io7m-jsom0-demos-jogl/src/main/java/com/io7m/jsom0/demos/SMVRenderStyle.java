@@ -23,6 +23,7 @@ public enum SMVRenderStyle
   RENDER_STYLE_TEXTURED_FLAT("textured-flat", true),
   RENDER_STYLE_TEXTURED_FLAT_CHROME("textured-flat-chrome", true),
   RENDER_STYLE_NORMALS_ONLY("normals-only", true),
+  RENDER_STYLE_NORMALS_ONLY_EYESPACE("normals-only-eyespace", true),
   RENDER_STYLE_TEXTURED_LIT("textured-lit", true),
   RENDER_STYLE_VERTEX_COLOR("vertex-color", false),
   RENDER_STYLE_COLOR("color", false);
