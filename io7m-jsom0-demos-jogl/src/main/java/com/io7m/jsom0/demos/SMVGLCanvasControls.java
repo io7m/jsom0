@@ -81,9 +81,9 @@ final class SMVGLCanvasControls extends JTabbedPane
       this.colour_r = new JTextField("1.0");
       this.colour_g = new JTextField("1.0");
       this.colour_b = new JTextField("1.0");
-      this.direction_x = new JTextField("0.0");
-      this.direction_y = new JTextField("1.0");
-      this.direction_z = new JTextField("0.0");
+      this.direction_x = new JTextField("1.0");
+      this.direction_y = new JTextField("0.0");
+      this.direction_z = new JTextField("-1.0");
       this.intensity = new JTextField("1.0");
 
       this.update = new JButton("Update");
