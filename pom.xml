@@ -14,7 +14,6 @@
     <module>io7m-jsom0-collada</module>
     <module>io7m-jsom0-core</module>
     <module>io7m-jsom0-demos-jogl</module>
-    <module>io7m-jsom0-demos-lwjgl</module>
     <module>io7m-jsom0-demos</module>
     <module>io7m-jsom0-tests-jogl</module>
     <module>io7m-jsom0-tests-lwjgl</module>
