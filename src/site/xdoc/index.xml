@@ -10,19 +10,23 @@
 
   <body>
     <subsection name="jsom0">
-      The <var>jsom0</var> package implements a trivial format for 3D models and materials.
-      The intent is to provide a format that allows the construction of OpenGL vertex buffers
-      during parsing so that large high-polygon models do not have to be kept in memory
-      before being uploaded to the GPU.
+      <p>
+        The <var>jsom0</var> package implements a trivial format for 3D models and materials.
+        The intent is to provide a format that allows the construction of OpenGL vertex buffers
+        during parsing so that large high-polygon models do not have to be kept in memory
+        before being uploaded to the GPU.
+      </p>
+      <p>
+        <img src="viewer.png" alt="Model viewer" width="454" height="277"/>
+      </p>
     </subsection>
     <subsection name="features">
       <ul>
         <li>Easily parseable LALR(1) grammar for object and material formats.</li>
         <li>Material format provides diffuse, ambient, specular, and shininess properties for input to basic lighting systems.</li>
         <li>Material format provides optional texture details such as image file, alpha transparency, and UV or normal ("chrome") mapping.</li>
-        <li>GLSL 1.1 compatible shaders included for model rendering.</li>
         <li>Generated Java lexer and hand-coded recursive descent parser that constructs OpenGL vertex and index buffers during parsing for memory efficiency.</li>
-        <li>Blender 2.6 export plugin included.</li>
+        <li>Blender COLLADA importer included (convert COLLADA models to jsom0 models).</li>
         <li>90% automated unit test coverage of executable code.</li>
         <li>ISC license.</li>
         <li>Platform independent (tested on FreeBSD, Linux, Mac OS X, Solaris, Windows XP).</li>

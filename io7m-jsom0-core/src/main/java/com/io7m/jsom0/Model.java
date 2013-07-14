@@ -16,8 +16,9 @@
 
 package com.io7m.jsom0;
 
-import java.util.HashMap;
 import java.util.Map.Entry;
+import java.util.SortedSet;
+import java.util.TreeMap;
 
 import javax.annotation.Nonnull;
 
@@ -29,11 +30,11 @@ import com.io7m.jaux.functional.Unit;
 
 public final class Model<O extends ModelObject>
 {
-  private final @Nonnull HashMap<String, O> objects;
+  private final @Nonnull TreeMap<String, O> objects;
 
   public Model()
   {
-    this.objects = new HashMap<String, O>();
+    this.objects = new TreeMap<String, O>();
   }
 
   public void addObject(
@@ -61,6 +62,11 @@ public final class Model<O extends ModelObject>
     for (final Entry<String, O> entry : this.objects.entrySet()) {
       f.call(entry.getValue());
     }
+  }
+
+  public @Nonnull SortedSet<String> getObjectNames()
+  {
+    return this.objects.navigableKeySet();
   }
 
   public @Nonnull Option<O> get(

@@ -22,7 +22,15 @@
       <outputDirectory>/</outputDirectory>
     </fileSet>
     <fileSet>
-      <directory>${project.basedir}/src/main/png</directory>
+      <directory>${project.basedir}/src/main/images</directory>
+      <outputDirectory>/</outputDirectory>
+    </fileSet>
+    <fileSet>
+      <directory>${project.basedir}/src/main/ebnf</directory>
+      <outputDirectory>/</outputDirectory>
+    </fileSet>
+    <fileSet>
+      <directory>${project.basedir}/src/main/coq</directory>
       <outputDirectory>/</outputDirectory>
     </fileSet>
   </fileSets>
