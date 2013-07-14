@@ -42,15 +42,20 @@ import nu.xom.XPathContext;
 
 import com.io7m.jaux.Constraints;
 import com.io7m.jaux.Constraints.ConstraintError;
+import com.io7m.jaux.PropertyUtils;
+import com.io7m.jaux.PropertyUtils.ValueIncorrectType;
 import com.io7m.jaux.UnreachableCodeException;
 import com.io7m.jlog.Log;
 import com.io7m.jsom0.ModelMaterial;
 import com.io7m.jsom0.VertexType;
+import com.io7m.jtensors.MatrixM3x3F;
+import com.io7m.jtensors.QuaternionM4F;
 import com.io7m.jtensors.VectorI2F;
 import com.io7m.jtensors.VectorI3F;
 import com.io7m.jtensors.VectorI4F;
 import com.io7m.jtensors.VectorM3F;
 import com.io7m.jtensors.VectorM4F;
+import com.io7m.jtensors.VectorReadable2F;
 import com.io7m.jtensors.VectorReadable3F;
 import com.io7m.jtensors.VectorReadable4F;
 
@@ -60,6 +65,45 @@ import com.io7m.jtensors.VectorReadable4F;
 
 public final class BlenderCOLLADAImporter
 {
+  private static class Config
+  {
+    final boolean orientation_fix;
+
+    private Config(
+      final boolean orientation_fix)
+    {
+      this.orientation_fix = orientation_fix;
+    }
+
+    static @Nonnull Config fromProperties(
+      final @Nonnull Properties props)
+      throws ValueIncorrectType,
+        ConstraintError
+    {
+      /**
+       * Apply an optional fix in order to ensure that models are oriented
+       * predictably when exported from Blender.
+       * 
+       * Essentially, if a model is facing the "front" in Blender (that is,
+       * the camera is set to the "Front" view in the editor and the model is
+       * facing the viewer), then it's desirable that the model should be
+       * facing the "front" in OpenGL (that is, the viewer is looking down the
+       * negative Z axis, and the model is facing positive Z).
+       * 
+       * This is achieved by rotating the model's vertices and normals -180
+       * degrees around the X axis.
+       */
+
+      final boolean orientation_fix =
+        PropertyUtils.getOptionalBoolean(
+          props,
+          "com.io7m.jsom0.collada.orientation_fix",
+          false);
+
+      return new Config(orientation_fix);
+    }
+  }
+
   private static class ColladaModel
   {
     @Nonnull Map<String, ColladaObject> objects;
@@ -191,12 +235,13 @@ public final class BlenderCOLLADAImporter
 
     Jsom0Model(
       final @Nonnull ColladaModel source,
+      final @Nonnull Config config,
       final @Nonnull Log log)
     {
       this.objects = new HashMap<String, Jsom0Object>();
 
       for (final ColladaObject o : source.objects.values()) {
-        this.objects.put(o.name, new Jsom0Object(o, log));
+        this.objects.put(o.name, new Jsom0Object(o, config, log));
       }
     }
 
@@ -237,19 +282,19 @@ public final class BlenderCOLLADAImporter
                 out.println("      vertex_p3n3;");
 
                 out.print("        position ");
-                out.print(String.format("%.6f", v_actual.position.x));
+                out.print(String.format("%.6f", v_actual.position.getXF()));
                 out.print(" ");
-                out.print(String.format("%.6f", v_actual.position.y));
+                out.print(String.format("%.6f", v_actual.position.getYF()));
                 out.print(" ");
-                out.print(String.format("%.6f", v_actual.position.z));
+                out.print(String.format("%.6f", v_actual.position.getZF()));
                 out.println(";");
 
                 out.print("        normal ");
-                out.print(String.format("%.6f", v_actual.normal.x));
+                out.print(String.format("%.6f", v_actual.normal.getXF()));
                 out.print(" ");
-                out.print(String.format("%.6f", v_actual.normal.y));
+                out.print(String.format("%.6f", v_actual.normal.getYF()));
                 out.print(" ");
-                out.print(String.format("%.6f", v_actual.normal.z));
+                out.print(String.format("%.6f", v_actual.normal.getZF()));
                 out.println(";");
 
                 out.println("      end;");
@@ -266,25 +311,25 @@ public final class BlenderCOLLADAImporter
                 out.println("      vertex_p3n3t2;");
 
                 out.print("        position ");
-                out.print(String.format("%.6f", v_actual.position.x));
+                out.print(String.format("%.6f", v_actual.position.getXF()));
                 out.print(" ");
-                out.print(String.format("%.6f", v_actual.position.y));
+                out.print(String.format("%.6f", v_actual.position.getYF()));
                 out.print(" ");
-                out.print(String.format("%.6f", v_actual.position.z));
+                out.print(String.format("%.6f", v_actual.position.getZF()));
                 out.println(";");
 
                 out.print("        normal ");
-                out.print(String.format("%.6f", v_actual.normal.x));
+                out.print(String.format("%.6f", v_actual.normal.getXF()));
                 out.print(" ");
-                out.print(String.format("%.6f", v_actual.normal.y));
+                out.print(String.format("%.6f", v_actual.normal.getYF()));
                 out.print(" ");
-                out.print(String.format("%.6f", v_actual.normal.z));
+                out.print(String.format("%.6f", v_actual.normal.getZF()));
                 out.println(";");
 
                 out.print("        uv ");
-                out.print(String.format("%.6f", v_actual.texcoord.x));
+                out.print(String.format("%.6f", v_actual.texcoord.getXF()));
                 out.print(" ");
-                out.print(String.format("%.6f", v_actual.texcoord.y));
+                out.print(String.format("%.6f", v_actual.texcoord.getYF()));
                 out.println(";");
 
                 out.println("      end;");
@@ -320,10 +365,10 @@ public final class BlenderCOLLADAImporter
 
   private static class Jsom0Object
   {
-    private static @Nonnull VectorI3F axesBlenderToOpenGL(
-      final @Nonnull VectorI3F v)
+    private static @Nonnull VectorReadable3F axesBlenderToOpenGL(
+      final @Nonnull VectorReadable3F p0)
     {
-      return new VectorI3F(v.x, -v.z, v.y);
+      return new VectorI3F(p0.getXF(), -p0.getZF(), p0.getYF());
     }
 
     final @Nonnull Map<Jsom0Vertex, Integer> vertices_map;
@@ -331,11 +376,14 @@ public final class BlenderCOLLADAImporter
     final @Nonnull VertexType                type;
     final @Nonnull ArrayList<Jsom0Triangle>  polygons;
     final @Nonnull String                    name;
-
     final @Nonnull ModelMaterial             material;
+
+    private final @Nonnull QuaternionM4F     orientation_fix_q;
+    private final @Nonnull MatrixM3x3F       orientation_fix_m;
 
     Jsom0Object(
       final @Nonnull ColladaObject source,
+      final @Nonnull Config config,
       final @Nonnull Log log)
     {
       this.vertices_map = new HashMap<Jsom0Vertex, Integer>();
@@ -344,6 +392,20 @@ public final class BlenderCOLLADAImporter
       this.type = source.vertex_type.type;
       this.name = source.name;
       this.material = source.material;
+
+      this.orientation_fix_q = new QuaternionM4F();
+      QuaternionM4F.makeFromAxisAngle(
+        new VectorI3F(1, 0, 0),
+        Math.toRadians(-180),
+        this.orientation_fix_q);
+      this.orientation_fix_m = new MatrixM3x3F();
+      QuaternionM4F.makeRotationMatrix3x3(
+        this.orientation_fix_q,
+        this.orientation_fix_m);
+
+      if (config.orientation_fix) {
+        log.debug("Blender fix enabled: rotating vertices and normals");
+      }
 
       switch (this.type) {
         case VERTEX_TYPE_P3N3:
@@ -361,13 +423,57 @@ public final class BlenderCOLLADAImporter
              * Convert from Blender's coordinate system to OpenGL
              */
 
-            final VectorI3F p0_gl = Jsom0Object.axesBlenderToOpenGL(p0);
-            final VectorI3F p1_gl = Jsom0Object.axesBlenderToOpenGL(p1);
-            final VectorI3F p2_gl = Jsom0Object.axesBlenderToOpenGL(p2);
+            VectorReadable3F p0_gl = Jsom0Object.axesBlenderToOpenGL(p0);
+            VectorReadable3F p1_gl = Jsom0Object.axesBlenderToOpenGL(p1);
+            VectorReadable3F p2_gl = Jsom0Object.axesBlenderToOpenGL(p2);
 
-            final VectorI3F n0_gl = Jsom0Object.axesBlenderToOpenGL(n0);
-            final VectorI3F n1_gl = Jsom0Object.axesBlenderToOpenGL(n1);
-            final VectorI3F n2_gl = Jsom0Object.axesBlenderToOpenGL(n2);
+            VectorReadable3F n0_gl = Jsom0Object.axesBlenderToOpenGL(n0);
+            VectorReadable3F n1_gl = Jsom0Object.axesBlenderToOpenGL(n1);
+            VectorReadable3F n2_gl = Jsom0Object.axesBlenderToOpenGL(n2);
+
+            if (config.orientation_fix) {
+              final VectorM3F p0_gl_r = new VectorM3F();
+              final VectorM3F p1_gl_r = new VectorM3F();
+              final VectorM3F p2_gl_r = new VectorM3F();
+
+              final VectorM3F n0_gl_r = new VectorM3F();
+              final VectorM3F n1_gl_r = new VectorM3F();
+              final VectorM3F n2_gl_r = new VectorM3F();
+
+              MatrixM3x3F.multiplyVector3F(
+                this.orientation_fix_m,
+                p0_gl,
+                p0_gl_r);
+              MatrixM3x3F.multiplyVector3F(
+                this.orientation_fix_m,
+                p1_gl,
+                p1_gl_r);
+              MatrixM3x3F.multiplyVector3F(
+                this.orientation_fix_m,
+                p2_gl,
+                p2_gl_r);
+
+              MatrixM3x3F.multiplyVector3F(
+                this.orientation_fix_m,
+                n0_gl,
+                n0_gl_r);
+              MatrixM3x3F.multiplyVector3F(
+                this.orientation_fix_m,
+                n1_gl,
+                n1_gl_r);
+              MatrixM3x3F.multiplyVector3F(
+                this.orientation_fix_m,
+                n2_gl,
+                n2_gl_r);
+
+              p0_gl = p0_gl_r;
+              p1_gl = p1_gl_r;
+              p2_gl = p2_gl_r;
+
+              n0_gl = n0_gl_r;
+              n1_gl = n1_gl_r;
+              n2_gl = n2_gl_r;
+            }
 
             final Jsom0VertexP3N3 v0 = new Jsom0VertexP3N3(p0_gl, n0_gl);
             final Jsom0VertexP3N3 v1 = new Jsom0VertexP3N3(p1_gl, n1_gl);
@@ -380,13 +486,13 @@ public final class BlenderCOLLADAImporter
         case VERTEX_TYPE_P3N3T2:
         {
           for (final ColladaPoly poly : source.polygons) {
-            final VectorI3F p0 = source.positions.get(poly.pos0);
-            final VectorI3F p1 = source.positions.get(poly.pos1);
-            final VectorI3F p2 = source.positions.get(poly.pos2);
+            final VectorReadable3F p0 = source.positions.get(poly.pos0);
+            final VectorReadable3F p1 = source.positions.get(poly.pos1);
+            final VectorReadable3F p2 = source.positions.get(poly.pos2);
 
-            final VectorI3F n0 = source.normals.get(poly.norm0);
-            final VectorI3F n1 = source.normals.get(poly.norm1);
-            final VectorI3F n2 = source.normals.get(poly.norm2);
+            final VectorReadable3F n0 = source.normals.get(poly.norm0);
+            final VectorReadable3F n1 = source.normals.get(poly.norm1);
+            final VectorReadable3F n2 = source.normals.get(poly.norm2);
 
             final VectorI2F t0 = source.texcoords.get(poly.uv0);
             final VectorI2F t1 = source.texcoords.get(poly.uv1);
@@ -396,13 +502,57 @@ public final class BlenderCOLLADAImporter
              * Convert from Blender's coordinate system to OpenGL
              */
 
-            final VectorI3F p0_gl = Jsom0Object.axesBlenderToOpenGL(p0);
-            final VectorI3F p1_gl = Jsom0Object.axesBlenderToOpenGL(p1);
-            final VectorI3F p2_gl = Jsom0Object.axesBlenderToOpenGL(p2);
+            VectorReadable3F p0_gl = Jsom0Object.axesBlenderToOpenGL(p0);
+            VectorReadable3F p1_gl = Jsom0Object.axesBlenderToOpenGL(p1);
+            VectorReadable3F p2_gl = Jsom0Object.axesBlenderToOpenGL(p2);
 
-            final VectorI3F n0_gl = Jsom0Object.axesBlenderToOpenGL(n0);
-            final VectorI3F n1_gl = Jsom0Object.axesBlenderToOpenGL(n1);
-            final VectorI3F n2_gl = Jsom0Object.axesBlenderToOpenGL(n2);
+            VectorReadable3F n0_gl = Jsom0Object.axesBlenderToOpenGL(n0);
+            VectorReadable3F n1_gl = Jsom0Object.axesBlenderToOpenGL(n1);
+            VectorReadable3F n2_gl = Jsom0Object.axesBlenderToOpenGL(n2);
+
+            if (config.orientation_fix) {
+              final VectorM3F p0_gl_r = new VectorM3F();
+              final VectorM3F p1_gl_r = new VectorM3F();
+              final VectorM3F p2_gl_r = new VectorM3F();
+
+              final VectorM3F n0_gl_r = new VectorM3F();
+              final VectorM3F n1_gl_r = new VectorM3F();
+              final VectorM3F n2_gl_r = new VectorM3F();
+
+              MatrixM3x3F.multiplyVector3F(
+                this.orientation_fix_m,
+                p0_gl,
+                p0_gl_r);
+              MatrixM3x3F.multiplyVector3F(
+                this.orientation_fix_m,
+                p1_gl,
+                p1_gl_r);
+              MatrixM3x3F.multiplyVector3F(
+                this.orientation_fix_m,
+                p2_gl,
+                p2_gl_r);
+
+              MatrixM3x3F.multiplyVector3F(
+                this.orientation_fix_m,
+                n0_gl,
+                n0_gl_r);
+              MatrixM3x3F.multiplyVector3F(
+                this.orientation_fix_m,
+                n1_gl,
+                n1_gl_r);
+              MatrixM3x3F.multiplyVector3F(
+                this.orientation_fix_m,
+                n2_gl,
+                n2_gl_r);
+
+              p0_gl = p0_gl_r;
+              p1_gl = p1_gl_r;
+              p2_gl = p2_gl_r;
+
+              n0_gl = n0_gl_r;
+              n1_gl = n1_gl_r;
+              n2_gl = n2_gl_r;
+            }
 
             final Jsom0VertexP3N3T2 v0 =
               new Jsom0VertexP3N3T2(p0_gl, n0_gl, t0);
@@ -493,12 +643,12 @@ public final class BlenderCOLLADAImporter
 
   private static class Jsom0VertexP3N3 extends Jsom0Vertex
   {
-    final @Nonnull VectorI3F position;
-    final @Nonnull VectorI3F normal;
+    final @Nonnull VectorReadable3F position;
+    final @Nonnull VectorReadable3F normal;
 
     Jsom0VertexP3N3(
-      final @Nonnull VectorI3F position,
-      final @Nonnull VectorI3F normal)
+      final @Nonnull VectorReadable3F position,
+      final @Nonnull VectorReadable3F normal)
     {
       super(VertexType.VERTEX_TYPE_P3N3);
       this.position = position;
@@ -539,18 +689,18 @@ public final class BlenderCOLLADAImporter
 
   private static class Jsom0VertexP3N3T2 extends Jsom0Vertex
   {
-    final @Nonnull VectorI3F position;
-    final @Nonnull VectorI3F normal;
-    final @Nonnull VectorI2F texcoord;
+    final @Nonnull VectorReadable3F position;
+    final @Nonnull VectorReadable3F normal;
+    final @Nonnull VectorReadable2F texcoord;
 
     Jsom0VertexP3N3T2(
-      final @Nonnull VectorI3F position,
-      final @Nonnull VectorI3F normal,
-      final @Nonnull VectorI2F texcoord)
+      final @Nonnull VectorReadable3F p0_gl,
+      final @Nonnull VectorReadable3F n0_gl,
+      final @Nonnull VectorReadable2F texcoord)
     {
       super(VertexType.VERTEX_TYPE_P3N3T2);
-      this.position = position;
-      this.normal = normal;
+      this.position = p0_gl;
+      this.normal = n0_gl;
       this.texcoord = texcoord;
     }
 
@@ -1092,9 +1242,10 @@ public final class BlenderCOLLADAImporter
       props_in = new FileInputStream(args[0]);
       props.load(props_in);
       final Log log = new Log(props, "com.io7m.jsom0", "collada");
+      final Config config = Config.fromProperties(props);
       final Document document = parser.build(new File(args[1]));
       final ColladaModel cmodel = BlenderCOLLADAImporter.load(log, document);
-      final Jsom0Model jmodel = new Jsom0Model(cmodel, log);
+      final Jsom0Model jmodel = new Jsom0Model(cmodel, config, log);
       jmodel.write(System.out);
     } catch (final ValidityException e) {
       // TODO Auto-generated catch block
@@ -1109,6 +1260,10 @@ public final class BlenderCOLLADAImporter
       e.printStackTrace();
       System.exit(1);
     } catch (final ConstraintError e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+      System.exit(1);
+    } catch (final ValueIncorrectType e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
       System.exit(1);
