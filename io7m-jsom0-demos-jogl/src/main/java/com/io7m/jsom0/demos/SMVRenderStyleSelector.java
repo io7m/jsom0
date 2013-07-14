@@ -26,7 +26,9 @@ final class SMVRenderStyleSelector extends JComboBox<SMVRenderStyle>
   {
     this.setRenderer(new SMVRenderStyleComboRenderer());
     for (final SMVRenderStyle style : SMVRenderStyle.values()) {
-      this.addItem(style);
+      if (style.getSelectable()) {
+        this.addItem(style);
+      }
     }
   }
 }

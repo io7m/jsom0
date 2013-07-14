@@ -20,22 +20,30 @@ import javax.annotation.Nonnull;
 
 public enum SMVRenderStyle
 {
-  RENDER_STYLE_TEXTURED_FLAT("textured-flat"),
-  RENDER_STYLE_TEXTURED_FLAT_CHROME("textured-flat-chrome"),
-  RENDER_STYLE_NORMALS_ONLY("normals-only"),
-  RENDER_STYLE_VERTEX_COLOR("vertex-color"),
-  RENDER_STYLE_COLOR("color");
+  RENDER_STYLE_TEXTURED_FLAT("textured-flat", true),
+  RENDER_STYLE_TEXTURED_FLAT_CHROME("textured-flat-chrome", true),
+  RENDER_STYLE_NORMALS_ONLY("normals-only", true),
+  RENDER_STYLE_VERTEX_COLOR("vertex-color", false),
+  RENDER_STYLE_COLOR("color", false);
 
   private final @Nonnull String name;
+  private final boolean         selectable;
 
   private SMVRenderStyle(
-    final @Nonnull String name)
+    final @Nonnull String name,
+    final boolean selectable)
   {
     this.name = name;
+    this.selectable = selectable;
   }
 
   @Nonnull String getName()
   {
     return this.name;
+  }
+
+  boolean getSelectable()
+  {
+    return this.selectable;
   }
 }
