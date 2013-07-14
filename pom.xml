@@ -14,7 +14,6 @@
     <module>io7m-jsom0-collada</module>
     <module>io7m-jsom0-core</module>
     <module>io7m-jsom0-demos-jogl</module>
-    <module>io7m-jsom0-demos</module>
     <module>io7m-jsom0-tests-jogl</module>
     <module>io7m-jsom0-tests-lwjgl</module>
   </modules>
@@ -68,7 +67,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>2.6</version>
+        <version>2.7</version>
         <configuration>
           <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
         </configuration>
