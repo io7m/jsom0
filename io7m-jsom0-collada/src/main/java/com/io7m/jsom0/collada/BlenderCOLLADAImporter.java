@@ -365,10 +365,29 @@ public final class BlenderCOLLADAImporter
 
   private static class Jsom0Object
   {
+    /**
+     * Blender's coordinate system is left-handed, whilst OpenGL's coordinate
+     * system is right-handed.
+     */
+
     private static @Nonnull VectorReadable3F axesBlenderToOpenGL(
       final @Nonnull VectorReadable3F p0)
     {
       return new VectorI3F(p0.getXF(), -p0.getZF(), p0.getYF());
+    }
+
+    /**
+     * Blender's UV coordinates consider (0, 0) to be the top-left corner of
+     * the image. OpenGL considers (0, 0) to be the bottom-left corner of the
+     * image.
+     */
+
+    private static @Nonnull
+      VectorReadable2F
+      textureCoordinateBlenderToOpenGL(
+        final @Nonnull VectorReadable2F t0)
+    {
+      return new VectorI2F(t0.getXF(), 1.0f - t0.getYF());
     }
 
     final @Nonnull Map<Jsom0Vertex, Integer> vertices_map;
@@ -420,7 +439,7 @@ public final class BlenderCOLLADAImporter
             final VectorI3F n2 = source.normals.get(poly.norm2);
 
             /**
-             * Convert from Blender's coordinate system to OpenGL
+             * Convert from Blender's coordinate systems to OpenGL
              */
 
             VectorReadable3F p0_gl = Jsom0Object.axesBlenderToOpenGL(p0);
@@ -430,6 +449,11 @@ public final class BlenderCOLLADAImporter
             VectorReadable3F n0_gl = Jsom0Object.axesBlenderToOpenGL(n0);
             VectorReadable3F n1_gl = Jsom0Object.axesBlenderToOpenGL(n1);
             VectorReadable3F n2_gl = Jsom0Object.axesBlenderToOpenGL(n2);
+
+            /**
+             * Apply optional orientation fix so that models face the same
+             * "direction" as they did in Blender.
+             */
 
             if (config.orientation_fix) {
               final VectorM3F p0_gl_r = new VectorM3F();
@@ -499,7 +523,7 @@ public final class BlenderCOLLADAImporter
             final VectorI2F t2 = source.texcoords.get(poly.uv2);
 
             /**
-             * Convert from Blender's coordinate system to OpenGL
+             * Convert from Blender's coordinate systems to OpenGL
              */
 
             VectorReadable3F p0_gl = Jsom0Object.axesBlenderToOpenGL(p0);
@@ -509,6 +533,18 @@ public final class BlenderCOLLADAImporter
             VectorReadable3F n0_gl = Jsom0Object.axesBlenderToOpenGL(n0);
             VectorReadable3F n1_gl = Jsom0Object.axesBlenderToOpenGL(n1);
             VectorReadable3F n2_gl = Jsom0Object.axesBlenderToOpenGL(n2);
+
+            final VectorReadable2F t0_gl =
+              Jsom0Object.textureCoordinateBlenderToOpenGL(t0);
+            final VectorReadable2F t1_gl =
+              Jsom0Object.textureCoordinateBlenderToOpenGL(t1);
+            final VectorReadable2F t2_gl =
+              Jsom0Object.textureCoordinateBlenderToOpenGL(t2);
+
+            /**
+             * Apply optional orientation fix so that models face the same
+             * "direction" as they did in Blender.
+             */
 
             if (config.orientation_fix) {
               final VectorM3F p0_gl_r = new VectorM3F();
@@ -555,11 +591,11 @@ public final class BlenderCOLLADAImporter
             }
 
             final Jsom0VertexP3N3T2 v0 =
-              new Jsom0VertexP3N3T2(p0_gl, n0_gl, t0);
+              new Jsom0VertexP3N3T2(p0_gl, n0_gl, t0_gl);
             final Jsom0VertexP3N3T2 v1 =
-              new Jsom0VertexP3N3T2(p1_gl, n1_gl, t1);
+              new Jsom0VertexP3N3T2(p1_gl, n1_gl, t1_gl);
             final Jsom0VertexP3N3T2 v2 =
-              new Jsom0VertexP3N3T2(p2_gl, n2_gl, t2);
+              new Jsom0VertexP3N3T2(p2_gl, n2_gl, t2_gl);
 
             this.reuseAddVertex(v0, v1, v2);
           }
