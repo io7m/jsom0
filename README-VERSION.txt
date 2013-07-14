@@ -1,1 +1,1 @@
-io7m-jsom0 0.9.0
+io7m-jsom0 0.9.1
