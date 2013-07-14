@@ -197,6 +197,7 @@ public final class SMVGLCanvas extends GLCanvas
     {
       final Filesystem fs = Filesystem.makeWithoutArchiveDirectory(log);
       fs.mountClasspathArchive(SMVGLCanvas.class, PathVirtual.ROOT);
+
       this.filesystem = fs;
       this.canvas = canvas;
       this.gi = null;
@@ -842,7 +843,7 @@ public final class SMVGLCanvas extends GLCanvas
     {
       if (this.program_current == null) {
         this.program_current =
-          this.shaders.get(SMVRenderStyle.RENDER_STYLE_TEXTURED_FLAT);
+          this.shaders.get(SMVRenderStyle.RENDER_STYLE_NORMALS_ONLY);
       }
 
       final SMVRenderStyle style =
