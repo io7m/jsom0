@@ -30,5 +30,7 @@ final class SMVRenderStyleSelector extends JComboBox<SMVRenderStyle>
         this.addItem(style);
       }
     }
+
+    this.setSelectedItem(SMVRenderStyle.RENDER_STYLE_NORMALS_ONLY);
   }
 }

@@ -81,6 +81,7 @@ import com.io7m.jtensors.QuaternionM4F;
 import com.io7m.jtensors.VectorI3F;
 import com.io7m.jtensors.VectorI4F;
 import com.io7m.jtensors.VectorM3F;
+import com.io7m.jtensors.VectorM4F;
 import com.io7m.jtensors.VectorReadable3F;
 import com.io7m.jtensors.VectorReadable4F;
 import com.io7m.jvvfs.FSCapabilityRead;
@@ -186,6 +187,7 @@ public final class SMVGLCanvas extends GLCanvas
     private final @Nonnull QuaternionM4F                          rotate_x;
     private final @Nonnull QuaternionM4F                          rotate_y;
     private final @Nonnull QuaternionM4F                          rotate_z;
+    private @CheckForNull SMVLightDirectional                     light;
 
     ViewRenderer(
       final @Nonnull SMVGLCanvas canvas,
@@ -195,6 +197,7 @@ public final class SMVGLCanvas extends GLCanvas
     {
       final Filesystem fs = Filesystem.makeWithoutArchiveDirectory(log);
       fs.mountClasspathArchive(SMVGLCanvas.class, PathVirtual.ROOT);
+
       this.filesystem = fs;
       this.canvas = canvas;
       this.gi = null;
@@ -368,49 +371,68 @@ public final class SMVGLCanvas extends GLCanvas
     {
       final ModelMaterial new_material =
         this.canvas.want_load_material.getAndSet(null);
+
       if (new_material != null) {
-        if (new_material.texture.isSome()) {
-          final Some<ModelTexture> texture_s =
-            (Option.Some<ModelTexture>) new_material.texture;
-
-          FileInputStream stream = null;
-
-          final String tname = texture_s.value.name;
-
-          try {
-            stream = new FileInputStream(tname);
-
-            final TextureLoaderImageIO loader = new TextureLoaderImageIO();
-            final Texture2DStatic new_texture =
-              loader.load2DStaticInferredGLES2(
-                gl,
-                TextureWrapS.TEXTURE_WRAP_REPEAT,
-                TextureWrapT.TEXTURE_WRAP_REPEAT,
-                TextureFilterMinification.TEXTURE_FILTER_NEAREST,
-                TextureFilterMagnification.TEXTURE_FILTER_NEAREST,
-                stream,
-                tname);
-
-            if (this.texture != null) {
-              gl.texture2DStaticDelete(this.texture);
+        switch (new_material.texture.type) {
+          case OPTION_NONE:
+          {
+            try {
+              if (this.texture != null) {
+                gl.texture2DStaticDelete(this.texture);
+              }
+              this.texture = null;
+            } catch (final GLException e) {
+              SMVErrorBox.showError("OpenGL error", e);
+            } catch (final ConstraintError e) {
+              SMVErrorBox.showError("Constraint error", e);
             }
-            this.texture = new_texture;
+            break;
+          }
+          case OPTION_SOME:
+          {
+            final Some<ModelTexture> texture_s =
+              (Option.Some<ModelTexture>) new_material.texture;
 
-            this.log.info("Loaded " + tname);
-          } catch (final IOException e) {
-            SMVErrorBox.showError("I/O error", e);
-          } catch (final ConstraintError e) {
-            SMVErrorBox.showError("Constraint error", e);
-          } catch (final GLException e) {
-            SMVErrorBox.showError("OpenGL error", e);
-          } finally {
-            if (stream != null) {
-              try {
-                stream.close();
-              } catch (final IOException e) {
-                SMVErrorBox.showError("I/O error", e);
+            FileInputStream stream = null;
+            final String tname = texture_s.value.name;
+
+            try {
+              stream = new FileInputStream(tname);
+
+              final TextureLoaderImageIO loader = new TextureLoaderImageIO();
+              final Texture2DStatic new_texture =
+                loader.load2DStaticInferredGLES2(
+                  gl,
+                  TextureWrapS.TEXTURE_WRAP_REPEAT,
+                  TextureWrapT.TEXTURE_WRAP_REPEAT,
+                  TextureFilterMinification.TEXTURE_FILTER_NEAREST,
+                  TextureFilterMagnification.TEXTURE_FILTER_NEAREST,
+                  stream,
+                  tname);
+
+              if (this.texture != null) {
+                gl.texture2DStaticDelete(this.texture);
+              }
+              this.texture = new_texture;
+
+              this.log.info("Loaded " + tname);
+            } catch (final IOException e) {
+              SMVErrorBox.showError("I/O error", e);
+            } catch (final ConstraintError e) {
+              SMVErrorBox.showError("Constraint error", e);
+            } catch (final GLException e) {
+              SMVErrorBox.showError("OpenGL error", e);
+            } finally {
+              if (stream != null) {
+                try {
+                  stream.close();
+                } catch (final IOException e) {
+                  SMVErrorBox.showError("I/O error", e);
+                }
               }
             }
+
+            break;
           }
         }
       }
@@ -622,6 +644,12 @@ public final class SMVGLCanvas extends GLCanvas
       throws ConstraintError,
         GLException
     {
+      final SMVLightDirectional new_light =
+        this.canvas.want_light.getAndSet(null);
+      if (new_light != null) {
+        this.light = new_light;
+      }
+
       final VectorReadable3F position =
         this.canvas.want_model_position.getAndSet(null);
       if (position != null) {
@@ -716,6 +744,28 @@ public final class SMVGLCanvas extends GLCanvas
           u_mproj,
           ViewRenderer.this.matrix_projection);
 
+        if (this.light != null) {
+          final ProgramUniform u_lcolor = program.getUniform("l_color");
+          if (u_lcolor != null) {
+            gl.programPutUniformVector3f(u_lcolor, this.light.getColour());
+          }
+          final ProgramUniform u_ldirect = program.getUniform("l_direction");
+          if (u_ldirect != null) {
+            final VectorM4F light_eyespace =
+              new VectorM4F(this.light.getDirection());
+            MatrixM4x4F.multiplyVector4F(
+              this.matrix_view,
+              light_eyespace,
+              light_eyespace);
+            VectorM4F.normalizeInPlace(light_eyespace);
+            gl.programPutUniformVector4f(u_ldirect, light_eyespace);
+          }
+          final ProgramUniform u_linten = program.getUniform("l_intensity");
+          if (u_linten != null) {
+            gl.programPutUniformFloat(u_linten, this.light.getIntensity());
+          }
+        }
+
         if (ViewRenderer.this.texture != null) {
           final ProgramUniform u_texture = program.getUniform("t_diffuse_0");
           if (u_texture != null) {
@@ -793,7 +843,7 @@ public final class SMVGLCanvas extends GLCanvas
     {
       if (this.program_current == null) {
         this.program_current =
-          this.shaders.get(SMVRenderStyle.RENDER_STYLE_TEXTURED_FLAT);
+          this.shaders.get(SMVRenderStyle.RENDER_STYLE_NORMALS_ONLY);
       }
 
       final SMVRenderStyle style =
@@ -835,6 +885,7 @@ public final class SMVGLCanvas extends GLCanvas
   protected final @Nonnull AtomicReference<VectorReadable3F>                         want_model_position;
   protected final @Nonnull AtomicReference<VectorReadable3F>                         want_model_rotation;
   protected final @Nonnull AtomicBoolean                                             want_rotating_y;
+  protected final @Nonnull AtomicReference<SMVLightDirectional>                      want_light;
 
   private SMVGLCanvas(
     final @Nonnull GLCapabilitiesImmutable caps,
@@ -851,6 +902,7 @@ public final class SMVGLCanvas extends GLCanvas
       new AtomicReference<Pair<VectorReadable3F, VectorReadable3F>>();
     this.want_model_position = new AtomicReference<VectorReadable3F>();
     this.want_model_rotation = new AtomicReference<VectorReadable3F>();
+    this.want_light = new AtomicReference<SMVLightDirectional>();
     this.want_rotating_y = new AtomicBoolean(false);
   }
 

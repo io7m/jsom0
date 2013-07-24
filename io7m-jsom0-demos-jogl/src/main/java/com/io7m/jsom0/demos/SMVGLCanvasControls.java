@@ -38,10 +38,89 @@ import com.io7m.jaux.Constraints.ConstraintError;
 import com.io7m.jsom0.ModelMaterial;
 import com.io7m.jsom0.ModelTexture;
 import com.io7m.jsom0.ModelTextureMapping;
+import com.io7m.jtensors.VectorI3F;
+import com.io7m.jtensors.VectorI4F;
 import com.io7m.jtensors.VectorM3F;
 
 final class SMVGLCanvasControls extends JTabbedPane
 {
+  private static final class LightTab extends JPanel
+  {
+    private static final long         serialVersionUID = 3152232963963342898L;
+
+    private @Nonnull final JTextField colour_r;
+    private @Nonnull final JTextField colour_g;
+    private @Nonnull final JTextField colour_b;
+    private @Nonnull final JTextField direction_x;
+    private @Nonnull final JTextField direction_y;
+    private @Nonnull final JTextField direction_z;
+    private @Nonnull final JButton    update;
+    private @Nonnull final JTextField intensity;
+
+    protected @Nonnull SMVLightDirectional makeLight()
+    {
+      final float r = Float.parseFloat(this.colour_r.getText());
+      final float g = Float.parseFloat(this.colour_g.getText());
+      final float b = Float.parseFloat(this.colour_b.getText());
+
+      final float x = Float.parseFloat(this.direction_x.getText());
+      final float y = Float.parseFloat(this.direction_y.getText());
+      final float z = Float.parseFloat(this.direction_z.getText());
+
+      final float i = Float.parseFloat(this.intensity.getText());
+
+      final VectorI3F c = new VectorI3F(r, g, b);
+      final VectorI4F d = new VectorI4F(x, y, z, 0.0f);
+
+      return new SMVLightDirectional(d, c, i);
+    }
+
+    LightTab(
+      final @Nonnull SMVGLCanvas canvas)
+    {
+      this.colour_r = new JTextField("1.0");
+      this.colour_g = new JTextField("1.0");
+      this.colour_b = new JTextField("1.0");
+      this.direction_x = new JTextField("1.0");
+      this.direction_y = new JTextField("0.0");
+      this.direction_z = new JTextField("-1.0");
+      this.intensity = new JTextField("1.0");
+
+      this.update = new JButton("Update");
+      this.update.addActionListener(new ActionListener() {
+        @Override public void actionPerformed(
+          final @Nonnull ActionEvent e)
+        {
+          final SMVLightDirectional light = LightTab.this.makeLight();
+          canvas.want_light.set(light);
+        }
+      });
+
+      final DesignGridLayout dg = new DesignGridLayout(this);
+
+      dg
+        .row()
+        .grid()
+        .add(new JLabel("Colour"))
+        .add(this.colour_r)
+        .add(this.colour_g)
+        .add(this.colour_b, 2);
+
+      dg
+        .row()
+        .grid()
+        .add(new JLabel("Direction"))
+        .add(this.direction_x)
+        .add(this.direction_y)
+        .add(this.direction_z, 2);
+
+      dg.row().grid().add(new JLabel("Intensity")).add(this.intensity, 4);
+      dg.row().bar().add(this.update, Tag.APPLY);
+
+      canvas.want_light.set(this.makeLight());
+    }
+  }
+
   private static final class DataTabModelControls extends JPanel
   {
     private static final long                          serialVersionUID;
@@ -244,6 +323,13 @@ final class SMVGLCanvasControls extends JTabbedPane
 
       this.texture_clear = new JButton("Unset");
       this.texture_clear.setToolTipText("Forget the selected texture");
+      this.texture_clear.addActionListener(new ActionListener() {
+        @Override public void actionPerformed(
+          final @Nonnull ActionEvent e)
+        {
+          DataTabMaterialControls.this.texture.setText("");
+        }
+      });
 
       this.update = new JButton("Update");
       this.update.addActionListener(new ActionListener() {
@@ -543,22 +629,25 @@ final class SMVGLCanvasControls extends JTabbedPane
     }
   }
 
-  private static final long      serialVersionUID;
+  private static final long       serialVersionUID;
 
   static {
     serialVersionUID = -3663209745613242332L;
   }
 
-  private final @Nonnull DataTab d_tab;
-  private final @Nonnull ViewTab v_tab;
+  private final @Nonnull DataTab  d_tab;
+  private final @Nonnull ViewTab  v_tab;
+  private final @Nonnull LightTab l_tab;
 
   SMVGLCanvasControls(
     final @Nonnull SMVGLCanvas canvas)
   {
     this.d_tab = new DataTab(canvas);
     this.v_tab = new ViewTab(canvas);
+    this.l_tab = new LightTab(canvas);
 
     this.add("Data", this.d_tab);
     this.add("View", this.v_tab);
+    this.add("Light", this.l_tab);
   }
 }

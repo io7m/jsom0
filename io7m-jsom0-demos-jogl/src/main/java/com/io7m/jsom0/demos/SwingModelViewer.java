@@ -32,7 +32,11 @@ public final class SwingModelViewer
   {
     final SMVConfig config = new SMVConfig();
     final Properties props = new Properties();
-    props.setProperty("com.io7m.jsom0.model-viewer.logs", "true");
+    props.setProperty("com.io7m.jsom0.logs.model-viewer", "true");
+    props.setProperty("com.io7m.jsom0.logs.model-viewer.filesystem", "false");
+    props.setProperty(
+      "com.io7m.jsom0.logs.model-viewer.view-renderer.object-parser",
+      "false");
     props.setProperty("com.io7m.jsom0.model-viewer.level", "LOG_DEBUG");
     final Log log = new Log(props, "com.io7m.jsom0", "model-viewer");
 
