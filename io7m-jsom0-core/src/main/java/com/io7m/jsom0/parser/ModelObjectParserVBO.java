@@ -26,14 +26,14 @@ import com.io7m.jaux.Constraints;
 import com.io7m.jaux.Constraints.ConstraintError;
 import com.io7m.jaux.UnreachableCodeException;
 import com.io7m.jcanephora.ArrayBuffer;
-import com.io7m.jcanephora.ArrayBufferAttribute;
-import com.io7m.jcanephora.ArrayBufferDescriptor;
+import com.io7m.jcanephora.ArrayBufferAttributeDescriptor;
+import com.io7m.jcanephora.ArrayBufferTypeDescriptor;
 import com.io7m.jcanephora.CursorWritable2f;
 import com.io7m.jcanephora.CursorWritable3f;
 import com.io7m.jcanephora.CursorWritableIndex;
-import com.io7m.jcanephora.GLException;
-import com.io7m.jcanephora.GLScalarType;
 import com.io7m.jcanephora.IndexBuffer;
+import com.io7m.jcanephora.JCGLException;
+import com.io7m.jcanephora.JCGLScalarType;
 import com.io7m.jlog.Log;
 import com.io7m.jsom0.ModelObjectVBO;
 import com.io7m.jsom0.NameNormalAttribute;
@@ -55,20 +55,20 @@ import com.io7m.jtensors.VectorReadable3F;
  */
 
 abstract class ModelObjectParserVBO extends
-  ModelObjectParser<ModelObjectVBO, GLException>
+  ModelObjectParser<ModelObjectVBO, JCGLException>
 {
-  protected @CheckForNull String                object_name;
-  protected @CheckForNull String                material_name;
-  protected @CheckForNull ArrayBufferDescriptor array_buffer_type;
-  protected @CheckForNull ArrayBuffer           array_buffer;
-  protected @CheckForNull IndexBuffer           index_buffer;
-  protected @CheckForNull CursorWritable3f      cursor_position;
-  protected @CheckForNull CursorWritable3f      cursor_normal;
-  protected @CheckForNull CursorWritable2f      cursor_uv;
-  protected @CheckForNull CursorWritableIndex   cursor_index;
-  private final @Nonnull NamePositionAttribute  name_position_attribute;
-  private final @Nonnull NameNormalAttribute    name_normal_attribute;
-  private final @Nonnull NameUVAttribute        name_uv_attribute;
+  protected @CheckForNull String                    object_name;
+  protected @CheckForNull String                    material_name;
+  protected @CheckForNull ArrayBufferTypeDescriptor array_buffer_type;
+  protected @CheckForNull ArrayBuffer               array_buffer;
+  protected @CheckForNull IndexBuffer               index_buffer;
+  protected @CheckForNull CursorWritable3f          cursor_position;
+  protected @CheckForNull CursorWritable3f          cursor_normal;
+  protected @CheckForNull CursorWritable2f          cursor_uv;
+  protected @CheckForNull CursorWritableIndex       cursor_index;
+  private final @Nonnull NamePositionAttribute      name_position_attribute;
+  private final @Nonnull NameNormalAttribute        name_normal_attribute;
+  private final @Nonnull NameUVAttribute            name_uv_attribute;
 
   ModelObjectParserVBO(
     final @Nonnull String file_name,
@@ -99,7 +99,7 @@ abstract class ModelObjectParserVBO extends
     final long v0,
     final long v1,
     final long v2)
-    throws GLException,
+    throws JCGLException,
       ConstraintError
   {
     this.cursor_index.putIndex((int) v0);
@@ -109,13 +109,13 @@ abstract class ModelObjectParserVBO extends
 
   @Override final void eventMaterialName(
     final @Nonnull String name)
-    throws GLException
+    throws JCGLException
   {
     this.material_name = name;
   }
 
   @Override final @Nonnull ModelObjectVBO eventModelObjectCompleted()
-    throws GLException,
+    throws JCGLException,
       ConstraintError
   {
     return new ModelObjectVBO(
@@ -132,7 +132,7 @@ abstract class ModelObjectParserVBO extends
 
   @Override final void eventObjectName(
     final @Nonnull String name)
-    throws GLException
+    throws JCGLException
   {
     this.object_name = name;
   }
@@ -140,7 +140,7 @@ abstract class ModelObjectParserVBO extends
   @Override final void eventVertexBufferAppendP3N3(
     final @Nonnull VectorReadable3F position,
     final @Nonnull VectorReadable3F normal)
-    throws GLException,
+    throws JCGLException,
       ConstraintError
   {
     this.cursor_position.put3f(
@@ -154,7 +154,7 @@ abstract class ModelObjectParserVBO extends
     final @Nonnull VectorReadable3F position,
     final @Nonnull VectorReadable3F normal,
     final @Nonnull VectorReadable2F uv)
-    throws GLException,
+    throws JCGLException,
       ConstraintError
   {
     this.cursor_position.put3f(
@@ -171,43 +171,44 @@ abstract class ModelObjectParserVBO extends
    * @throws ConstraintError
    */
 
-  protected final @Nonnull ArrayBufferDescriptor getArrayTypeDescriptor(
+  protected final @Nonnull ArrayBufferTypeDescriptor getArrayTypeDescriptor(
     final @Nonnull VertexType type)
     throws ConstraintError
   {
     switch (type) {
       case VERTEX_TYPE_P3N3:
       {
-        final ArrayBufferAttribute[] attributes = new ArrayBufferAttribute[2];
+        final ArrayBufferAttributeDescriptor[] attributes =
+          new ArrayBufferAttributeDescriptor[2];
         attributes[0] =
-          new ArrayBufferAttribute(this
+          new ArrayBufferAttributeDescriptor(this
             .getVertexPositionAttributeName()
-            .toString(), GLScalarType.TYPE_FLOAT, 3);
+            .toString(), JCGLScalarType.TYPE_FLOAT, 3);
         attributes[1] =
-          new ArrayBufferAttribute(this
+          new ArrayBufferAttributeDescriptor(this
             .getVertexNormalAttributeName()
-            .toString(), GLScalarType.TYPE_FLOAT, 3);
+            .toString(), JCGLScalarType.TYPE_FLOAT, 3);
 
-        return new ArrayBufferDescriptor(attributes);
+        return new ArrayBufferTypeDescriptor(attributes);
       }
       case VERTEX_TYPE_P3N3T2:
       {
-        final ArrayBufferAttribute[] attributes = new ArrayBufferAttribute[3];
+        final ArrayBufferAttributeDescriptor[] attributes =
+          new ArrayBufferAttributeDescriptor[3];
         attributes[0] =
-          new ArrayBufferAttribute(this
+          new ArrayBufferAttributeDescriptor(this
             .getVertexPositionAttributeName()
-            .toString(), GLScalarType.TYPE_FLOAT, 3);
+            .toString(), JCGLScalarType.TYPE_FLOAT, 3);
         attributes[1] =
-          new ArrayBufferAttribute(this
+          new ArrayBufferAttributeDescriptor(this
             .getVertexNormalAttributeName()
-            .toString(), GLScalarType.TYPE_FLOAT, 3);
+            .toString(), JCGLScalarType.TYPE_FLOAT, 3);
         attributes[2] =
-          new ArrayBufferAttribute(
-            this.getVertexUVAttributeName().toString(),
-            GLScalarType.TYPE_FLOAT,
-            2);
+          new ArrayBufferAttributeDescriptor(this
+            .getVertexUVAttributeName()
+            .toString(), JCGLScalarType.TYPE_FLOAT, 2);
 
-        return new ArrayBufferDescriptor(attributes);
+        return new ArrayBufferTypeDescriptor(attributes);
       }
     }
 

@@ -26,10 +26,10 @@ import javax.media.opengl.GLProfile;
 
 import com.io7m.jaux.Constraints.ConstraintError;
 import com.io7m.jaux.UnreachableCodeException;
-import com.io7m.jcanephora.GLException;
-import com.io7m.jcanephora.GLImplementation;
-import com.io7m.jcanephora.GLImplementationJOGL;
-import com.io7m.jcanephora.GLUnsupportedException;
+import com.io7m.jcanephora.JCGLException;
+import com.io7m.jcanephora.JCGLImplementation;
+import com.io7m.jcanephora.JCGLImplementationJOGL;
+import com.io7m.jcanephora.JCGLUnsupportedException;
 import com.io7m.jlog.Log;
 import com.io7m.jvvfs.FSCapabilityAll;
 import com.io7m.jvvfs.Filesystem;
@@ -201,9 +201,9 @@ public final class JOGLTestDisplay
     return false;
   }
 
-  public static GLImplementation makeContextWithOpenGL_ES2()
-    throws GLException,
-      GLUnsupportedException,
+  public static JCGLImplementation makeContextWithOpenGL_ES2()
+    throws JCGLException,
+      JCGLUnsupportedException,
       ConstraintError
   {
     final Log log =
@@ -211,12 +211,12 @@ public final class JOGLTestDisplay
 
     final GLContext ctx =
       JOGLTestDisplay.getContext(GLProfile.get(GLProfile.GLES2));
-    return new GLImplementationJOGL(ctx, log);
+    return new JCGLImplementationJOGL(ctx, log);
   }
 
-  public static GLImplementation makeContextWithOpenGL2_1()
-    throws GLException,
-      GLUnsupportedException,
+  public static JCGLImplementation makeContextWithOpenGL2_1()
+    throws JCGLException,
+      JCGLUnsupportedException,
       ConstraintError
   {
     final Log log =
@@ -224,12 +224,12 @@ public final class JOGLTestDisplay
 
     final GLContext ctx =
       JOGLTestDisplay.getContext(GLProfile.get(GLProfile.GL2));
-    return new GLImplementationJOGL(ctx, log);
+    return new JCGLImplementationJOGL(ctx, log);
   }
 
-  public static GLImplementation makeContextWithOpenGL3_0()
-    throws GLException,
-      GLUnsupportedException,
+  public static JCGLImplementation makeContextWithOpenGL3_0()
+    throws JCGLException,
+      JCGLUnsupportedException,
       ConstraintError
   {
     final Log log =
@@ -237,19 +237,19 @@ public final class JOGLTestDisplay
 
     final GLContext ctx =
       JOGLTestDisplay.getContext(GLProfile.get(GLProfile.GL2));
-    final GLImplementation gi = new GLImplementationJOGL(ctx, log);
+    final JCGLImplementation gi = new JCGLImplementationJOGL(ctx, log);
 
     final VersionNumber version = ctx.getGLVersionNumber();
     if (version.getMajor() != 3) {
-      throw new GLUnsupportedException("GL2 profile is not 3.0!");
+      throw new JCGLUnsupportedException("GL2 profile is not 3.0!");
     }
 
     return gi;
   }
 
-  public static GLImplementation makeContextWithOpenGL3_p()
-    throws GLException,
-      GLUnsupportedException,
+  public static JCGLImplementation makeContextWithOpenGL3_p()
+    throws JCGLException,
+      JCGLUnsupportedException,
       ConstraintError
   {
     final Log log =
@@ -257,16 +257,16 @@ public final class JOGLTestDisplay
 
     final GLContext ctx =
       JOGLTestDisplay.getContext(GLProfile.get(GLProfile.GL3));
-    final GLImplementation gi = new GLImplementationJOGL(ctx, log);
+    final JCGLImplementation gi = new JCGLImplementationJOGL(ctx, log);
 
     final VersionNumber version = ctx.getGLVersionNumber();
     if (version.getMajor() != 3) {
-      throw new GLUnsupportedException("GL3 profile "
+      throw new JCGLUnsupportedException("GL3 profile "
         + version
         + " is not 3.p");
     }
     if (version.getMinor() == 0) {
-      throw new GLUnsupportedException("GL3 profile "
+      throw new JCGLUnsupportedException("GL3 profile "
         + version
         + " is not 3.p");
     }

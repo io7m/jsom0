@@ -22,7 +22,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.io7m.jaux.Constraints.ConstraintError;
-import com.io7m.jcanephora.GLUnsupportedException;
+import com.io7m.jcanephora.JCGLUnsupportedException;
 import com.io7m.jsom0.ModelObject;
 import com.io7m.jsom0.parser.Error;
 import com.io7m.jsom0.parser.ModelObjectParser;
@@ -36,7 +36,7 @@ public abstract class ModelObjectParserTestContract<O extends ModelObject, E ext
       Error,
       ConstraintError,
       E,
-      GLUnsupportedException
+      JCGLUnsupportedException
   {
     try {
       final P parser = this.getParser("/com/io7m/jsom0/inv-empty.i7o");
@@ -60,7 +60,7 @@ public abstract class ModelObjectParserTestContract<O extends ModelObject, E ext
       Error,
       ConstraintError,
       E,
-      GLUnsupportedException
+      JCGLUnsupportedException
   {
     try {
       final P parser =
@@ -82,7 +82,7 @@ public abstract class ModelObjectParserTestContract<O extends ModelObject, E ext
       Error,
       ConstraintError,
       E,
-      GLUnsupportedException
+      JCGLUnsupportedException
   {
     try {
       final P parser =
@@ -104,7 +104,7 @@ public abstract class ModelObjectParserTestContract<O extends ModelObject, E ext
       Error,
       ConstraintError,
       E,
-      GLUnsupportedException
+      JCGLUnsupportedException
   {
     try {
       final P parser =
@@ -121,7 +121,7 @@ public abstract class ModelObjectParserTestContract<O extends ModelObject, E ext
       Error,
       ConstraintError,
       E,
-      GLUnsupportedException
+      JCGLUnsupportedException
   {
     try {
       final P parser =
@@ -138,7 +138,7 @@ public abstract class ModelObjectParserTestContract<O extends ModelObject, E ext
       Error,
       ConstraintError,
       E,
-      GLUnsupportedException
+      JCGLUnsupportedException
   {
     try {
       final P parser =
@@ -155,7 +155,7 @@ public abstract class ModelObjectParserTestContract<O extends ModelObject, E ext
       Error,
       ConstraintError,
       E,
-      GLUnsupportedException
+      JCGLUnsupportedException
   {
     try {
       final P parser =
@@ -174,7 +174,7 @@ public abstract class ModelObjectParserTestContract<O extends ModelObject, E ext
         Error,
         ConstraintError,
         E,
-        GLUnsupportedException
+        JCGLUnsupportedException
   {
     try {
       final P parser =
@@ -199,7 +199,7 @@ public abstract class ModelObjectParserTestContract<O extends ModelObject, E ext
       Error,
       ConstraintError,
       E,
-      GLUnsupportedException
+      JCGLUnsupportedException
   {
     try {
       final P parser =
@@ -224,7 +224,7 @@ public abstract class ModelObjectParserTestContract<O extends ModelObject, E ext
       Error,
       ConstraintError,
       E,
-      GLUnsupportedException
+      JCGLUnsupportedException
   {
     try {
       final P parser = this.getParser("/com/io7m/jsom0/inv-semi.i7o");
@@ -248,7 +248,7 @@ public abstract class ModelObjectParserTestContract<O extends ModelObject, E ext
       Error,
       ConstraintError,
       E,
-      GLUnsupportedException
+      JCGLUnsupportedException
   {
     try {
       final P parser =
@@ -270,7 +270,7 @@ public abstract class ModelObjectParserTestContract<O extends ModelObject, E ext
       Error,
       ConstraintError,
       E,
-      GLUnsupportedException
+      JCGLUnsupportedException
   {
     try {
       final P parser =
@@ -292,7 +292,7 @@ public abstract class ModelObjectParserTestContract<O extends ModelObject, E ext
       Error,
       ConstraintError,
       E,
-      GLUnsupportedException
+      JCGLUnsupportedException
   {
     try {
       final P parser =
@@ -309,7 +309,7 @@ public abstract class ModelObjectParserTestContract<O extends ModelObject, E ext
       Error,
       ConstraintError,
       E,
-      GLUnsupportedException
+      JCGLUnsupportedException
   {
     try {
       final P parser =
@@ -326,7 +326,7 @@ public abstract class ModelObjectParserTestContract<O extends ModelObject, E ext
       Error,
       ConstraintError,
       E,
-      GLUnsupportedException
+      JCGLUnsupportedException
   {
     final P parser = this.getParser("/com/io7m/jsom0/val-complex.i7o");
     parser.modelObject();
@@ -337,7 +337,7 @@ public abstract class ModelObjectParserTestContract<O extends ModelObject, E ext
       Error,
       ConstraintError,
       E,
-      GLUnsupportedException
+      JCGLUnsupportedException
   {
     final P parser = this.getParser("/com/io7m/jsom0/val-complex1.i7o");
     parser.modelObject();
@@ -348,7 +348,7 @@ public abstract class ModelObjectParserTestContract<O extends ModelObject, E ext
       Error,
       ConstraintError,
       E,
-      GLUnsupportedException
+      JCGLUnsupportedException
   {
     final P parser = this.getParser("/com/io7m/jsom0/val-simple0.i7o");
     parser.modelObject();
@@ -359,7 +359,7 @@ public abstract class ModelObjectParserTestContract<O extends ModelObject, E ext
       Error,
       ConstraintError,
       E,
-      GLUnsupportedException
+      JCGLUnsupportedException
   {
     final P parser = this.getParser("/com/io7m/jsom0/val-simple1.i7o");
     parser.modelObject();

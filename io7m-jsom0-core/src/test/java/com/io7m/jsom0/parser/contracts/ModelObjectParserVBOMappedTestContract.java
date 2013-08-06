@@ -23,12 +23,12 @@ import org.junit.Assume;
 import org.junit.Before;
 
 import com.io7m.jaux.Constraints.ConstraintError;
-import com.io7m.jcanephora.GLArrayBuffers;
-import com.io7m.jcanephora.GLArrayBuffersMapped;
-import com.io7m.jcanephora.GLException;
-import com.io7m.jcanephora.GLIndexBuffers;
-import com.io7m.jcanephora.GLIndexBuffersMapped;
-import com.io7m.jcanephora.GLUnsupportedException;
+import com.io7m.jcanephora.JCGLArrayBuffers;
+import com.io7m.jcanephora.JCGLArrayBuffersMapped;
+import com.io7m.jcanephora.JCGLException;
+import com.io7m.jcanephora.JCGLIndexBuffers;
+import com.io7m.jcanephora.JCGLIndexBuffersMapped;
+import com.io7m.jcanephora.JCGLUnsupportedException;
 import com.io7m.jsom0.ModelObjectVBO;
 import com.io7m.jsom0.NameNormalAttribute;
 import com.io7m.jsom0.NamePositionAttribute;
@@ -37,8 +37,8 @@ import com.io7m.jsom0.contracts.JSOM0GLTestContract;
 import com.io7m.jsom0.parser.Error;
 import com.io7m.jsom0.parser.ModelObjectParserVBOImmediate;
 
-public abstract class ModelObjectParserVBOMappedTestContract<G extends GLArrayBuffers & GLArrayBuffersMapped & GLIndexBuffers & GLIndexBuffersMapped> extends
-  ModelObjectParserTestContract<ModelObjectVBO, GLException, ModelObjectParserVBOImmediate<G>> implements
+public abstract class ModelObjectParserVBOMappedTestContract<G extends JCGLArrayBuffers & JCGLArrayBuffersMapped & JCGLIndexBuffers & JCGLIndexBuffersMapped> extends
+  ModelObjectParserTestContract<ModelObjectVBO, JCGLException, ModelObjectParserVBOImmediate<G>> implements
   JSOM0GLTestContract
 {
   @Before public final void checkSupport()
@@ -53,8 +53,8 @@ public abstract class ModelObjectParserVBOMappedTestContract<G extends GLArrayBu
       throws IOException,
         Error,
         ConstraintError,
-        GLException,
-        GLUnsupportedException
+        JCGLException,
+        JCGLUnsupportedException
   {
     final InputStream stream =
       ModelObjectParserVBOMappedTestContract.class.getResourceAsStream(file);

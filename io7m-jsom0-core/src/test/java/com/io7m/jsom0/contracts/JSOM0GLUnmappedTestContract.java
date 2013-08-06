@@ -17,17 +17,17 @@
 package com.io7m.jsom0.contracts;
 
 import com.io7m.jaux.Constraints.ConstraintError;
-import com.io7m.jcanephora.GLArrayBuffers;
-import com.io7m.jcanephora.GLException;
-import com.io7m.jcanephora.GLIndexBuffers;
-import com.io7m.jcanephora.GLUnsupportedException;
+import com.io7m.jcanephora.JCGLArrayBuffers;
+import com.io7m.jcanephora.JCGLException;
+import com.io7m.jcanephora.JCGLIndexBuffers;
+import com.io7m.jcanephora.JCGLUnsupportedException;
 
 public interface JSOM0GLUnmappedTestContract extends JSOM0LogTestContract
 {
   public boolean isSupported();
 
-  public <G extends GLArrayBuffers & GLIndexBuffers> G makeNewGL()
-    throws GLException,
+  public <G extends JCGLArrayBuffers & JCGLIndexBuffers> G makeNewGL()
+    throws JCGLException,
       ConstraintError,
-      GLUnsupportedException;
+      JCGLUnsupportedException;
 }

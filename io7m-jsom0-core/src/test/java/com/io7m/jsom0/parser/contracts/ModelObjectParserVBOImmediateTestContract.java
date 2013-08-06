@@ -23,10 +23,10 @@ import org.junit.Assume;
 import org.junit.Before;
 
 import com.io7m.jaux.Constraints.ConstraintError;
-import com.io7m.jcanephora.GLArrayBuffers;
-import com.io7m.jcanephora.GLException;
-import com.io7m.jcanephora.GLIndexBuffers;
-import com.io7m.jcanephora.GLUnsupportedException;
+import com.io7m.jcanephora.JCGLArrayBuffers;
+import com.io7m.jcanephora.JCGLException;
+import com.io7m.jcanephora.JCGLIndexBuffers;
+import com.io7m.jcanephora.JCGLUnsupportedException;
 import com.io7m.jsom0.ModelObjectVBO;
 import com.io7m.jsom0.NameNormalAttribute;
 import com.io7m.jsom0.NamePositionAttribute;
@@ -35,8 +35,8 @@ import com.io7m.jsom0.contracts.JSOM0GLUnmappedTestContract;
 import com.io7m.jsom0.parser.Error;
 import com.io7m.jsom0.parser.ModelObjectParserVBOImmediate;
 
-public abstract class ModelObjectParserVBOImmediateTestContract<G extends GLArrayBuffers & GLIndexBuffers> extends
-  ModelObjectParserTestContract<ModelObjectVBO, GLException, ModelObjectParserVBOImmediate<G>> implements
+public abstract class ModelObjectParserVBOImmediateTestContract<G extends JCGLArrayBuffers & JCGLIndexBuffers> extends
+  ModelObjectParserTestContract<ModelObjectVBO, JCGLException, ModelObjectParserVBOImmediate<G>> implements
   JSOM0GLUnmappedTestContract
 {
   @Before public final void checkSupport()
@@ -51,8 +51,8 @@ public abstract class ModelObjectParserVBOImmediateTestContract<G extends GLArra
       throws IOException,
         Error,
         ConstraintError,
-        GLException,
-        GLUnsupportedException
+        JCGLException,
+        JCGLUnsupportedException
   {
     final InputStream stream =
       ModelObjectParserVBOImmediateTestContract.class

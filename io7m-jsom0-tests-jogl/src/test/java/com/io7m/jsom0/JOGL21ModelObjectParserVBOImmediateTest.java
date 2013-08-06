@@ -20,15 +20,15 @@ import com.io7m.jaux.Constraints.ConstraintError;
 import com.io7m.jaux.UnreachableCodeException;
 import com.io7m.jaux.functional.Option;
 import com.io7m.jaux.functional.Option.Some;
-import com.io7m.jcanephora.GLException;
-import com.io7m.jcanephora.GLImplementation;
-import com.io7m.jcanephora.GLInterfaceGL2;
-import com.io7m.jcanephora.GLUnsupportedException;
+import com.io7m.jcanephora.JCGLException;
+import com.io7m.jcanephora.JCGLImplementation;
+import com.io7m.jcanephora.JCGLInterfaceGL2;
+import com.io7m.jcanephora.JCGLUnsupportedException;
 import com.io7m.jlog.Log;
 import com.io7m.jsom0.parser.contracts.ModelObjectParserVBOImmediateTestContract;
 
 public final class JOGL21ModelObjectParserVBOImmediateTest extends
-  ModelObjectParserVBOImmediateTestContract<GLInterfaceGL2>
+  ModelObjectParserVBOImmediateTestContract<JCGLInterfaceGL2>
 {
   @Override public Log getLog()
   {
@@ -40,16 +40,16 @@ public final class JOGL21ModelObjectParserVBOImmediateTest extends
     return JOGLTestDisplay.isOpenGL21WithExtensionsSupported();
   }
 
-  @Override public GLInterfaceGL2 makeNewGL()
-    throws GLException,
+  @Override public JCGLInterfaceGL2 makeNewGL()
+    throws JCGLException,
       ConstraintError,
-      GLUnsupportedException
+      JCGLUnsupportedException
   {
-    final GLImplementation gi = JOGLTestDisplay.makeContextWithOpenGL2_1();
-    final Option<GLInterfaceGL2> go = gi.getGL2();
+    final JCGLImplementation gi = JOGLTestDisplay.makeContextWithOpenGL2_1();
+    final Option<JCGLInterfaceGL2> go = gi.getGL2();
 
     if (go.isSome()) {
-      final Some<GLInterfaceGL2> gs = (Option.Some<GLInterfaceGL2>) go;
+      final Some<JCGLInterfaceGL2> gs = (Option.Some<JCGLInterfaceGL2>) go;
       return gs.value;
     }
 

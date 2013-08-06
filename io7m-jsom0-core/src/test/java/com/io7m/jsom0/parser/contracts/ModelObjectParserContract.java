@@ -21,7 +21,7 @@ import java.io.IOException;
 import javax.annotation.Nonnull;
 
 import com.io7m.jaux.Constraints.ConstraintError;
-import com.io7m.jcanephora.GLUnsupportedException;
+import com.io7m.jcanephora.JCGLUnsupportedException;
 import com.io7m.jsom0.ModelObject;
 import com.io7m.jsom0.contracts.JSOM0LogTestContract;
 import com.io7m.jsom0.parser.Error;
@@ -36,5 +36,5 @@ public interface ModelObjectParserContract<O extends ModelObject, E extends Thro
       Error,
       ConstraintError,
       E,
-      GLUnsupportedException;
+      JCGLUnsupportedException;
 }

@@ -23,14 +23,14 @@ import org.junit.Test;
 
 import com.io7m.jaux.Constraints.ConstraintError;
 import com.io7m.jcanephora.ArrayBuffer;
-import com.io7m.jcanephora.ArrayBufferAttribute;
-import com.io7m.jcanephora.ArrayBufferDescriptor;
-import com.io7m.jcanephora.GLArrayBuffers;
-import com.io7m.jcanephora.GLException;
-import com.io7m.jcanephora.GLIndexBuffers;
-import com.io7m.jcanephora.GLScalarType;
-import com.io7m.jcanephora.GLUnsupportedException;
+import com.io7m.jcanephora.ArrayBufferAttributeDescriptor;
+import com.io7m.jcanephora.ArrayBufferTypeDescriptor;
 import com.io7m.jcanephora.IndexBuffer;
+import com.io7m.jcanephora.JCGLArrayBuffers;
+import com.io7m.jcanephora.JCGLException;
+import com.io7m.jcanephora.JCGLIndexBuffers;
+import com.io7m.jcanephora.JCGLScalarType;
+import com.io7m.jcanephora.JCGLUnsupportedException;
 import com.io7m.jcanephora.UsageHint;
 import com.io7m.jsom0.ModelObjectVBO;
 import com.io7m.jsom0.NameNormalAttribute;
@@ -38,7 +38,7 @@ import com.io7m.jsom0.NamePositionAttribute;
 import com.io7m.jsom0.NameUVAttribute;
 import com.io7m.jtensors.VectorI3F;
 
-public abstract class ModelObjectVBOTestContract<G extends GLArrayBuffers & GLIndexBuffers> implements
+public abstract class ModelObjectVBOTestContract<G extends JCGLArrayBuffers & JCGLIndexBuffers> implements
   JSOM0GLUnmappedTestContract
 {
   @Before public final void checkSupport()
@@ -50,15 +50,15 @@ public abstract class ModelObjectVBOTestContract<G extends GLArrayBuffers & GLIn
     void
     testArrayNull()
       throws ConstraintError,
-        GLException,
-        GLUnsupportedException
+        JCGLException,
+        JCGLUnsupportedException
   {
     final G gl = this.makeNewGL();
-    final ArrayBufferDescriptor d =
-      new ArrayBufferDescriptor(
-        new ArrayBufferAttribute[] { new ArrayBufferAttribute(
+    final ArrayBufferTypeDescriptor d =
+      new ArrayBufferTypeDescriptor(
+        new ArrayBufferAttributeDescriptor[] { new ArrayBufferAttributeDescriptor(
           "nothing",
-          GLScalarType.TYPE_BYTE,
+          JCGLScalarType.TYPE_BYTE,
           1) });
     final ArrayBuffer vb =
       gl.arrayBufferAllocate(1, d, UsageHint.USAGE_STATIC_READ);
@@ -77,15 +77,15 @@ public abstract class ModelObjectVBOTestContract<G extends GLArrayBuffers & GLIn
 
   @Test public void testIdentities()
     throws ConstraintError,
-      GLException,
-      GLUnsupportedException
+      JCGLException,
+      JCGLUnsupportedException
   {
     final G gl = this.makeNewGL();
-    final ArrayBufferDescriptor d =
-      new ArrayBufferDescriptor(
-        new ArrayBufferAttribute[] { new ArrayBufferAttribute(
+    final ArrayBufferTypeDescriptor d =
+      new ArrayBufferTypeDescriptor(
+        new ArrayBufferAttributeDescriptor[] { new ArrayBufferAttributeDescriptor(
           "nothing",
-          GLScalarType.TYPE_BYTE,
+          JCGLScalarType.TYPE_BYTE,
           1) });
     final ArrayBuffer vb =
       gl.arrayBufferAllocate(1, d, UsageHint.USAGE_STATIC_READ);
@@ -112,15 +112,15 @@ public abstract class ModelObjectVBOTestContract<G extends GLArrayBuffers & GLIn
     void
     testIndexNull()
       throws ConstraintError,
-        GLException,
-        GLUnsupportedException
+        JCGLException,
+        JCGLUnsupportedException
   {
     final G gl = this.makeNewGL();
-    final ArrayBufferDescriptor d =
-      new ArrayBufferDescriptor(
-        new ArrayBufferAttribute[] { new ArrayBufferAttribute(
+    final ArrayBufferTypeDescriptor d =
+      new ArrayBufferTypeDescriptor(
+        new ArrayBufferAttributeDescriptor[] { new ArrayBufferAttributeDescriptor(
           "nothing",
-          GLScalarType.TYPE_BYTE,
+          JCGLScalarType.TYPE_BYTE,
           1) });
     final ArrayBuffer vb =
       gl.arrayBufferAllocate(1, d, UsageHint.USAGE_STATIC_READ);
@@ -140,15 +140,15 @@ public abstract class ModelObjectVBOTestContract<G extends GLArrayBuffers & GLIn
     void
     testMaterialNull()
       throws ConstraintError,
-        GLException,
-        GLUnsupportedException
+        JCGLException,
+        JCGLUnsupportedException
   {
     final G gl = this.makeNewGL();
-    final ArrayBufferDescriptor d =
-      new ArrayBufferDescriptor(
-        new ArrayBufferAttribute[] { new ArrayBufferAttribute(
+    final ArrayBufferTypeDescriptor d =
+      new ArrayBufferTypeDescriptor(
+        new ArrayBufferAttributeDescriptor[] { new ArrayBufferAttributeDescriptor(
           "nothing",
-          GLScalarType.TYPE_BYTE,
+          JCGLScalarType.TYPE_BYTE,
           1) });
     final ArrayBuffer vb =
       gl.arrayBufferAllocate(1, d, UsageHint.USAGE_STATIC_READ);
@@ -169,15 +169,15 @@ public abstract class ModelObjectVBOTestContract<G extends GLArrayBuffers & GLIn
     void
     testNameNull()
       throws ConstraintError,
-        GLException,
-        GLUnsupportedException
+        JCGLException,
+        JCGLUnsupportedException
   {
     final G gl = this.makeNewGL();
-    final ArrayBufferDescriptor d =
-      new ArrayBufferDescriptor(
-        new ArrayBufferAttribute[] { new ArrayBufferAttribute(
+    final ArrayBufferTypeDescriptor d =
+      new ArrayBufferTypeDescriptor(
+        new ArrayBufferAttributeDescriptor[] { new ArrayBufferAttributeDescriptor(
           "nothing",
-          GLScalarType.TYPE_BYTE,
+          JCGLScalarType.TYPE_BYTE,
           1) });
     final ArrayBuffer vb =
       gl.arrayBufferAllocate(1, d, UsageHint.USAGE_STATIC_READ);
@@ -196,15 +196,15 @@ public abstract class ModelObjectVBOTestContract<G extends GLArrayBuffers & GLIn
 
   @Test public void testToStringMaterialDifferent()
     throws ConstraintError,
-      GLException,
-      GLUnsupportedException
+      JCGLException,
+      JCGLUnsupportedException
   {
     final G gl = this.makeNewGL();
-    final ArrayBufferDescriptor d =
-      new ArrayBufferDescriptor(
-        new ArrayBufferAttribute[] { new ArrayBufferAttribute(
+    final ArrayBufferTypeDescriptor d =
+      new ArrayBufferTypeDescriptor(
+        new ArrayBufferAttributeDescriptor[] { new ArrayBufferAttributeDescriptor(
           "nothing",
-          GLScalarType.TYPE_BYTE,
+          JCGLScalarType.TYPE_BYTE,
           1) });
     final ArrayBuffer vb =
       gl.arrayBufferAllocate(1, d, UsageHint.USAGE_STATIC_READ);
@@ -242,15 +242,15 @@ public abstract class ModelObjectVBOTestContract<G extends GLArrayBuffers & GLIn
 
   @Test public void testToStringNameDifferent()
     throws ConstraintError,
-      GLException,
-      GLUnsupportedException
+      JCGLException,
+      JCGLUnsupportedException
   {
     final G gl = this.makeNewGL();
-    final ArrayBufferDescriptor d =
-      new ArrayBufferDescriptor(
-        new ArrayBufferAttribute[] { new ArrayBufferAttribute(
+    final ArrayBufferTypeDescriptor d =
+      new ArrayBufferTypeDescriptor(
+        new ArrayBufferAttributeDescriptor[] { new ArrayBufferAttributeDescriptor(
           "nothing",
-          GLScalarType.TYPE_BYTE,
+          JCGLScalarType.TYPE_BYTE,
           1) });
     final ArrayBuffer vb =
       gl.arrayBufferAllocate(1, d, UsageHint.USAGE_STATIC_READ);

@@ -4,15 +4,15 @@ import com.io7m.jaux.Constraints.ConstraintError;
 import com.io7m.jaux.UnreachableCodeException;
 import com.io7m.jaux.functional.Option;
 import com.io7m.jaux.functional.Option.Some;
-import com.io7m.jcanephora.GLException;
-import com.io7m.jcanephora.GLImplementation;
-import com.io7m.jcanephora.GLInterfaceGL3;
-import com.io7m.jcanephora.GLUnsupportedException;
+import com.io7m.jcanephora.JCGLException;
+import com.io7m.jcanephora.JCGLImplementation;
+import com.io7m.jcanephora.JCGLInterfaceGL3;
+import com.io7m.jcanephora.JCGLUnsupportedException;
 import com.io7m.jlog.Log;
 import com.io7m.jsom0.contracts.ModelObjectVBOTestContract;
 
 public final class LWJGL30ModelObjectVBOTest extends
-  ModelObjectVBOTestContract<GLInterfaceGL3>
+  ModelObjectVBOTestContract<JCGLInterfaceGL3>
 {
   @Override public Log getLog()
   {
@@ -25,16 +25,16 @@ public final class LWJGL30ModelObjectVBOTest extends
     return LWJGLTestContext.isOpenGL30Supported();
   }
 
-  @Override public GLInterfaceGL3 makeNewGL()
-    throws GLException,
+  @Override public JCGLInterfaceGL3 makeNewGL()
+    throws JCGLException,
       ConstraintError,
-      GLUnsupportedException
+      JCGLUnsupportedException
   {
-    final GLImplementation gi = LWJGLTestContext.makeContextWithOpenGL3_X();
-    final Option<GLInterfaceGL3> go = gi.getGL3();
+    final JCGLImplementation gi = LWJGLTestContext.makeContextWithOpenGL3_X();
+    final Option<JCGLInterfaceGL3> go = gi.getGL3();
 
     if (go.isSome()) {
-      final Some<GLInterfaceGL3> gs = (Option.Some<GLInterfaceGL3>) go;
+      final Some<JCGLInterfaceGL3> gs = (Option.Some<JCGLInterfaceGL3>) go;
       return gs.value;
     }
 

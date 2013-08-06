@@ -25,12 +25,12 @@ import javax.annotation.Nonnull;
 import com.io7m.jaux.Constraints;
 import com.io7m.jaux.Constraints.ConstraintError;
 import com.io7m.jcanephora.ArrayBufferWritableMap;
-import com.io7m.jcanephora.GLArrayBuffers;
-import com.io7m.jcanephora.GLArrayBuffersMapped;
-import com.io7m.jcanephora.GLException;
-import com.io7m.jcanephora.GLIndexBuffers;
-import com.io7m.jcanephora.GLIndexBuffersMapped;
 import com.io7m.jcanephora.IndexBufferWritableMap;
+import com.io7m.jcanephora.JCGLArrayBuffers;
+import com.io7m.jcanephora.JCGLArrayBuffersMapped;
+import com.io7m.jcanephora.JCGLException;
+import com.io7m.jcanephora.JCGLIndexBuffers;
+import com.io7m.jcanephora.JCGLIndexBuffersMapped;
 import com.io7m.jcanephora.UsageHint;
 import com.io7m.jlog.Log;
 import com.io7m.jsom0.NameNormalAttribute;
@@ -50,7 +50,7 @@ import com.io7m.jsom0.VertexType;
  * </p>
  */
 
-public final class ModelObjectParserVBOMapped<G extends GLArrayBuffers & GLArrayBuffersMapped & GLIndexBuffersMapped & GLIndexBuffers> extends
+public final class ModelObjectParserVBOMapped<G extends JCGLArrayBuffers & JCGLArrayBuffersMapped & JCGLIndexBuffersMapped & JCGLIndexBuffers> extends
   ModelObjectParserVBO
 {
   private final @Nonnull G                     gl;
@@ -81,7 +81,7 @@ public final class ModelObjectParserVBOMapped<G extends GLArrayBuffers & GLArray
 
   @Override void eventIndexBufferAllocate(
     final long count)
-    throws GLException,
+    throws JCGLException,
       ConstraintError
   {
     this.index_buffer =
@@ -91,7 +91,7 @@ public final class ModelObjectParserVBOMapped<G extends GLArrayBuffers & GLArray
   }
 
   @Override void eventIndexBufferCompleted()
-    throws GLException,
+    throws JCGLException,
       ConstraintError
   {
     this.gl.indexBufferUnmap(this.index_buffer);
@@ -102,7 +102,7 @@ public final class ModelObjectParserVBOMapped<G extends GLArrayBuffers & GLArray
   @Override void eventVertexBufferAllocate(
     final @Nonnull VertexType type,
     final long count)
-    throws GLException,
+    throws JCGLException,
       ConstraintError
   {
     this.array_buffer_type = this.getArrayTypeDescriptor(type);
@@ -148,7 +148,7 @@ public final class ModelObjectParserVBOMapped<G extends GLArrayBuffers & GLArray
   }
 
   @Override void eventVertexBufferCompleted()
-    throws GLException,
+    throws JCGLException,
       ConstraintError
   {
     this.gl.arrayBufferUnmap(this.array_buffer);

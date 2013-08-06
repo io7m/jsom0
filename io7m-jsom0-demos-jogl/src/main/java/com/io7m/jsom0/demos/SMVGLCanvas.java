@@ -21,7 +21,9 @@ import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -46,17 +48,20 @@ import com.io7m.jcanephora.ArrayBuffer;
 import com.io7m.jcanephora.ArrayBufferAttribute;
 import com.io7m.jcanephora.BlendFunction;
 import com.io7m.jcanephora.DepthFunction;
-import com.io7m.jcanephora.GLCompileException;
-import com.io7m.jcanephora.GLException;
-import com.io7m.jcanephora.GLImplementationJOGL;
-import com.io7m.jcanephora.GLInterfaceCommon;
-import com.io7m.jcanephora.GLUnsupportedException;
+import com.io7m.jcanephora.FragmentShader;
 import com.io7m.jcanephora.IndexBuffer;
+import com.io7m.jcanephora.JCGLCompileException;
+import com.io7m.jcanephora.JCGLException;
+import com.io7m.jcanephora.JCGLImplementationJOGL;
+import com.io7m.jcanephora.JCGLInterfaceCommon;
+import com.io7m.jcanephora.JCGLMeta;
+import com.io7m.jcanephora.JCGLSLVersion;
+import com.io7m.jcanephora.JCGLShadersCommon;
+import com.io7m.jcanephora.JCGLUnsupportedException;
 import com.io7m.jcanephora.Primitives;
-import com.io7m.jcanephora.Program;
-import com.io7m.jcanephora.ProgramAttribute;
-import com.io7m.jcanephora.ProgramUniform;
+import com.io7m.jcanephora.ProgramReference;
 import com.io7m.jcanephora.ProjectionMatrix;
+import com.io7m.jcanephora.ShaderUtilities;
 import com.io7m.jcanephora.Texture2DStatic;
 import com.io7m.jcanephora.TextureFilterMagnification;
 import com.io7m.jcanephora.TextureFilterMinification;
@@ -64,6 +69,8 @@ import com.io7m.jcanephora.TextureLoaderImageIO;
 import com.io7m.jcanephora.TextureUnit;
 import com.io7m.jcanephora.TextureWrapS;
 import com.io7m.jcanephora.TextureWrapT;
+import com.io7m.jcanephora.VertexShader;
+import com.io7m.jcanephora.checkedexec.JCCEExecutionAbstract;
 import com.io7m.jlog.Log;
 import com.io7m.jsom0.Model;
 import com.io7m.jsom0.ModelMaterial;
@@ -78,6 +85,7 @@ import com.io7m.jsom0.parser.ModelObjectParserVBOImmediate;
 import com.io7m.jsom0.parser.ModelParser;
 import com.io7m.jtensors.MatrixM4x4F;
 import com.io7m.jtensors.QuaternionM4F;
+import com.io7m.jtensors.VectorI2F;
 import com.io7m.jtensors.VectorI3F;
 import com.io7m.jtensors.VectorI4F;
 import com.io7m.jtensors.VectorM3F;
@@ -129,13 +137,13 @@ public final class SMVGLCanvas extends GLCanvas
 
   private static final class ViewRenderer implements GLEventListener
   {
-    protected static final @Nonnull NameUVAttribute       NAME_UV_ATTRIBUTE;
-    protected static final @Nonnull NameNormalAttribute   NAME_NORMAL_ATTRIBUTE;
-    protected static final @Nonnull NamePositionAttribute NAME_POSITION_ATTRIBUTE;
-    protected static final @Nonnull VectorReadable4F      GRID_COLOR;
-    protected static final @Nonnull VectorReadable3F      X_AXIS;
-    protected static final @Nonnull VectorReadable3F      Y_AXIS;
-    protected static final @Nonnull VectorReadable3F      Z_AXIS;
+    protected static final @Nonnull NameUVAttribute               NAME_UV_ATTRIBUTE;
+    protected static final @Nonnull NameNormalAttribute           NAME_NORMAL_ATTRIBUTE;
+    protected static final @Nonnull NamePositionAttribute         NAME_POSITION_ATTRIBUTE;
+    protected static final @Nonnull VectorReadable4F              GRID_COLOR;
+    protected static final @Nonnull VectorReadable3F              X_AXIS;
+    protected static final @Nonnull VectorReadable3F              Y_AXIS;
+    protected static final @Nonnull VectorReadable3F              Z_AXIS;
 
     static {
       GRID_COLOR = new VectorI4F(1, 1, 1, 0.2f);
@@ -153,22 +161,16 @@ public final class SMVGLCanvas extends GLCanvas
       }
     }
 
-    private static boolean isTimeToCheckPrograms(
-      final int frame_current)
-    {
-      return (frame_current == 1) || ((frame_current % (10 * 60)) == 0);
-    }
-
     private final @Nonnull SMVGLCanvas                            canvas;
-    private @CheckForNull GLImplementationJOGL                    gi;
+    private @CheckForNull JCGLImplementationJOGL                  gi;
     private final @Nonnull Log                                    log;
     private final @Nonnull AtomicReference<Model<ModelObjectVBO>> model;
     protected @CheckForNull String                                object;
     private final @Nonnull AtomicReference<ModelMaterial>         material;
     private final @Nonnull FSCapabilityRead                       filesystem;
-    private final @Nonnull Map<SMVRenderStyle, Program>           shaders;
+    private final @Nonnull Map<SMVRenderStyle, ProgramReference>  shaders;
     private int                                                   frame = 0;
-    private @CheckForNull Program                                 program_current;
+    private @CheckForNull ProgramReference                        program_current;
     private @CheckForNull SMVVisibleGridPlane                     grid;
     private @CheckForNull SMVVisibleAxes                          axes;
     protected @CheckForNull Texture2DStatic                       texture;
@@ -188,6 +190,7 @@ public final class SMVGLCanvas extends GLCanvas
     private final @Nonnull QuaternionM4F                          rotate_y;
     private final @Nonnull QuaternionM4F                          rotate_z;
     private @CheckForNull SMVLightDirectional                     light;
+    private boolean                                               renderer_ok;
 
     ViewRenderer(
       final @Nonnull SMVGLCanvas canvas,
@@ -205,7 +208,7 @@ public final class SMVGLCanvas extends GLCanvas
       this.model = new AtomicReference<Model<ModelObjectVBO>>();
       this.object = null;
       this.material = new AtomicReference<ModelMaterial>();
-      this.shaders = new HashMap<SMVRenderStyle, Program>();
+      this.shaders = new HashMap<SMVRenderStyle, ProgramReference>();
 
       this.matrix_temp = new MatrixM4x4F();
       this.matrix_modelview = new MatrixM4x4F();
@@ -233,6 +236,7 @@ public final class SMVGLCanvas extends GLCanvas
         this.model_position.z);
 
       this.rotating_y = new AtomicBoolean(true);
+      this.renderer_ok = true;
     }
 
     @Override public void display(
@@ -240,62 +244,45 @@ public final class SMVGLCanvas extends GLCanvas
     {
       ++this.frame;
 
-      if (this.gi == null) {
+      if (!this.renderer_ok) {
         return;
       }
 
       try {
-        final GLInterfaceCommon gl = this.gi.getGLCommon();
+        final JCGLInterfaceCommon gl = this.gi.getGLCommon();
 
-        if (this.grid == null) {
-          this.grid = new SMVVisibleGridPlane(gl, 50, 0, 50);
-        }
-        if (this.axes == null) {
-          this.axes = new SMVVisibleAxes(gl, 50, 50, 50);
-        }
-        if (this.texture_units == null) {
-          this.texture_units = gl.textureGetUnits();
-        }
+        this.setCurrentProgram();
+        this.makeProjectionMatrix(drawable.getWidth(), drawable.getHeight());
+        this.makeCameraViewMatrix();
 
         this.reloadMaterialIfRequested(gl);
         this.reloadModelIfRequested(gl);
         this.selectObject();
-
-        if (ViewRenderer.isTimeToCheckPrograms(this.frame)) {
-          this.log.debug("frame is "
-            + this.frame
-            + ", time to recompile shaders");
-          this.reloadProgramsIfNecessary(gl);
-        }
-
         this.setCurrentProgram();
-
         this.makeProjectionMatrix(drawable.getWidth(), drawable.getHeight());
         this.makeCameraViewMatrix();
 
         gl.colorBufferClear3f(0.0f, 0.0f, 0.0f);
+        gl.depthBufferWriteEnable();
+        gl.depthBufferClear(1.0f);
+        gl.depthBufferWriteDisable();
+        gl.depthBufferTestDisable();
 
-        if (this.program_current != null) {
-          gl.depthBufferWriteDisable();
-          gl.depthBufferDisable();
+        this.renderGrid(gl);
+        this.renderAxes(gl);
 
-          this.renderGrid(gl);
-          this.renderAxes(gl);
+        gl.depthBufferWriteEnable();
+        gl.depthBufferTestEnable(DepthFunction.DEPTH_LESS_THAN);
 
-          gl.depthBufferWriteEnable();
-          gl.depthBufferClear(1.0f);
-          gl.depthBufferEnable(DepthFunction.DEPTH_LESS_THAN);
-
-          final Model<ModelObjectVBO> model_actual = this.model.get();
-          if (model_actual != null) {
-            this.renderModel(gl, model_actual, this.program_current);
-          }
+        final Model<ModelObjectVBO> model_actual = this.model.get();
+        if (model_actual != null) {
+          this.renderModel(gl, model_actual, this.program_current);
         }
 
-      } catch (final GLException e) {
-        SMVErrorBox.showError("OpenGL error", e);
+      } catch (final JCGLException e) {
+        this.fatalError("OpenGL error", e);
       } catch (final ConstraintError e) {
-        SMVErrorBox.showError("Constraint error", e);
+        this.fatalError("Constraint error", e);
       }
     }
 
@@ -324,14 +311,28 @@ public final class SMVGLCanvas extends GLCanvas
       final @Nonnull GLAutoDrawable drawable)
     {
       try {
-        this.gi = new GLImplementationJOGL(drawable.getContext(), this.log);
-      } catch (final GLException e) {
-        SMVErrorBox.showError("OpenGL error", e);
-      } catch (final GLUnsupportedException e) {
-        SMVErrorBox.showError("OpenGL unsupported error", e);
+        this.gi = new JCGLImplementationJOGL(drawable.getContext(), this.log);
+        final JCGLInterfaceCommon gl = this.gi.getGLCommon();
+
+        this.compilePrograms(gl, gl);
+        this.grid = new SMVVisibleGridPlane(gl, 50, 0, 50);
+        this.axes = new SMVVisibleAxes(gl, 50, 50, 50);
+        this.texture_units = gl.textureGetUnits();
+      } catch (final JCGLException e) {
+        this.fatalError("OpenGL error", e);
+      } catch (final JCGLUnsupportedException e) {
+        this.fatalError("OpenGL unsupported error", e);
       } catch (final ConstraintError e) {
-        SMVErrorBox.showError("Constraint error", e);
+        this.fatalError("Constraint error", e);
       }
+    }
+
+    private void fatalError(
+      final @Nonnull String message,
+      final @Nonnull Throwable e)
+    {
+      SMVErrorBox.showError(message, e);
+      this.renderer_ok = false;
     }
 
     private void makeCameraViewMatrix()
@@ -367,7 +368,7 @@ public final class SMVGLCanvas extends GLCanvas
     }
 
     private void reloadMaterialIfRequested(
-      final @Nonnull GLInterfaceCommon gl)
+      final @Nonnull JCGLInterfaceCommon gl)
     {
       final ModelMaterial new_material =
         this.canvas.want_load_material.getAndSet(null);
@@ -381,10 +382,10 @@ public final class SMVGLCanvas extends GLCanvas
                 gl.texture2DStaticDelete(this.texture);
               }
               this.texture = null;
-            } catch (final GLException e) {
-              SMVErrorBox.showError("OpenGL error", e);
+            } catch (final JCGLException e) {
+              this.fatalError("OpenGL error", e);
             } catch (final ConstraintError e) {
-              SMVErrorBox.showError("Constraint error", e);
+              this.fatalError("Constraint error", e);
             }
             break;
           }
@@ -401,7 +402,7 @@ public final class SMVGLCanvas extends GLCanvas
 
               final TextureLoaderImageIO loader = new TextureLoaderImageIO();
               final Texture2DStatic new_texture =
-                loader.load2DStaticInferredGLES2(
+                loader.load2DStaticInferredCommon(
                   gl,
                   TextureWrapS.TEXTURE_WRAP_REPEAT,
                   TextureWrapT.TEXTURE_WRAP_REPEAT,
@@ -417,17 +418,17 @@ public final class SMVGLCanvas extends GLCanvas
 
               this.log.info("Loaded " + tname);
             } catch (final IOException e) {
-              SMVErrorBox.showError("I/O error", e);
+              this.fatalError("I/O error", e);
             } catch (final ConstraintError e) {
-              SMVErrorBox.showError("Constraint error", e);
-            } catch (final GLException e) {
-              SMVErrorBox.showError("OpenGL error", e);
+              this.fatalError("Constraint error", e);
+            } catch (final JCGLException e) {
+              this.fatalError("OpenGL error", e);
             } finally {
               if (stream != null) {
                 try {
                   stream.close();
                 } catch (final IOException e) {
-                  SMVErrorBox.showError("I/O error", e);
+                  this.fatalError("I/O error", e);
                 }
               }
             }
@@ -439,8 +440,8 @@ public final class SMVGLCanvas extends GLCanvas
     }
 
     private void reloadModelIfRequested(
-      final @Nonnull GLInterfaceCommon gl)
-      throws GLException
+      final @Nonnull JCGLInterfaceCommon gl)
+      throws JCGLException
     {
       final Pair<File, JComboBox<String>> pair =
         this.canvas.want_load_model.getAndSet(null);
@@ -453,8 +454,8 @@ public final class SMVGLCanvas extends GLCanvas
         try {
           stream = new FileInputStream(file);
 
-          final ModelObjectParser<ModelObjectVBO, GLException> object_parser =
-            new ModelObjectParserVBOImmediate<GLInterfaceCommon>(
+          final ModelObjectParser<ModelObjectVBO, JCGLException> object_parser =
+            new ModelObjectParserVBOImmediate<JCGLInterfaceCommon>(
               file.toString(),
               stream,
               ViewRenderer.NAME_POSITION_ATTRIBUTE,
@@ -463,8 +464,8 @@ public final class SMVGLCanvas extends GLCanvas
               this.log,
               gl);
 
-          final ModelParser<ModelObjectVBO, GLException> model_parser =
-            new ModelParser<ModelObjectVBO, GLException>(object_parser);
+          final ModelParser<ModelObjectVBO, JCGLException> model_parser =
+            new ModelParser<ModelObjectVBO, JCGLException>(object_parser);
 
           final Model<ModelObjectVBO> m = model_parser.model();
           this.model.set(m);
@@ -481,343 +482,387 @@ public final class SMVGLCanvas extends GLCanvas
 
           this.log.info("Loaded " + file);
         } catch (final IOException e) {
-          SMVErrorBox.showError("I/O error", e);
+          this.fatalError("I/O error", e);
         } catch (final Error e) {
-          SMVErrorBox.showError("Parse error", e);
+          this.fatalError("Parse error", e);
         } catch (final ConstraintError e) {
-          SMVErrorBox.showError("Constraint error", e);
+          this.fatalError("Constraint error", e);
         } finally {
           if (stream != null) {
             try {
               stream.close();
             } catch (final IOException e) {
-              SMVErrorBox.showError("I/O error", e);
+              this.fatalError("I/O error", e);
             }
           }
         }
       }
     }
 
-    private void reloadProgramsIfNecessary(
-      final @Nonnull GLInterfaceCommon gl)
+    private void compilePrograms(
+      final @Nonnull JCGLMeta gm,
+      final @Nonnull JCGLShadersCommon gs)
     {
-      for (final SMVRenderStyle style : SMVRenderStyle.values()) {
-        if (this.shaders.containsKey(style)) {
-          final Program program = this.shaders.get(style);
-          try {
-            if (program.requiresCompilation(this.filesystem, gl)) {
-              program.compile(this.filesystem, gl);
-            }
-          } catch (final FilesystemError e) {
-            SMVErrorBox.showError("Filesystem error", e);
-          } catch (final GLCompileException e) {
-            SMVErrorBox.showError("Compilation error", e);
-          } catch (final ConstraintError e) {
-            SMVErrorBox.showError("Constraint error", e);
-          }
-        } else {
-          try {
-            final PathVirtual shader_v =
-              SMVShaderPaths.getShader(
-                gl.metaIsES(),
-                gl.metaGetVersionMajor(),
-                gl.metaGetVersionMinor(),
-                "standard.v");
-            final PathVirtual shader_f =
-              SMVShaderPaths.getShader(
-                gl.metaIsES(),
-                gl.metaGetVersionMajor(),
-                gl.metaGetVersionMinor(),
-                style.getName() + ".f");
+      try {
+        final StringBuilder name = new StringBuilder();
+        final JCGLSLVersion version = gm.metaGetSLVersion();
 
-            final Program program = new Program(style.getName(), this.log);
-            program.addVertexShader(shader_v);
-            program.addFragmentShader(shader_f);
-            program.compile(this.filesystem, gl);
-            this.shaders.put(style, program);
-          } catch (final ConstraintError e) {
-            SMVErrorBox.showError("Constraint error", e);
-          } catch (final GLCompileException e) {
-            SMVErrorBox.showError("Compilation error", e);
-          } catch (final GLUnsupportedException e) {
-            SMVErrorBox.showError("OpenGL unsupported error", e);
+        for (final SMVRenderStyle style : SMVRenderStyle.values()) {
+          FragmentShader fs = null;
+          VertexShader vs = null;
+
+          {
+            InputStream stream = null;
+
+            try {
+              name.setLength(0);
+              name.append(style.getName());
+              name.append("-v");
+
+              final PathVirtual path =
+                SMVShaderPaths.getShader(version, "standard.v");
+              this.log.debug("Compiling " + path);
+              stream = this.filesystem.openFile(path);
+
+              final List<String> lines = ShaderUtilities.readLines(stream);
+              vs = gs.vertexShaderCompile(name.toString(), lines);
+            } finally {
+              if (stream != null) {
+                stream.close();
+                stream = null;
+              }
+            }
           }
+
+          {
+            InputStream stream = null;
+
+            try {
+              name.setLength(0);
+              name.append(style.getName());
+              name.append("-f");
+
+              final PathVirtual path =
+                SMVShaderPaths.getShader(version, style.getName() + ".f");
+              this.log.debug("Compiling " + path);
+              stream = this.filesystem.openFile(path);
+
+              final List<String> lines = ShaderUtilities.readLines(stream);
+              fs = gs.fragmentShaderCompile(name.toString(), lines);
+            } finally {
+              if (stream != null) {
+                stream.close();
+                stream = null;
+              }
+            }
+          }
+
+          assert fs != null;
+          assert vs != null;
+
+          final ProgramReference p =
+            gs.programCreateCommon(style.getName(), vs, fs);
+
+          gs.vertexShaderDelete(vs);
+          gs.fragmentShaderDelete(fs);
+          this.shaders.put(style, p);
         }
+
+      } catch (final JCGLException e) {
+        this.fatalError("OpenGL error", e);
+      } catch (final JCGLCompileException e) {
+        this.fatalError("Compilation error", e);
+      } catch (final ConstraintError e) {
+        this.fatalError("Constraint error", e);
+      } catch (final JCGLUnsupportedException e) {
+        this.fatalError("OpenGL unsupported error", e);
+      } catch (final IOException e) {
+        this.fatalError("I/O error", e);
+      } catch (final FilesystemError e) {
+        this.fatalError("Filesystem error", e);
       }
     }
 
     private void renderGrid(
-      final @Nonnull GLInterfaceCommon gl)
-      throws GLException,
-        ConstraintError
+      final @Nonnull JCGLInterfaceCommon gl)
     {
-      gl.blendingEnable(
-        BlendFunction.BLEND_SOURCE_ALPHA,
-        BlendFunction.BLEND_ONE_MINUS_SOURCE_ALPHA);
-
-      MatrixM4x4F.setIdentity(this.matrix_model);
-      MatrixM4x4F.multiply(
-        this.matrix_view,
-        this.matrix_model,
-        this.matrix_modelview);
-
-      final Program program =
-        this.shaders.get(SMVRenderStyle.RENDER_STYLE_COLOR);
-
-      program.activate(gl);
       try {
-        final ProgramUniform u_mmview = program.getUniform("m_modelview");
-        gl.programPutUniformMatrix4x4f(u_mmview, this.matrix_modelview);
-        final ProgramUniform u_mproj = program.getUniform("m_projection");
-        gl.programPutUniformMatrix4x4f(u_mproj, this.matrix_projection);
+        gl.blendingEnable(
+          BlendFunction.BLEND_SOURCE_ALPHA,
+          BlendFunction.BLEND_ONE_MINUS_SOURCE_ALPHA);
 
-        final ProgramUniform u_fcolor = program.getUniform("color");
-        gl.programPutUniformVector4f(u_fcolor, ViewRenderer.GRID_COLOR);
+        MatrixM4x4F.setIdentity(this.matrix_model);
+        MatrixM4x4F.multiply(
+          this.matrix_view,
+          this.matrix_model,
+          this.matrix_modelview);
 
-        final ProgramAttribute p_pos = program.getAttribute("v_position");
+        final ProgramReference program =
+          this.shaders.get(SMVRenderStyle.RENDER_STYLE_COLOR);
 
         final ArrayBuffer a = this.grid.getArrayBuffer();
-        final ArrayBufferAttribute a_pos =
-          a.getDescriptor().getAttribute("v_position");
-
+        gl.arrayBufferBind(a);
+        final ArrayBufferAttribute a_pos = a.getAttribute("v_position");
         final IndexBuffer i = this.grid.getIndexBuffer();
 
-        gl.arrayBufferBind(a);
-        gl.arrayBufferBindVertexAttribute(a, a_pos, p_pos);
-        gl.drawElements(Primitives.PRIMITIVE_LINES, i);
+        final JCCEExecutionAbstract<Throwable> exec =
+          new JCCEExecutionAbstract<Throwable>() {
+            @Override protected void execRunActual()
+              throws JCGLException,
+                Throwable
+            {
+              gl.drawElements(Primitives.PRIMITIVE_LINES, i);
+            }
+          };
 
-      } finally {
-        program.deactivate(gl);
+        exec.execPrepare(gl, program);
+        exec.execUniformPutMatrix4x4F(
+          gl,
+          "m_modelview",
+          this.matrix_modelview);
+        exec.execUniformPutMatrix4x4F(
+          gl,
+          "m_projection",
+          this.matrix_projection);
+        exec.execUniformPutVector4F(gl, "color", ViewRenderer.GRID_COLOR);
+        exec.execAttributeBind(gl, "v_position", a_pos);
+        exec.execRun(gl);
+      } catch (final Throwable e) {
+        this.fatalError("Error", e);
       }
     }
 
     private void renderAxes(
-      final @Nonnull GLInterfaceCommon gl)
-      throws GLException,
-        ConstraintError
+      final @Nonnull JCGLInterfaceCommon gl)
     {
-      gl.blendingEnable(
-        BlendFunction.BLEND_SOURCE_ALPHA,
-        BlendFunction.BLEND_ONE_MINUS_SOURCE_ALPHA);
-
-      MatrixM4x4F.setIdentity(this.matrix_model);
-      MatrixM4x4F.multiply(
-        this.matrix_view,
-        this.matrix_model,
-        this.matrix_modelview);
-
-      final Program program =
-        this.shaders.get(SMVRenderStyle.RENDER_STYLE_VERTEX_COLOR);
-
-      program.activate(gl);
       try {
-        final ProgramUniform u_mmview = program.getUniform("m_modelview");
-        gl.programPutUniformMatrix4x4f(u_mmview, this.matrix_modelview);
-        final ProgramUniform u_mproj = program.getUniform("m_projection");
-        gl.programPutUniformMatrix4x4f(u_mproj, this.matrix_projection);
+        gl.blendingEnable(
+          BlendFunction.BLEND_SOURCE_ALPHA,
+          BlendFunction.BLEND_ONE_MINUS_SOURCE_ALPHA);
 
-        final ProgramAttribute p_pos = program.getAttribute("v_position");
-        final ProgramAttribute p_col = program.getAttribute("v_color");
+        MatrixM4x4F.setIdentity(this.matrix_model);
+        MatrixM4x4F.multiply(
+          this.matrix_view,
+          this.matrix_model,
+          this.matrix_modelview);
+
+        final ProgramReference program =
+          this.shaders.get(SMVRenderStyle.RENDER_STYLE_VERTEX_COLOR);
 
         final ArrayBuffer a = this.axes.getArrayBuffer();
-        final ArrayBufferAttribute a_pos =
-          a.getDescriptor().getAttribute("v_position");
-        final ArrayBufferAttribute a_col =
-          a.getDescriptor().getAttribute("v_color");
+        gl.arrayBufferBind(a);
 
+        final ArrayBufferAttribute a_pos = a.getAttribute("v_position");
+        final ArrayBufferAttribute a_col = a.getAttribute("v_color");
         final IndexBuffer i = this.axes.getIndexBuffer();
 
-        gl.arrayBufferBind(a);
-        gl.arrayBufferBindVertexAttribute(a, a_pos, p_pos);
-        gl.arrayBufferBindVertexAttribute(a, a_col, p_col);
-        gl.drawElements(Primitives.PRIMITIVE_LINES, i);
+        final JCCEExecutionAbstract<Throwable> e =
+          new JCCEExecutionAbstract<Throwable>() {
+            @Override protected void execRunActual()
+              throws JCGLException,
+                Throwable
+            {
+              gl.drawElements(Primitives.PRIMITIVE_LINES, i);
+            }
+          };
 
-      } finally {
-        program.deactivate(gl);
+        e.execPrepare(gl, program);
+        e.execUniformPutMatrix4x4F(gl, "m_modelview", this.matrix_modelview);
+        e
+          .execUniformPutMatrix4x4F(
+            gl,
+            "m_projection",
+            this.matrix_projection);
+        e.execAttributeBind(gl, "v_position", a_pos);
+        e.execAttributeBind(gl, "v_color", a_col);
+        e.execRun(gl);
+      } catch (final Throwable e) {
+        this.fatalError("Error", e);
       }
     }
 
     private void renderModel(
-      final @Nonnull GLInterfaceCommon gl,
+      final @Nonnull JCGLInterfaceCommon gl,
       final @Nonnull Model<ModelObjectVBO> model_actual,
-      final @Nonnull Program program)
-      throws ConstraintError,
-        GLException
+      final @Nonnull ProgramReference program)
     {
-      final SMVLightDirectional new_light =
-        this.canvas.want_light.getAndSet(null);
-      if (new_light != null) {
-        this.light = new_light;
-      }
+      try {
+        final SMVLightDirectional new_light =
+          this.canvas.want_light.getAndSet(null);
+        if (new_light != null) {
+          this.light = new_light;
+        }
 
-      final VectorReadable3F position =
-        this.canvas.want_model_position.getAndSet(null);
-      if (position != null) {
-        VectorM3F.copy(position, this.model_position);
-      }
+        final VectorReadable3F position =
+          this.canvas.want_model_position.getAndSet(null);
+        if (position != null) {
+          VectorM3F.copy(position, this.model_position);
+        }
 
-      final VectorReadable3F rotation =
-        this.canvas.want_model_rotation.getAndSet(null);
-      if (rotation != null) {
-        VectorM3F.copy(rotation, this.model_rotation);
-      }
+        final VectorReadable3F rotation =
+          this.canvas.want_model_rotation.getAndSet(null);
+        if (rotation != null) {
+          VectorM3F.copy(rotation, this.model_rotation);
+        }
 
-      this.rotating_y.set(this.canvas.want_rotating_y.get());
+        this.rotating_y.set(this.canvas.want_rotating_y.get());
 
-      QuaternionM4F.makeFromAxisAngle(
-        ViewRenderer.X_AXIS,
-        Math.toRadians(this.model_rotation.getXF()),
-        this.rotate_x);
+        QuaternionM4F.makeFromAxisAngle(
+          ViewRenderer.X_AXIS,
+          Math.toRadians(this.model_rotation.getXF()),
+          this.rotate_x);
 
-      double y_radians = 0.0;
-      if (this.rotating_y.get()) {
-        final double plus = (this.frame * 0.1) % 360.0;
-        y_radians = Math.toRadians(this.model_rotation.getYF() + plus);
-      } else {
-        y_radians = Math.toRadians(this.model_rotation.getYF());
-      }
+        double y_radians = 0.0;
+        if (this.rotating_y.get()) {
+          final double plus = (this.frame * 0.1) % 360.0;
+          y_radians = Math.toRadians(this.model_rotation.getYF() + plus);
+        } else {
+          y_radians = Math.toRadians(this.model_rotation.getYF());
+        }
 
-      QuaternionM4F.makeFromAxisAngle(
-        ViewRenderer.Y_AXIS,
-        y_radians,
-        this.rotate_y);
-
-      QuaternionM4F.makeFromAxisAngle(
-        ViewRenderer.Z_AXIS,
-        Math.toRadians(this.model_rotation.getZF()),
-        this.rotate_z);
-
-      this.model_orientation.x = 0;
-      this.model_orientation.y = 0;
-      this.model_orientation.z = 0;
-      this.model_orientation.w = 1;
-
-      QuaternionM4F.multiplyInPlace(this.model_orientation, this.rotate_z);
-      QuaternionM4F.multiplyInPlace(this.model_orientation, this.rotate_y);
-      QuaternionM4F.multiplyInPlace(this.model_orientation, this.rotate_x);
-
-      if (this.rotating_y.get()) {
-        final double frame_double = this.frame / 100.0;
-        final QuaternionM4F temp = new QuaternionM4F();
         QuaternionM4F.makeFromAxisAngle(
           ViewRenderer.Y_AXIS,
-          Math.toRadians(frame_double % 360),
-          temp);
-        QuaternionM4F.multiplyInPlace(this.model_orientation, temp);
-      }
+          y_radians,
+          this.rotate_y);
 
-      final Option<ModelObjectVBO> om = model_actual.get(this.object);
-      if (om.isNone()) {
-        return;
-      }
+        QuaternionM4F.makeFromAxisAngle(
+          ViewRenderer.Z_AXIS,
+          Math.toRadians(this.model_rotation.getZF()),
+          this.rotate_z);
 
-      final ModelObjectVBO m = ((Option.Some<ModelObjectVBO>) om).value;
+        this.model_orientation.x = 0;
+        this.model_orientation.y = 0;
+        this.model_orientation.z = 0;
+        this.model_orientation.w = 1;
 
-      gl.blendingDisable();
+        QuaternionM4F.multiplyInPlace(this.model_orientation, this.rotate_z);
+        QuaternionM4F.multiplyInPlace(this.model_orientation, this.rotate_y);
+        QuaternionM4F.multiplyInPlace(this.model_orientation, this.rotate_x);
 
-      MatrixM4x4F.setIdentity(ViewRenderer.this.matrix_temp);
-      QuaternionM4F.makeRotationMatrix4x4(
-        ViewRenderer.this.model_orientation,
-        ViewRenderer.this.matrix_temp);
+        if (this.rotating_y.get()) {
+          final double frame_double = this.frame / 100.0;
+          final QuaternionM4F temp = new QuaternionM4F();
+          QuaternionM4F.makeFromAxisAngle(
+            ViewRenderer.Y_AXIS,
+            Math.toRadians(frame_double % 360),
+            temp);
+          QuaternionM4F.multiplyInPlace(this.model_orientation, temp);
+        }
 
-      MatrixM4x4F.setIdentity(ViewRenderer.this.matrix_model);
-      MatrixM4x4F.translateByVector3FInPlace(
-        ViewRenderer.this.matrix_model,
-        ViewRenderer.this.model_position);
-      MatrixM4x4F.multiplyInPlace(
-        ViewRenderer.this.matrix_model,
-        ViewRenderer.this.matrix_temp);
+        final Option<ModelObjectVBO> om = model_actual.get(this.object);
+        if (om.isNone()) {
+          return;
+        }
 
-      MatrixM4x4F.multiply(
-        ViewRenderer.this.matrix_view,
-        ViewRenderer.this.matrix_model,
-        ViewRenderer.this.matrix_modelview);
+        final ModelObjectVBO m = ((Option.Some<ModelObjectVBO>) om).value;
 
-      program.activate(gl);
-      try {
-        final ProgramUniform u_mmview = program.getUniform("m_modelview");
-        gl.programPutUniformMatrix4x4f(
-          u_mmview,
+        gl.blendingDisable();
+
+        MatrixM4x4F.setIdentity(ViewRenderer.this.matrix_temp);
+        QuaternionM4F.makeRotationMatrix4x4(
+          ViewRenderer.this.model_orientation,
+          ViewRenderer.this.matrix_temp);
+
+        MatrixM4x4F.setIdentity(ViewRenderer.this.matrix_model);
+        MatrixM4x4F.translateByVector3FInPlace(
+          ViewRenderer.this.matrix_model,
+          ViewRenderer.this.model_position);
+        MatrixM4x4F.multiplyInPlace(
+          ViewRenderer.this.matrix_model,
+          ViewRenderer.this.matrix_temp);
+
+        MatrixM4x4F.multiply(
+          ViewRenderer.this.matrix_view,
+          ViewRenderer.this.matrix_model,
           ViewRenderer.this.matrix_modelview);
-        final ProgramUniform u_mproj = program.getUniform("m_projection");
-        gl.programPutUniformMatrix4x4f(
-          u_mproj,
-          ViewRenderer.this.matrix_projection);
 
-        if (this.light != null) {
-          final ProgramUniform u_lcolor = program.getUniform("l_color");
-          if (u_lcolor != null) {
-            gl.programPutUniformVector3f(u_lcolor, this.light.getColour());
-          }
-          final ProgramUniform u_ldirect = program.getUniform("l_direction");
-          if (u_ldirect != null) {
-            final VectorM4F light_eyespace =
-              new VectorM4F(this.light.getDirection());
-            MatrixM4x4F.multiplyVector4F(
-              this.matrix_view,
-              light_eyespace,
-              light_eyespace);
-            VectorM4F.normalizeInPlace(light_eyespace);
-            gl.programPutUniformVector4f(u_ldirect, light_eyespace);
-          }
-          final ProgramUniform u_linten = program.getUniform("l_intensity");
-          if (u_linten != null) {
-            gl.programPutUniformFloat(u_linten, this.light.getIntensity());
-          }
-        }
-
-        if (ViewRenderer.this.texture != null) {
-          final ProgramUniform u_texture = program.getUniform("t_diffuse_0");
-          if (u_texture != null) {
-            gl.texture2DStaticBind(
-              ViewRenderer.this.texture_units[0],
-              ViewRenderer.this.texture);
-            gl.programPutUniformTextureUnit(
-              u_texture,
-              ViewRenderer.this.texture_units[0]);
-          }
-        }
-
-        final ProgramAttribute p_pos = program.getAttribute("v_position");
-        final ProgramAttribute p_norm = program.getAttribute("v_normal");
-        final ProgramAttribute p_uv = program.getAttribute("v_uv");
-
+        final IndexBuffer i = m.getIndexBuffer();
         final ArrayBuffer a = m.getArrayBuffer();
         gl.arrayBufferBind(a);
 
-        final ArrayBufferAttribute a_pos =
-          a.getDescriptor().getAttribute(
-            ViewRenderer.NAME_POSITION_ATTRIBUTE.toString());
-        gl.arrayBufferBindVertexAttribute(a, a_pos, p_pos);
+        final JCCEExecutionAbstract<Throwable> e =
+          new JCCEExecutionAbstract<Throwable>() {
+            @Override protected void execRunActual()
+              throws JCGLException,
+                Throwable
+            {
+              gl.drawElements(Primitives.PRIMITIVE_TRIANGLES, i);
+            }
+          };
 
-        final ArrayBufferAttribute a_norm =
-          a.getDescriptor().getAttribute(
-            ViewRenderer.NAME_NORMAL_ATTRIBUTE.toString());
-        if (p_norm != null) {
-          gl.arrayBufferBindVertexAttribute(a, a_norm, p_norm);
+        final float light_intensity =
+          this.light != null ? this.light.getIntensity() : 1.0f;
+
+        final VectorReadable3F light_colour =
+          (this.light != null) ? this.light.getColour() : new VectorI3F(
+            1.0f,
+            1.0f,
+            1.0f);
+
+        final VectorM4F light_eyespace =
+          new VectorM4F(this.light != null
+            ? this.light.getDirection()
+            : new VectorM4F(0, 0, -1, 0));
+
+        MatrixM4x4F.multiplyVector4F(
+          this.matrix_view,
+          light_eyespace,
+          light_eyespace);
+        VectorM4F.normalizeInPlace(light_eyespace);
+
+        if (this.texture != null) {
+          gl.texture2DStaticBind(this.texture_units[0], this.texture);
         }
 
-        if (a.getDescriptor().hasAttribute(
-          ViewRenderer.NAME_UV_ATTRIBUTE.toString())) {
-          final ArrayBufferAttribute a_uv =
-            a.getDescriptor().getAttribute(
-              ViewRenderer.NAME_UV_ATTRIBUTE.toString());
-          if (p_uv != null) {
-            gl.arrayBufferBindVertexAttribute(a, a_uv, p_uv);
+        final MatrixM4x4F mmview = this.matrix_modelview;
+        final MatrixM4x4F mmproj = this.matrix_projection;
+
+        e.execPrepare(gl, program);
+        e.execUniformPutMatrix4x4F(gl, "m_modelview", mmview);
+        e.execUniformPutMatrix4x4F(gl, "m_projection", mmproj);
+        if (program.getUniforms().containsKey("l_intensity")) {
+          e.execUniformPutFloat(gl, "l_intensity", light_intensity);
+        }
+        if (program.getUniforms().containsKey("l_color")) {
+          e.execUniformPutVector3F(gl, "l_color", light_colour);
+        }
+        if (program.getUniforms().containsKey("l_direction")) {
+          e.execUniformPutVector4F(gl, "l_direction", light_eyespace);
+        }
+        if (program.getUniforms().containsKey("t_diffuse_0")) {
+          e.execUniformPutTextureUnit(
+            gl,
+            "t_diffuse_0",
+            this.texture_units[0]);
+        }
+
+        e.execAttributeBind(
+          gl,
+          "v_position",
+          a.getAttribute(ViewRenderer.NAME_POSITION_ATTRIBUTE.toString()));
+
+        if (program.getAttributes().containsKey("v_normal")) {
+          e.execAttributeBind(
+            gl,
+            "v_normal",
+            a.getAttribute(ViewRenderer.NAME_NORMAL_ATTRIBUTE.toString()));
+        }
+
+        if (program.getAttributes().containsKey("v_uv")) {
+          if (a.hasAttribute(ViewRenderer.NAME_UV_ATTRIBUTE.toString())) {
+            e.execAttributeBind(
+              gl,
+              "v_uv",
+              a.getAttribute(ViewRenderer.NAME_UV_ATTRIBUTE.toString()));
+          } else {
+            e.execAttributePutVector2F(gl, "v_uv", VectorI2F.ZERO);
           }
         }
 
-        final IndexBuffer i = m.getIndexBuffer();
-        gl.drawElements(Primitives.PRIMITIVE_TRIANGLES, i);
+        e.execRun(gl);
 
-      } finally {
-        try {
-          program.deactivate(gl);
-        } catch (final GLException e) {
-          SMVErrorBox.showError("OpenGL error", e);
-        } catch (final ConstraintError e) {
-          SMVErrorBox.showError("Constraint error", e);
-        }
+      } catch (final Throwable e) {
+        this.fatalError("Error", e);
       }
     }
 
@@ -828,14 +873,14 @@ public final class SMVGLCanvas extends GLCanvas
       final int width,
       final int height)
     {
-      if (this.gi == null) {
+      if ((this.gi == null) || !this.renderer_ok) {
         return;
       }
 
       try {
         this.makeProjectionMatrix(drawable.getWidth(), drawable.getHeight());
       } catch (final ConstraintError e) {
-        SMVErrorBox.showError("Constraint error", e);
+        this.fatalError("Constraint error", e);
       }
     }
 
@@ -851,6 +896,8 @@ public final class SMVGLCanvas extends GLCanvas
       if (style != null) {
         this.program_current = this.shaders.get(style);
       }
+
+      assert this.program_current != null;
     }
   }
 

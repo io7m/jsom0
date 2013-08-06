@@ -17,22 +17,22 @@
 package com.io7m.jsom0.contracts;
 
 import com.io7m.jaux.Constraints.ConstraintError;
-import com.io7m.jcanephora.GLArrayBuffers;
-import com.io7m.jcanephora.GLArrayBuffersMapped;
-import com.io7m.jcanephora.GLException;
-import com.io7m.jcanephora.GLIndexBuffers;
-import com.io7m.jcanephora.GLIndexBuffersMapped;
-import com.io7m.jcanephora.GLUnsupportedException;
+import com.io7m.jcanephora.JCGLArrayBuffers;
+import com.io7m.jcanephora.JCGLArrayBuffersMapped;
+import com.io7m.jcanephora.JCGLException;
+import com.io7m.jcanephora.JCGLIndexBuffers;
+import com.io7m.jcanephora.JCGLIndexBuffersMapped;
+import com.io7m.jcanephora.JCGLUnsupportedException;
 
 public interface JSOM0GLTestContract extends JSOM0LogTestContract
 {
   public boolean isSupported();
 
   public
-    <G extends GLArrayBuffers & GLArrayBuffersMapped & GLIndexBuffersMapped & GLIndexBuffers>
+    <G extends JCGLArrayBuffers & JCGLArrayBuffersMapped & JCGLIndexBuffersMapped & JCGLIndexBuffers>
     G
     makeNewGL()
-      throws GLException,
+      throws JCGLException,
         ConstraintError,
-        GLUnsupportedException;
+        JCGLUnsupportedException;
 }

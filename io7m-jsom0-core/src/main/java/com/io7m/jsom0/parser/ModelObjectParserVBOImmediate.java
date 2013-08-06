@@ -25,10 +25,10 @@ import javax.annotation.Nonnull;
 import com.io7m.jaux.Constraints;
 import com.io7m.jaux.Constraints.ConstraintError;
 import com.io7m.jcanephora.ArrayBufferWritableData;
-import com.io7m.jcanephora.GLArrayBuffers;
-import com.io7m.jcanephora.GLException;
-import com.io7m.jcanephora.GLIndexBuffers;
 import com.io7m.jcanephora.IndexBufferWritableData;
+import com.io7m.jcanephora.JCGLArrayBuffers;
+import com.io7m.jcanephora.JCGLException;
+import com.io7m.jcanephora.JCGLIndexBuffers;
 import com.io7m.jcanephora.UsageHint;
 import com.io7m.jlog.Log;
 import com.io7m.jsom0.NameNormalAttribute;
@@ -43,7 +43,7 @@ import com.io7m.jsom0.VertexType;
  * </p>
  */
 
-public final class ModelObjectParserVBOImmediate<G extends GLArrayBuffers & GLIndexBuffers> extends
+public final class ModelObjectParserVBOImmediate<G extends JCGLArrayBuffers & JCGLIndexBuffers> extends
   ModelObjectParserVBO
 {
   private final @Nonnull G                      gl;
@@ -74,7 +74,7 @@ public final class ModelObjectParserVBOImmediate<G extends GLArrayBuffers & GLIn
 
   @Override void eventIndexBufferAllocate(
     final long count)
-    throws GLException,
+    throws JCGLException,
       ConstraintError
   {
     this.index_buffer =
@@ -84,10 +84,10 @@ public final class ModelObjectParserVBOImmediate<G extends GLArrayBuffers & GLIn
   }
 
   @Override void eventIndexBufferCompleted()
-    throws GLException,
+    throws JCGLException,
       ConstraintError
   {
-    this.gl.indexBufferUpdate(this.index_buffer, this.index_data);
+    this.gl.indexBufferUpdate(this.index_data);
     this.index_data = null;
     this.cursor_index = null;
   }
@@ -95,7 +95,7 @@ public final class ModelObjectParserVBOImmediate<G extends GLArrayBuffers & GLIn
   @Override void eventVertexBufferAllocate(
     final @Nonnull VertexType type,
     final long count)
-    throws GLException,
+    throws JCGLException,
       ConstraintError
   {
     this.array_buffer_type = this.getArrayTypeDescriptor(type);
@@ -141,11 +141,11 @@ public final class ModelObjectParserVBOImmediate<G extends GLArrayBuffers & GLIn
   }
 
   @Override void eventVertexBufferCompleted()
-    throws GLException,
+    throws JCGLException,
       ConstraintError
   {
     this.gl.arrayBufferBind(this.array_buffer);
-    this.gl.arrayBufferUpdate(this.array_buffer, this.array_buffer_data);
+    this.gl.arrayBufferUpdate(this.array_buffer_data);
     this.array_buffer_data = null;
     this.cursor_normal = null;
     this.cursor_position = null;
