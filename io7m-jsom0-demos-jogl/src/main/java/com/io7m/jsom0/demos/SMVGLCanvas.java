@@ -605,17 +605,17 @@ public final class SMVGLCanvas extends GLCanvas
         final ArrayBufferAttribute a_pos = a.getAttribute("v_position");
         final IndexBuffer i = this.grid.getIndexBuffer();
 
-        final JCCEExecutionAbstract<Throwable> exec =
-          new JCCEExecutionAbstract<Throwable>() {
+        final JCCEExecutionAbstract exec =
+          new JCCEExecutionAbstract(program) {
             @Override protected void execRunActual()
               throws JCGLException,
-                Throwable
+                ConstraintError
             {
               gl.drawElements(Primitives.PRIMITIVE_LINES, i);
             }
           };
 
-        exec.execPrepare(gl, program);
+        exec.execPrepare(gl);
         exec.execUniformPutMatrix4x4F(
           gl,
           "m_modelview",
@@ -656,17 +656,16 @@ public final class SMVGLCanvas extends GLCanvas
         final ArrayBufferAttribute a_col = a.getAttribute("v_color");
         final IndexBuffer i = this.axes.getIndexBuffer();
 
-        final JCCEExecutionAbstract<Throwable> e =
-          new JCCEExecutionAbstract<Throwable>() {
-            @Override protected void execRunActual()
-              throws JCGLException,
-                Throwable
-            {
-              gl.drawElements(Primitives.PRIMITIVE_LINES, i);
-            }
-          };
+        final JCCEExecutionAbstract e = new JCCEExecutionAbstract(program) {
+          @Override protected void execRunActual()
+            throws JCGLException,
+              ConstraintError
+          {
+            gl.drawElements(Primitives.PRIMITIVE_LINES, i);
+          }
+        };
 
-        e.execPrepare(gl, program);
+        e.execPrepare(gl);
         e.execUniformPutMatrix4x4F(gl, "m_modelview", this.matrix_modelview);
         e
           .execUniformPutMatrix4x4F(
@@ -780,15 +779,14 @@ public final class SMVGLCanvas extends GLCanvas
         final ArrayBuffer a = m.getArrayBuffer();
         gl.arrayBufferBind(a);
 
-        final JCCEExecutionAbstract<Throwable> e =
-          new JCCEExecutionAbstract<Throwable>() {
-            @Override protected void execRunActual()
-              throws JCGLException,
-                Throwable
-            {
-              gl.drawElements(Primitives.PRIMITIVE_TRIANGLES, i);
-            }
-          };
+        final JCCEExecutionAbstract e = new JCCEExecutionAbstract(program) {
+          @Override protected void execRunActual()
+            throws JCGLException,
+              ConstraintError
+          {
+            gl.drawElements(Primitives.PRIMITIVE_TRIANGLES, i);
+          }
+        };
 
         final float light_intensity =
           this.light != null ? this.light.getIntensity() : 1.0f;
@@ -817,7 +815,7 @@ public final class SMVGLCanvas extends GLCanvas
         final MatrixM4x4F mmview = this.matrix_modelview;
         final MatrixM4x4F mmproj = this.matrix_projection;
 
-        e.execPrepare(gl, program);
+        e.execPrepare(gl);
         e.execUniformPutMatrix4x4F(gl, "m_modelview", mmview);
         e.execUniformPutMatrix4x4F(gl, "m_projection", mmproj);
         if (program.getUniforms().containsKey("l_intensity")) {
