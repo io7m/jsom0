@@ -88,12 +88,12 @@
     <dependency>
       <groupId>com.io7m.jcanephora.lwjgl</groupId>
       <artifactId>io7m-jcanephora-lwjgl</artifactId>
-      <version>0.9.13</version>
+      <version>0.9.14</version>
     </dependency>
     <dependency>
       <groupId>com.io7m.jcanephora.core</groupId>
       <artifactId>io7m-jcanephora-core</artifactId>
-      <version>0.9.13</version>
+      <version>0.9.14</version>
     </dependency>
   </dependencies>
 
