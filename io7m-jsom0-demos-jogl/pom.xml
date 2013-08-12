@@ -83,22 +83,22 @@
     <dependency>
       <groupId>com.io7m.jcanephora.jogl</groupId>
       <artifactId>io7m-jcanephora-jogl</artifactId>
-      <version>0.9.16</version>
+      <version>0.9.17</version>
     </dependency>
     <dependency>
       <groupId>com.io7m.jcanephora.core</groupId>
       <artifactId>io7m-jcanephora-core</artifactId>
-      <version>0.9.16</version>
+      <version>0.9.17</version>
     </dependency>
     <dependency>
       <groupId>com.io7m.jcanephora.checkedexec</groupId>
       <artifactId>io7m-jcanephora-checkedexec</artifactId>
-      <version>0.9.16</version>
+      <version>0.9.17</version>
     </dependency>
     <dependency>
       <groupId>com.io7m.jcanephora.texload-imageio</groupId>
       <artifactId>io7m-jcanephora-texload-imageio</artifactId>
-      <version>0.9.16</version>
+      <version>0.9.17</version>
     </dependency>
     <dependency>
       <groupId>net.java.dev.designgridlayout</groupId>
