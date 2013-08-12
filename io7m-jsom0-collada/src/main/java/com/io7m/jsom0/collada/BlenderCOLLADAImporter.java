@@ -376,20 +376,6 @@ public final class BlenderCOLLADAImporter
       return new VectorI3F(p0.getXF(), -p0.getZF(), p0.getYF());
     }
 
-    /**
-     * Blender's UV coordinates consider (0, 0) to be the top-left corner of
-     * the image. OpenGL considers (0, 0) to be the bottom-left corner of the
-     * image.
-     */
-
-    private static @Nonnull
-      VectorReadable2F
-      textureCoordinateBlenderToOpenGL(
-        final @Nonnull VectorReadable2F t0)
-    {
-      return new VectorI2F(t0.getXF(), 1.0f - t0.getYF());
-    }
-
     final @Nonnull Map<Jsom0Vertex, Integer> vertices_map;
     final @Nonnull ArrayList<Jsom0Vertex>    vertices;
     final @Nonnull VertexType                type;
@@ -534,13 +520,6 @@ public final class BlenderCOLLADAImporter
             VectorReadable3F n1_gl = Jsom0Object.axesBlenderToOpenGL(n1);
             VectorReadable3F n2_gl = Jsom0Object.axesBlenderToOpenGL(n2);
 
-            final VectorReadable2F t0_gl =
-              Jsom0Object.textureCoordinateBlenderToOpenGL(t0);
-            final VectorReadable2F t1_gl =
-              Jsom0Object.textureCoordinateBlenderToOpenGL(t1);
-            final VectorReadable2F t2_gl =
-              Jsom0Object.textureCoordinateBlenderToOpenGL(t2);
-
             /**
              * Apply optional orientation fix so that models face the same
              * "direction" as they did in Blender.
@@ -591,11 +570,11 @@ public final class BlenderCOLLADAImporter
             }
 
             final Jsom0VertexP3N3T2 v0 =
-              new Jsom0VertexP3N3T2(p0_gl, n0_gl, t0_gl);
+              new Jsom0VertexP3N3T2(p0_gl, n0_gl, t0);
             final Jsom0VertexP3N3T2 v1 =
-              new Jsom0VertexP3N3T2(p1_gl, n1_gl, t1_gl);
+              new Jsom0VertexP3N3T2(p1_gl, n1_gl, t1);
             final Jsom0VertexP3N3T2 v2 =
-              new Jsom0VertexP3N3T2(p2_gl, n2_gl, t2_gl);
+              new Jsom0VertexP3N3T2(p2_gl, n2_gl, t2);
 
             this.reuseAddVertex(v0, v1, v2);
           }
